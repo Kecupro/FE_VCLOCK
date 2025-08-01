@@ -19,7 +19,7 @@ export default function NewsDetail() {
 
   const fetchNewsDetail = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/news/${params.id}`);
+      const response = await axios.get(`https://your-railway-app-name.railway.app/api/news/${params.id}`);
       setNews(response.data as INews); // Đảm bảo đúng kiểu
     } catch (error) {
       console.error('Error fetching news detail:', error);

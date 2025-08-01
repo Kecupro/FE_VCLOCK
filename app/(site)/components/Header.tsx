@@ -16,6 +16,8 @@ interface SearchSuggestion {
 
 const Height = 40; 
 
+import { API_ENDPOINTS } from '../../config/api';
+
 function getAvatarSrc(avatar?: string | null): string {
   if (!avatar || avatar === '') {
     return '/images/avatar-default.png';
@@ -25,7 +27,7 @@ function getAvatarSrc(avatar?: string | null): string {
     return avatar;
   }
   // Nếu là avatar upload từ server
-  return `http://localhost:3000/uploads/avatars/${avatar}`;
+  return API_ENDPOINTS.AVATAR_URL(avatar);
 }
 
 function AvatarImage({ avatar, alt, size = 32, className = "" }: { avatar?: string | null, alt?: string, size?: number, className?: string }) {
@@ -132,7 +134,7 @@ const Header = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/api/search/suggestions?q=${encodeURIComponent(query)}`);
+      const response = await fetch(API_ENDPOINTS.SEARCH_SUGGESTIONS(query));
       const data = await response.json();
       setSearchSuggestions(data.suggestions || []);
     } catch (error) {

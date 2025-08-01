@@ -101,7 +101,7 @@ const UsersPage = () => {
     }
     
     // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    return `http://localhost:3000/uploads/avatars/${avatar}`;
+    return `https://your-railway-app-name.railway.app/uploads/avatars/${avatar}`;
   };
 
   const getAuthToken = (): string | null => {
@@ -131,7 +131,7 @@ const UsersPage = () => {
           return;
         }
 
-        const response = await fetch('http://localhost:3000/check-role', {
+        const response = await fetch('https://your-railway-app-name.railway.app/check-role', {
           method: 'GET',
           headers: createAuthHeaders(),
         });
@@ -220,7 +220,7 @@ const UsersPage = () => {
         params.append('status', statusFilter);
       }
 
-      const apiUrl = `http://localhost:3000/api/admin/user?${params.toString()}`;
+      const apiUrl = `https://your-railway-app-name.railway.app/api/admin/user?${params.toString()}`;
       
       const response = await fetch(apiUrl, {
         method: 'GET',
@@ -404,7 +404,7 @@ const UsersPage = () => {
       }
 
       const deleteResponse = await fetch(
-        `http://localhost:3000/api/admin/user/delete/${userToDelete._id}`,
+        `https://your-railway-app-name.railway.app/api/admin/user/delete/${userToDelete._id}`,
         {
           method: "DELETE",
           headers: createAuthHeaders(),

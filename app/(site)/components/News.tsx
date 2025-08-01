@@ -8,6 +8,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { Navigation, Autoplay } from 'swiper/modules';
+import { API_ENDPOINTS } from '../../config/api';
 
 
 export default function News() {
@@ -20,7 +21,7 @@ export default function News() {
 
   const fetchNews = async () => {
     try {
-      const response = await axios.get<{ news: INews[] }>('http://localhost:3000/api/news');
+      const response = await axios.get<{ news: INews[] }>(API_ENDPOINTS.NEWS);
       setNewsList(response.data.news);
     } catch (error) {
       console.error('Error fetching news:', error);

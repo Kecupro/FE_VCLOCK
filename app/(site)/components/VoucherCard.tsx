@@ -27,7 +27,7 @@ const VoucherList: React.FC<Props> = ({ user_id }) => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const res = await fetch("http://localhost:3000/voucher-user", {
+        const res = await fetch("https://your-railway-app-name.railway.app/voucher-user", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

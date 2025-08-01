@@ -70,7 +70,7 @@ export default function ShopPage() {
 
   // Fetch categories
   useEffect(() => {
-    fetch(`http://localhost:3000/api/category`)
+    fetch(`https://your-railway-app-name.railway.app/api/category`)
       .then((res) => res.json())
       .then((data: { name: string }[]) => {
         if (Array.isArray(data) && data.length > 0) {
@@ -81,13 +81,13 @@ export default function ShopPage() {
 
   // Fetch brands
   useEffect(() => {
-    fetch(`http://localhost:3000/api/brand`)
+    fetch(`https://your-railway-app-name.railway.app/api/brand`)
       .then((res) => res.json())
       .then((data: IBrand[]) => setBrands(data));
   }, []);
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/product/price-range')
+    fetch('https://your-railway-app-name.railway.app/api/product/price-range')
       .then(res => res.json())
       .then(data => {
         if (typeof data.minPrice === 'number' && typeof data.maxPrice === 'number') {
@@ -140,7 +140,7 @@ export default function ShopPage() {
       params.append('sort', sort);
     }
 
-    const url = `http://localhost:3000/api/sp_filter?${params.toString()}`;
+    const url = `https://your-railway-app-name.railway.app/api/sp_filter?${params.toString()}`;
 
     fetch(url)
       .then((res) => res.json())
@@ -157,7 +157,7 @@ export default function ShopPage() {
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
     if (token) {
-      fetch(`http://localhost:3000/user/wishlist`, {
+      fetch(`https://your-railway-app-name.railway.app/user/wishlist`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -172,7 +172,7 @@ export default function ShopPage() {
   }, []);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/products/top-rated?limit=4`)
+    fetch(`https://your-railway-app-name.railway.app/api/products/top-rated?limit=4`)
       .then(res => res.json())
       .then(data => setBestSellers(data));
   }, []);

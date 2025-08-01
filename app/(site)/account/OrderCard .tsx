@@ -29,7 +29,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/orders?user_id=${user_id}`);
+        const res = await fetch(`https://your-railway-app-name.railway.app/api/orders?user_id=${user_id}`);
         const data: IOrder[] = await res.json();
         setOrders(data);
 
@@ -37,7 +37,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
         const detailMap: Record<string, IOrderDetail[]> = {};
         await Promise.all(
           data.map(async (order) => {
-            const detailRes = await fetch(`http://localhost:3000/api/order-details/${order._id}`);
+            const detailRes = await fetch(`https://your-railway-app-name.railway.app/api/order-details/${order._id}`);
             const details: IOrderDetail[] = await detailRes.json();
             detailMap[order._id] = details;
           })
@@ -58,7 +58,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
       const token = localStorage.getItem("token");
       if (!token) return;
       try {
-        const res = await fetch(`http://localhost:3000/reviews/user`, {
+        const res = await fetch(`https://your-railway-app-name.railway.app/reviews/user`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -79,7 +79,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
 
   const handleCancelOrder = async (order_id: string) => {
     try {
-      await fetch(`http://localhost:3000/api/cancel-order/${order_id}`, {
+      await fetch(`https://your-railway-app-name.railway.app/api/cancel-order/${order_id}`, {
         method: "PUT",
       });
       setOrders((prev) =>
@@ -96,7 +96,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
 
   const handleReturnOrder = async (order_id: string, reason: string) => {
   try {
-    const res = await fetch(`http://localhost:3000/api/return-order/${order_id}`, {
+    const res = await fetch(`https://your-railway-app-name.railway.app/api/return-order/${order_id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json", // ⬅️ THIẾU DÒNG NÀY

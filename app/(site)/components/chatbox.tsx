@@ -5,9 +5,10 @@ import { Send, X, MessageCircle } from "lucide-react";
 import { io } from "socket.io-client";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { API_ENDPOINTS } from "../../config/api";
 
 
-const socket = io("http://localhost:3000"); // đổi sang đúng địa chỉ server
+const socket = io(API_ENDPOINTS.SOCKET_URL); // đổi sang đúng địa chỉ server
 
 interface Message {
 	_id?: string;
@@ -93,7 +94,7 @@ const conversationIdRef = useRef<string>("guest-conversation");
   const token = localStorage.getItem("token");
   try {
     const res = await axios.get<Message[]>(
-      `http://localhost:3000/api/messages/${conversationIdRef.current}`,
+      API_ENDPOINTS.MESSAGES(conversationIdRef.current),
       {
         headers: {
           Authorization: `Bearer ${token}`,

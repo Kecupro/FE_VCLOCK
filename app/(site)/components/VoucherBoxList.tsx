@@ -36,7 +36,7 @@ const VoucherBoxList = () => {
   useEffect(() => {
     const fetchVouchers = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/admin/voucher?limit=15");
+        const res = await axios.get("https://your-railway-app-name.railway.app/api/admin/voucher?limit=15");
         setVouchers((res.data as { list: IVoucher[] }).list || []);
       } catch {
         setVouchers([]);
@@ -51,7 +51,7 @@ const VoucherBoxList = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
-    axios.get("http://localhost:3000/voucher-user", {
+    axios.get("https://your-railway-app-name.railway.app/voucher-user", {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => {
@@ -71,7 +71,7 @@ const VoucherBoxList = () => {
     setSavingVoucher(voucherId);
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/voucher-user/save",
+        "https://your-railway-app-name.railway.app/api/voucher-user/save",
         { voucher_id: voucherId },
         {
           headers: {

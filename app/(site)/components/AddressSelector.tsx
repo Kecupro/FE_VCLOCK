@@ -57,14 +57,14 @@ export default function AddressSelector({ value, onChange }: {
   }, [value]);
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/provinces")
+    fetch("https://your-railway-app-name.railway.app/api/provinces")
       .then(res => res.json())
       .then(setProvinces);
   }, []);
 
   useEffect(() => {
     if (province) {
-      fetch(`http://localhost:3000/api/districts/${province}`)
+      fetch(`https://your-railway-app-name.railway.app/api/districts/${province}`)
         .then(res => res.json())
         .then(setDistricts);
       // Reset district và ward khi province thay đổi
@@ -81,7 +81,7 @@ export default function AddressSelector({ value, onChange }: {
 
   useEffect(() => {
     if (district) {
-      fetch(`http://localhost:3000/api/wards/${district}`)
+      fetch(`https://your-railway-app-name.railway.app/api/wards/${district}`)
         .then(res => res.json())
         .then(setWards);
       // Reset ward khi district thay đổi

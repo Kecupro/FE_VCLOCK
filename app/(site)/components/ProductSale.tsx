@@ -24,7 +24,7 @@ export default function ProductSale() {
     const { user } = useAuth();
 
     useEffect(() => {
-        fetch("http://localhost:3000/api/sp_giam_gia")
+        fetch("https://your-railway-app-name.railway.app/api/sp_giam_gia")
             .then((res) => res.json())
             .then((data) => setProducts(data))
             .catch((err) => console.error("Lỗi fetch sp:", err));
@@ -36,7 +36,7 @@ export default function ProductSale() {
             const token = localStorage.getItem("token");
             if (token) {
                 try {
-                    const res = await fetch("http://localhost:3000/user/wishlist", {
+                    const res = await fetch("https://your-railway-app-name.railway.app/user/wishlist", {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
