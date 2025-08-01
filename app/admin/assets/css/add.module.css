@@ -1,0 +1,378 @@
+.container {
+  padding: 0px 10px 20px 10px;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text-color-light);
+  margin: 0;
+  padding-right: 20px;
+}
+
+html.dark-mode .title {
+  color: var(--text-color-dark) !important;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.returnButton {
+  padding: 8px 24px;
+  background-color: #3b82f6;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.returnButton:hover {
+  background-color: var(--accent-color);
+}
+
+html.dark-mode .returnButton {
+  background-color: #3b82f6;
+  color: var(--text-color-dark);
+  border: none;
+}
+
+html.dark-mode .returnButton:hover {
+  background-color: var(--accent-color);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 1px 3px #0000001a;
+}
+
+html.dark-mode .form {
+  background-color: var(--header-bg-dark);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-color-white);
+  font-size: 14px;
+}
+
+.input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #ffffff;
+  color: #374151;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+html.dark-mode .input {
+  background-color: var(--card-bg-dark);
+  border: 1px solid var(--border-color-dark);
+  color: var(--text-color-dark);
+}
+
+.select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #f9fafb;
+  color: #374151;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 8px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 40px;
+  appearance: none;
+}
+
+html.dark-mode .select {
+  background-color: var(--card-bg-dark);
+  border: 1px solid var(--border-color-dark);
+  color: var(--text-color-dark);
+}
+
+.textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #ffffff;
+  color: #374151;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
+}
+
+html.dark-mode .textarea {
+  background-color: var(--card-bg-dark);
+  border: 1px solid var(--border-color-dark);
+  color: var(--text-color-dark);
+}
+
+.imageSection {
+  display: flex;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #f9fafb;
+}
+
+html.dark-mode .imageSection {
+  background-color: var(--card-bg-dark);
+  border: 1px solid var(--border-color-dark);
+  color: var(--text-color-dark);
+}
+
+.imageTab {
+  padding: 8px 16px;
+  background-color: #f9fafb;
+  border: 1px solid var(--border-color-dark);
+  cursor: pointer;
+  font-size: 14px;
+  color: #6b7280;
+  transition: all 0.2s ease;
+  text-align: center;
+  font-weight: 400;
+}
+
+html.dark-mode .imageTab {
+  background-color: var(--card-bg-dark);
+  color: var(--text-color-dark);
+  border: 1px solid var(--border-color-dark);
+}
+
+.imageTabActive {
+  background-color: #1d4ed8;
+  color: #fff;
+}
+
+html.dark-mode .imageTabActive {
+  background-color: #1d4ed8;;
+  color: var(--text-color-dark);
+}
+
+.imageTabActive:hover {
+  background-color: var(--accent-color);
+}
+
+html.dark-mode .imageTab:hover {
+  background-color: var(--accent-color);
+  color: var(--text-color-dark);
+}
+
+.radioGroup {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.radioInput {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+.radioText {
+  color: #374151;
+  font-weight: 400;
+}
+
+html.dark-mode .radioText {
+  color: var(--text-color-dark);
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 5px;
+  justify-content: flex-start;
+}
+
+.formActions2 {
+  display: flex;
+  gap: 12px;
+  margin-top: 0px;
+  justify-content: flex-start;
+  background-color: none;
+}
+
+.createButton {
+  padding: 8px 24px;
+  background-color: #1d4ed8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-width: 80px;
+}
+
+.createButton:hover {
+  background-color: var(--accent-color);
+}
+
+html.dark-mode .createButton:hover {
+  background-color: var(--accent-color);
+  color: var(--text-color-dark);
+}
+
+html.dark-mode .createButton {
+  background-color: #1d4ed8;
+  color: var(--text-color-dark);
+  border: none;
+}
+
+.cancelButton {
+  padding: 8px 24px;
+  background-color: #ffffff;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+  text-decoration: none;
+}
+
+.cancelButton:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+}
+
+html.dark-mode .cancelButton:hover {
+  background-color: var(--accent-color);
+  color: var(--text-color-dark);
+}
+
+html.dark-mode .cancelButton {
+  background-color: var(--card-bg-dark);
+  color: var(--text-color-dark);
+  border: 1px solid var(--border-color-dark);
+}
+
+html.dark-mode .radioGroup {
+  background-color: none !important;
+}
+/* ! Thái 28/6 */
+.image {
+  margin: 5px 0 5px 5px;
+  width: auto;
+  height: auto;
+  max-width: 250px;
+  max-height: 250px;
+  border-radius: 6px;
+}
+
+.imageName {
+  font-size: 14px;
+  color: var(--text-color-dark);
+  font-weight: 500;
+  margin: 10px 5px;
+}
+/* ! End Thái 28/6 */
+
+/* ! Liêm 7/7 */
+.errorMessage {
+  background: #fee;
+  color: #c33;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.inputError {
+  border-color: #c33 !important;
+}
+
+.errorText {
+  color: #c33;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+/* ! End Liêm 7/7 */
+
+/* ! 30/7 T */
+.infoBox {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 15px;
+  margin: 15px 0;
+}
+
+html.dark-mode .infoBox {
+  background-color: var(--card-bg-dark);
+  border: 1px solid var(--border-color-dark);
+}
+
+.infoTitle {
+  margin: 0 0 10px 0;
+  color: #495057;
+  font-size: 14px;
+}
+
+html.dark-mode .infoTitle {
+  color: var(--text-color-dark);
+}
+
+.infoList {
+  margin: 0;
+  padding-left: 20px;
+  color: #666;
+  font-size: 13px;
+}
+
+html.dark-mode .infoList {
+  color: var(--text-color-dark);
+}
+/* ! End 30/7 T */

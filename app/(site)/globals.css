@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  /* background: var(--background);
+  color: var(--foreground); */
+font-family: var(--font-montserrat), sans-serif;
+}
+
+@keyframes zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+.animate-zoom {
+  animation: zoom 4s linear forwards;
+}
+body::-webkit-scrollbar {
+    display: none;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* override Toastify position */
+.Toastify__toast-container--bottom-right {
+  bottom: 40px; /* chỉnh khoảng cách từ dưới lên */
+  right: 20px;
+}
+button,
+a,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+label[for],
+select,
+summary,
+[tabindex]:not([tabindex="-1"]),
+[onclick],
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+/* Swiper custom styles */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #dc2626 !important;
+  background: white !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  font-size: 16px !important;
+  font-weight: bold !important;
+}
+
+.swiper-pagination-bullet {
+  background: #dc2626 !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: #dc2626 !important;
+}
+
+/* Voucher slider specific styles */
+.voucher-swiper .swiper-slide {
+  height: auto;
+}
+
+.voucher-swiper .swiper-wrapper {
+  align-items: stretch;
+}
