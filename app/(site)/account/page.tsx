@@ -142,7 +142,7 @@ export default function AccountPage() {
       return avatar;
     }
     // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    return `https://your-railway-app-name.railway.app/uploads/avatars/${avatar}`;
+    return `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
   };
 
   // Fetch addresses when tab changes to addresses
@@ -157,7 +157,7 @@ export default function AccountPage() {
     if (!token) return;
 
     try {
-      const response = await fetch('https://your-railway-app-name.railway.app/user/addresses', {
+      const response = await fetch('https://bevclock-production.up.railway.app/user/addresses', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -184,7 +184,7 @@ export default function AccountPage() {
 
     try {
       setIsLoadingWishlist(true);
-      const response = await fetch('https://your-railway-app-name.railway.app/user/wishlist', {
+      const response = await fetch('https://bevclock-production.up.railway.app/user/wishlist', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -235,7 +235,7 @@ export default function AccountPage() {
 
     try {
       setIsLoading(true);
-      const response = await fetch('https://your-railway-app-name.railway.app/user/profile/update', {
+      const response = await fetch('https://bevclock-production.up.railway.app/user/profile/update', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -291,7 +291,7 @@ const result = await response.json();
     if (!token) return;
 
     try {
-      const response = await fetch('https://your-railway-app-name.railway.app/user/addresses', {
+      const response = await fetch('https://bevclock-production.up.railway.app/user/addresses', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -318,7 +318,7 @@ const result = await response.json();
     if (!token) return;
 
     try {
-      const response = await fetch(`https://your-railway-app-name.railway.app/user/addresses/${addressId}`, {
+      const response = await fetch(`https://bevclock-production.up.railway.app/user/addresses/${addressId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -349,7 +349,7 @@ address: address.address
     if (!token || !editingAddressId) return;
 
     try {
-      const response = await fetch(`https://your-railway-app-name.railway.app/user/addresses/${editingAddressId}`, {
+      const response = await fetch(`https://bevclock-production.up.railway.app/user/addresses/${editingAddressId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -382,7 +382,7 @@ address: address.address
     if (!token) return;
 
     try {
-      const response = await fetch(`https://your-railway-app-name.railway.app/user/wishlist/${productId}`, {
+      const response = await fetch(`https://bevclock-production.up.railway.app/user/wishlist/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -401,7 +401,7 @@ address: address.address
 //them 
   const handleSetDefaultAddress = async (id: string) => {
     try {
-      await fetch(`https://your-railway-app-name.railway.app/api/user/addresses/${id}/set-default`, {
+      await fetch(`https://bevclock-production.up.railway.app/api/user/addresses/${id}/set-default`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem("token")}`,

@@ -151,7 +151,7 @@ const AdminProfile = () => {
     }
     
     // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    return `https://your-railway-app-name.railway.app/uploads/avatars/${avatar}`;
+    return `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
   };
 
   const fetchUserDataById = useCallback(
@@ -165,7 +165,7 @@ const AdminProfile = () => {
         const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         const response = await fetch(
-          `https://your-railway-app-name.railway.app/api/admin/user/${id}`,
+          `https://bevclock-production.up.railway.app/api/admin/user/${id}`,
           {
             method: "GET",
             headers: {
@@ -253,7 +253,7 @@ const AdminProfile = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      const response = await fetch("https://your-railway-app-name.railway.app/check-role", {
+      const response = await fetch("https://bevclock-production.up.railway.app/check-role", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -335,7 +335,7 @@ const AdminProfile = () => {
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       const response = await fetch(
-        `https://your-railway-app-name.railway.app/api/admin/account/edit/${updatedData._id}`,
+        `https://bevclock-production.up.railway.app/api/admin/account/edit/${updatedData._id}`,
         {
           method: "PUT",
           headers: {

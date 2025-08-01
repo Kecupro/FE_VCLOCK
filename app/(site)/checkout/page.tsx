@@ -80,7 +80,7 @@ export default function CheckoutPage() {
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-      const response = await fetch("https://your-railway-app-name.railway.app/user/addresses", {
+      const response = await fetch("https://bevclock-production.up.railway.app/user/addresses", {
         headers,
       });
       if (response.ok) {
@@ -115,7 +115,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     const fetchPaymentMethods = async () => {
       try {
-        const response = await fetch("https://your-railway-app-name.railway.app/api/payment-methods");
+        const response = await fetch("https://bevclock-production.up.railway.app/api/payment-methods");
         if (response.ok) {
           const data = await response.json();
           setPaymentMethods(data);
@@ -134,7 +134,7 @@ export default function CheckoutPage() {
       if (!token) return;
 
       try {
-        const response = await fetch("https://your-railway-app-name.railway.app/api/vouchers/available", {
+        const response = await fetch("https://bevclock-production.up.railway.app/api/vouchers/available", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -204,7 +204,7 @@ export default function CheckoutPage() {
 
       const orderCode = `DH${Date.now()}`;
 
-      const response = await fetch("https://your-railway-app-name.railway.app/api/orders", {
+      const response = await fetch("https://bevclock-production.up.railway.app/api/orders", {
 			  method: "POST",
         headers: {
           "Content-Type": "application/json",

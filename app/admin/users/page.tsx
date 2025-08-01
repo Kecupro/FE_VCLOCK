@@ -101,7 +101,7 @@ const UsersPage = () => {
     }
     
     // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    return `https://your-railway-app-name.railway.app/uploads/avatars/${avatar}`;
+    return `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
   };
 
   const getAuthToken = (): string | null => {
@@ -131,7 +131,7 @@ const UsersPage = () => {
           return;
         }
 
-        const response = await fetch('https://your-railway-app-name.railway.app/check-role', {
+        const response = await fetch('https://bevclock-production.up.railway.app/check-role', {
           method: 'GET',
           headers: createAuthHeaders(),
         });
@@ -220,7 +220,7 @@ const UsersPage = () => {
         params.append('status', statusFilter);
       }
 
-      const apiUrl = `https://your-railway-app-name.railway.app/api/admin/user?${params.toString()}`;
+      const apiUrl = `https://bevclock-production.up.railway.app/api/admin/user?${params.toString()}`;
       
       const response = await fetch(apiUrl, {
         method: 'GET',
@@ -404,7 +404,7 @@ const UsersPage = () => {
       }
 
       const deleteResponse = await fetch(
-        `https://your-railway-app-name.railway.app/api/admin/user/delete/${userToDelete._id}`,
+        `https://bevclock-production.up.railway.app/api/admin/user/delete/${userToDelete._id}`,
         {
           method: "DELETE",
           headers: createAuthHeaders(),

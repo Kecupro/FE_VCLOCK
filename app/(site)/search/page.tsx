@@ -30,7 +30,7 @@ const SearchPage = () => {
   }, [query, filters]);
 
   useEffect(() => {
-    fetch(`https://your-railway-app-name.railway.app/api/brand`)
+    fetch(`https://bevclock-production.up.railway.app/api/brand`)
       .then(res => res.json())
       .then(data => setBrands(data));
   }, []);
@@ -45,7 +45,7 @@ const SearchPage = () => {
         ...filters
       });
       
-      const response = await fetch(`https://your-railway-app-name.railway.app/api/search?${params}`);
+      const response = await fetch(`https://bevclock-production.up.railway.app/api/search?${params}`);
       const data = await response.json();
       console.log('API search response:', data);
       setProducts(data.products || []);
@@ -60,7 +60,7 @@ const SearchPage = () => {
   // Fetch sản phẩm nổi bật khi không có kết quả
   useEffect(() => {
     if (!loading && products.length === 0) {
-      fetch(`https://your-railway-app-name.railway.app/api/products/top-rated?limit=3`)
+      fetch(`https://bevclock-production.up.railway.app/api/products/top-rated?limit=3`)
         .then(res => res.json())
         .then(data => setSuggestedProducts(data || []));
     } else {

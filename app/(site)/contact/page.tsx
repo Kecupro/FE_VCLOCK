@@ -26,7 +26,7 @@ export default function ContactPage() {
     setSubmitStatus('idle');
 
     try {
-      const response = await fetch('https://your-railway-app-name.railway.app/api/contact', {
+      const response = await fetch('https://bevclock-production.up.railway.app/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

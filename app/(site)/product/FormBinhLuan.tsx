@@ -15,7 +15,7 @@ export default function ReviewForm({ productId, onSuccess }: { productId: string
     setMessage('');
 
     try {
-      const res = await fetch('https://your-railway-app-name.railway.app/api/reviews', {
+      const res = await fetch('https://bevclock-production.up.railway.app/api/reviews', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ product_id: productId, rating, comment }),

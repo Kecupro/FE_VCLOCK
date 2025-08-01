@@ -25,7 +25,7 @@ export default function SPLienQuan({id} : {id:string}) {
 
     // Fetch danh sách sản phẩm liên quan
     useEffect(() => {
-        fetch(`https://your-railway-app-name.railway.app/api/sp_lien_quan/${id}`)
+        fetch(`https://bevclock-production.up.railway.app/api/sp_lien_quan/${id}`)
             .then((res) => res.json())
             .then((data) => setProducts(data))
             .catch((err) => console.error("Lỗi fetch sp:", err));
@@ -37,7 +37,7 @@ export default function SPLienQuan({id} : {id:string}) {
                 const token = localStorage.getItem("token");
                 if (token) {
                     try {
-                        const res = await fetch("https://your-railway-app-name.railway.app/user/wishlist", {
+                        const res = await fetch("https://bevclock-production.up.railway.app/user/wishlist", {
                             headers: {
                                 'Authorization': `Bearer ${token}`
                             }

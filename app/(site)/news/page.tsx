@@ -59,7 +59,7 @@ export default function News() {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('https://your-railway-app-name.railway.app/api/category-news');
+      const response = await axios.get('https://bevclock-production.up.railway.app/api/category-news');
       setCategories(response.data as ICateNews[]);
     } catch (err) {
       console.error('Error fetching categories:', err);
@@ -70,10 +70,10 @@ export default function News() {
     try {
       setIsTransitioning(true);
       
-      let url = `https://your-railway-app-name.railway.app/api/news?page=${currentPage}&limit=6`;
+      let url = `https://bevclock-production.up.railway.app/api/news?page=${currentPage}&limit=6`;
       
       if (selectedCategory !== 'all') {
-        url = `https://your-railway-app-name.railway.app/api/news/category/${selectedCategory}?page=${currentPage}&limit=6`;
+        url = `https://bevclock-production.up.railway.app/api/news/category/${selectedCategory}?page=${currentPage}&limit=6`;
       }
       
       const response = await axios.get(url);

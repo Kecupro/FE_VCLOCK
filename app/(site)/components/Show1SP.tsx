@@ -23,7 +23,7 @@ export default function Show1SP(props: { sp: IProduct }) {
     
     // Fetch danh sách thương hiệu
     useEffect(() => {
-        fetch("https://your-railway-app-name.railway.app/api/brand")
+        fetch("https://bevclock-production.up.railway.app/api/brand")
             .then((res) => res.json())
             .then((data) => setBrands(data))
             .catch((err) => console.error("Lỗi fetch brand:", err));
@@ -35,7 +35,7 @@ export default function Show1SP(props: { sp: IProduct }) {
                 const token = localStorage.getItem("token");
                 if (token) {
                     try {
-                        const res = await fetch("https://your-railway-app-name.railway.app/user/wishlist", {
+                        const res = await fetch("https://bevclock-production.up.railway.app/user/wishlist", {
                             headers: {
                                 'Authorization': `Bearer ${token}`
                             }

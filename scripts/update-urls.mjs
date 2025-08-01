@@ -6,10 +6,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Cấu hình
-const OLD_BASE_URL = 'http://localhost:3000';
+const OLD_BASE_URL = 'https://your-railway-app-name.railway.app';
 const NEW_BASE_URL = 'https://bevclock-production.up.railway.app'; // URL Railway thực tế
 
-// Danh sách các file cần cập nhật (trừ những file đã cập nhật thủ công)
+// Danh sách các file cần cập nhật
 const filesToUpdate = [
   'app/(site)/news/page.tsx',
   'app/(site)/news/[id]/page.tsx',

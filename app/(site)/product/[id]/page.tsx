@@ -30,7 +30,7 @@ export default function ProductDetail() {
   useEffect(() => {
     if (!id) return;
   
-    fetch(`https://your-railway-app-name.railway.app/api/reviews/stats/${id}`)
+    fetch(`https://bevclock-production.up.railway.app/api/reviews/stats/${id}`)
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error("Lỗi fetch stats:", err));
@@ -46,7 +46,7 @@ export default function ProductDetail() {
 
     async function fetchProduct() {
       try {
-        const res = await fetch(`https://your-railway-app-name.railway.app/api/product/${id}`);
+        const res = await fetch(`https://bevclock-production.up.railway.app/api/product/${id}`);
         if (!res.ok) throw new Error("Lấy sản phẩm thất bại");
         const data = await res.json(); 
 
