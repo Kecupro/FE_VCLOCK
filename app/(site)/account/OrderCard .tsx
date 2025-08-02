@@ -205,7 +205,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
     <>
       {/* Danh sách đơn hàng */}
       {paginatedOrders.map((order) => (
-        <div key={order._id} className="border rounded-lg p-4 bg-white space-y-2 shadow-sm mb-4">
+        <div key={order._id} className="border border-gray-200 rounded-lg p-4 bg-white space-y-2 shadow-sm mb-4">
           <div className="flex justify-between text-sm text-gray-700">
             <div>
               <p>Mã đơn: <strong>DH-{order.orderCode}</strong></p>

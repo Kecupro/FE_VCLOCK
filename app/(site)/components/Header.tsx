@@ -222,7 +222,7 @@ const Header = () => {
           <div className="address-info">
             <i className="fa-solid fa-house text-red-600 mr-2"></i>
             <span>
-              <b>SHOP:</b> 1073/23 CMT8, P7,Q.Tân Bình,TP.HCM
+              <b>SHOP:</b> 1073/23 CMT8, P7, Q.Tân Bình, TP.HCM
             </span>
           </div>
         </div>
@@ -350,7 +350,7 @@ const Header = () => {
             <nav className="flex flex-col gap-4 mb-6">
               <Link href="/" className="font-semibold" onClick={() => setSidebarOpen(false)}>TRANG CHỦ</Link>
               <Link href="/about" className="font-semibold" onClick={() => setSidebarOpen(false)}>GIỚI THIỆU</Link>
-              <Link href="/shop" className="font-semibold" onClick={() => setSidebarOpen(false)}>SHOP</Link>
+              <Link href="/shop" className="font-semibold" onClick={() => setSidebarOpen(false)}>CỬA HÀNG</Link>
               <Link href="/news" className="font-semibold" onClick={() => setSidebarOpen(false)}>TIN TỨC</Link>
               <Link href="/contact" className="font-semibold" onClick={() => setSidebarOpen(false)}>LIÊN HỆ</Link>
             </nav>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -10,21 +10,35 @@ export default function NewsDetail() {
   const params = useParams();
   const [news, setNews] = useState<INews | null>(null);
   const [loading, setLoading] = useState(true);
+  const hasIncrementedView = useRef(false);
 
   useEffect(() => {
-    if (params?.id) {
+    if (params?.id && !hasIncrementedView.current) {
       fetchNewsDetail();
+      incrementView();
     }
   }, [params?.id]);
 
   const fetchNewsDetail = async () => {
     try {
       const response = await axios.get(`https://bevclock-production.up.railway.app/api/news/${params.id}`);
-      setNews(response.data as INews); // Đảm bảo đúng kiểu
+      setNews(response.data as INews);
     } catch (error) {
       console.error('Error fetching news detail:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const incrementView = async () => {
+    if (hasIncrementedView.current) return;
+    
+    try {
+      hasIncrementedView.current = true;
+      await axios.post(`https://bevclock-production.up.railway.app/api/news/${params.id}/increment-view`);
+    } catch (error) {
+      console.error('Error incrementing view:', error);
+      hasIncrementedView.current = false; // Reset if failed
     }
   };
 
