@@ -32,7 +32,7 @@ const ProductDetailPage: React.FC = () => {
       try {
         setLoading(true);
 
-        const res = await fetch(`http://localhost:3000/api/admin/product/${productId}`);
+        const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/product/${productId}`);
         const data = await res.json();
 
         console.log("Product data:", data);
@@ -72,7 +72,7 @@ const ProductDetailPage: React.FC = () => {
     if (!product) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/product/xoa/${product._id}`, {
+      const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/product/xoa/${product._id}`, {
         method: 'DELETE',
       });
 

@@ -69,7 +69,7 @@ const AddPaymentMethodPage = () => {
     formData.append('image', selectedFile);
 
     try {
-      const res = await fetch('http://localhost:3000/api/admin/payment-method/them', {
+      const res = await fetch('https://bevclock-production.up.railway.app/api/admin/payment-method/them', {
         method: 'POST',
         body: formData,
       });

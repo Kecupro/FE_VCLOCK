@@ -64,7 +64,7 @@ const UserDetailPage = () => {
         throw new Error('Token không tồn tại');
       }
 
-      const response = await fetch('http://localhost:3000/check-role', {
+      const response = await fetch('https://bevclock-production.up.railway.app/check-role', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -109,7 +109,7 @@ const UserDetailPage = () => {
         throw new Error('Token không tồn tại');
       }
 
-      const response = await fetch(`http://localhost:3000/api/admin/user/${id}`, {
+      const response = await fetch(`https://bevclock-production.up.railway.app/api/admin/user/${id}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -156,7 +156,7 @@ const UserDetailPage = () => {
     }
     
     // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    return `http://localhost:3000/uploads/avatars/${avatar}`;
+    return `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
   };
 
   const handleImageError = () => {

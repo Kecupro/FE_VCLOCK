@@ -147,7 +147,7 @@ const EditUser = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:3000/check-role", {
+        const response = await fetch("https://bevclock-production.up.railway.app/check-role", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -177,7 +177,7 @@ const EditUser = () => {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-          `http://localhost:3000/api/admin/user/${userId}`,
+          `https://bevclock-production.up.railway.app/api/admin/user/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -257,7 +257,7 @@ const EditUser = () => {
     }
     
     // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    return `http://localhost:3000/uploads/avatars/${imagePath}`;
+    return `https://bevclock-production.up.railway.app/uploads/avatars/${imagePath}`;
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -476,7 +476,7 @@ const EditUser = () => {
       );
 
       const userResponse = await fetch(
-        `http://localhost:3000/api/admin/user/edit/${userId}`,
+        `https://bevclock-production.up.railway.app/api/admin/user/edit/${userId}`,
         {
           method: "PUT",
           headers: {
@@ -522,7 +522,7 @@ const EditUser = () => {
           }
 
           if (hasAddressData) {
-            const endpoint = `http://localhost:3000/api/admin/user/addresses/${selectedAddressId}`;
+            const endpoint = `https://bevclock-production.up.railway.app/api/admin/user/addresses/${selectedAddressId}`;
 
             const addressResponse = await fetch(endpoint, {
               method: "PUT",

@@ -43,7 +43,7 @@ const EditPaymentMethod = () => {
 
     const fetchData = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/admin/payment-method/${id}`);
+        const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/payment-method/${id}`);
         const data = await res.json();
 
         const method = data.payment;
@@ -109,7 +109,7 @@ const EditPaymentMethod = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/payment-method/sua/${id}`, {
+      const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/payment-method/sua/${id}`, {
         method: 'PUT',
         body: formData,
       });

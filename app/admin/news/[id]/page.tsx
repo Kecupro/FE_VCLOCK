@@ -29,7 +29,7 @@ const NewsDetailPage = () => {
       if (!params?.id) return;
 
       try {
-        const res = await fetch(`http://localhost:3000/api/admin/news/${params.id}`);
+        const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/news/${params.id}`);
         const data = await res.json();
         setNews(data.news || data);
       } catch {
@@ -70,7 +70,7 @@ const NewsDetailPage = () => {
   const confirmDelete = async () => {
     if (!deletingId) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/news/xoa/${deletingId}`, {
+      const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/news/xoa/${deletingId}`, {
         method: "DELETE",
       });
       const data = await res.json();

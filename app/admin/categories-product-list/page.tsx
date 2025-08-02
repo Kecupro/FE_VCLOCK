@@ -39,7 +39,7 @@ const CategoryPage = () => {
     const fetchCategories = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/admin/categoryProduct?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&statusFilter=${statusFilter}&sort=${sortOption}`
+          `https://bevclock-production.up.railway.app/api/admin/categoryProduct?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&statusFilter=${statusFilter}&sort=${sortOption}`
         );
         const data = await res.json();
         setCategories(data.list || []);
@@ -81,7 +81,7 @@ const CategoryPage = () => {
     if (!deletingId) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/categoryProduct/xoa/${deletingId}`, {
+      const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/categoryProduct/xoa/${deletingId}`, {
         method: 'DELETE',
       });
       const data = await res.json();

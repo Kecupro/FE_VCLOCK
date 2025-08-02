@@ -163,7 +163,7 @@ const AddBrand = () => {
         formDataToSend.append('image', selectedFile);
       }
 
-      const response = await fetch('http://localhost:3000/api/admin/brand/add', {
+      const response = await fetch('https://bevclock-production.up.railway.app/api/admin/brand/add', {
         method: 'POST',
         body: formDataToSend,
       });

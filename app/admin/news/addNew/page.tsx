@@ -47,7 +47,7 @@ const AddNew = () => {
   useEffect(() => {
       const fetchCateNews = async () => {
         try {
-          const res = await fetch(`http://localhost:3000/api/admin/categoryNews`);
+          const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/categoryNews`);
           const data = await res.json();
           setCategoriesNews(data.list || []);
         } catch {
@@ -76,7 +76,7 @@ const AddNew = () => {
     formData.append('image', selectedFile);
 
     try {
-      const res = await fetch('http://localhost:3000/api/admin/news/them', {
+      const res = await fetch('https://bevclock-production.up.railway.app/api/admin/news/them', {
         method: 'POST',
         body: formData,
       });

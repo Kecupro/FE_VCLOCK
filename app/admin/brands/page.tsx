@@ -57,7 +57,7 @@ const BrandPage = () => {
         });
 
         const res = await fetch(
-          `http://localhost:3000/api/admin/brand?${params}`
+          `https://bevclock-production.up.railway.app/api/admin/brand?${params}`
         );
         const data = await res.json();
         setBrands(data.list);
@@ -89,7 +89,7 @@ const BrandPage = () => {
       });
 
       const res = await fetch(
-        `http://localhost:3000/api/admin/brand?${params}`
+        `https://bevclock-production.up.railway.app/api/admin/brand?${params}`
       );
       const data = await res.json();
       setBrands(data.list);
@@ -132,7 +132,7 @@ const BrandPage = () => {
 
     try {
       const deleteResponse = await fetch(
-        `http://localhost:3000/api/admin/brand/xoa/${brandToDelete._id}`,
+        `https://bevclock-production.up.railway.app/api/admin/brand/xoa/${brandToDelete._id}`,
         {
           method: "DELETE",
           headers: {
