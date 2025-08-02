@@ -26,7 +26,8 @@ export default function AddToCart({ sp }: { sp: IProduct }) {
       className="w-full mx-auto font-normal block bg-black text-white p-2 rounded-sm mt-1 hover:bg-red-700"
       onClick={handleAddToCart}
     >
-      THÊM GIỎ HÀNG
+      <span className="hidden sm:inline">THÊM GIỎ HÀNG</span>
+      <i className="fa-solid fa-cart-plus sm:hidden"></i>
     </button>
   );
 }

@@ -557,13 +557,12 @@ const Header = () => {
         </div>
         <div className="header-cart">
           <Link href="/cart" className="flex items-center font-semibold relative">
-            <span className="ml-2 hidden sm:inline">GIỎ HÀNG</span>
-            <i className="fa-solid fa-bag-shopping ml-2 text-2xl">
+          <span className="ml-2">GIỎ HÀNG</span><i className="fa-solid fa-bag-shopping ml-2 text-2xl">
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
                 {cartCount}
               </span>
-            </i>
-          </Link>
+          </i>
+        </Link>
         </div>
 
       </nav>

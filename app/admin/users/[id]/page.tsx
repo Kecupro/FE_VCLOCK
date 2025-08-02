@@ -4,7 +4,6 @@ import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, User } from 'lucide-react';
 import { useAppContext } from '../../../context/AppContext';
 import styles from '../../assets/css/detail.module.css';
-import { getAvatarSrc } from '../../../utils/avatarUtils';
 
 interface IAddress {
   _id: string;
@@ -142,7 +141,26 @@ const UserDetailPage = () => {
   };
 
   const getAvatarUrl = (avatar: string | null) => {
-    return getAvatarSrc(avatar);
+    if (!avatar || avatar.trim() === "") {
+      return "/images/avatar-default.png";
+    }
+    
+    // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
+    if (avatar.startsWith('http')) {
+      // Thêm timestamp để tránh cache
+      const separator = avatar.includes('?') ? '&' : '?';
+      return `${avatar}${separator}t=${Date.now()}`;
+    }
+    
+    // Nếu là đường dẫn tương đối bắt đầu bằng /
+    if (avatar.startsWith('/')) {
+      return avatar;
+    }
+    
+    // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
+    const avatarUrl = `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
+    const separator = avatarUrl.includes('?') ? '&' : '?';
+    return `${avatarUrl}${separator}t=${Date.now()}`;
   };
 
   const handleImageError = () => {

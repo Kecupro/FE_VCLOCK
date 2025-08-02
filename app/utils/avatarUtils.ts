@@ -11,9 +11,7 @@ export const getAvatarSrc = (avatar: string | null | undefined): string => {
   
   // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
   if (avatar.startsWith('http')) {
-    // Thêm timestamp để tránh cache
-    const separator = avatar.includes('?') ? '&' : '?';
-    return `${avatar}${separator}t=${Date.now()}`;
+    return avatar;
   }
   
   // Nếu là đường dẫn tương đối bắt đầu bằng /
@@ -22,7 +20,5 @@ export const getAvatarSrc = (avatar: string | null | undefined): string => {
   }
   
   // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-  const avatarUrl = API_ENDPOINTS.AVATAR_URL(avatar);
-  const separator = avatarUrl.includes('?') ? '&' : '?';
-  return `${avatarUrl}${separator}t=${Date.now()}`;
+  return API_ENDPOINTS.AVATAR_URL(avatar);
 }; 

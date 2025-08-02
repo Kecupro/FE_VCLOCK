@@ -8,7 +8,6 @@ import AddressSelector from "../components/AddressSelector";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import Image from "next/image";
-import { getAvatarSrc } from '../../utils/avatarUtils';
 
 interface WishlistItem {
   _id: string;
@@ -129,6 +128,23 @@ export default function AccountPage() {
     }
   }, [user]);
 
+  // Hàm xử lý đường dẫn avatar giống admin
+  const getAvatarSrc = (avatar: string | null | undefined): string => {
+    if (!avatar || avatar.trim() === "") {
+      return "/images/avatar-default.png";
+    }
+    // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
+    if (avatar.startsWith('http')) {
+      return avatar;
+    }
+    // Nếu là đường dẫn tương đối bắt đầu bằng /
+    if (avatar.startsWith('/')) {
+      return avatar;
+    }
+    // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
+    return `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
+  };
+
   // Fetch addresses when tab changes to addresses
   useEffect(() => {
     if (tab === 'addresses') {
@@ -241,19 +257,11 @@ const result = await response.json();
         setSelectedAvatarFile(null);
         setIsEditingProfile(false);
         
-        // Cập nhật localStorage với user data mới
-        localStorage.setItem('user', JSON.stringify(result.user));
-        
         // Trigger storage event để header cập nhật ngay lập tức
         window.dispatchEvent(new StorageEvent('storage', {
           key: 'user',
           newValue: JSON.stringify(result.user)
         }));
-        
-        // Force refresh user data trong AuthContext
-        if (refreshUser) {
-          await refreshUser();
-        }
         
         toast.success("Cập nhật thông tin thành công!");
       } else {
