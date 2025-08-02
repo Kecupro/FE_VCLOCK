@@ -1,9 +1,11 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function GoogleSuccess() {
   const router = useRouter();
+  const { setUser } = useAuth();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -19,12 +21,23 @@ export default function GoogleSuccess() {
         .then((res) => res.json())
         .then((user) => {
           localStorage.setItem("user", JSON.stringify(user));
+          // Cập nhật user state ngay lập tức
+          setUser(user);
+          // Trigger storage event để các component khác cập nhật
+          window.dispatchEvent(new StorageEvent('storage', {
+            key: 'user',
+            newValue: JSON.stringify(user)
+          }));
           router.push("/"); 
+        })
+        .catch((error) => {
+          console.error("Error fetching user profile:", error);
+          router.push("/login");
         });
     } else {
       router.push("/login");
     }
-  }, [router]);
+  }, [router, setUser]);
 
   return <div>Đang đăng nhập bằng Google...</div>;
 }

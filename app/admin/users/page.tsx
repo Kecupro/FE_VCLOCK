@@ -92,7 +92,9 @@ const UsersPage = () => {
     
     // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
     if (avatar.startsWith('http')) {
-      return avatar;
+      // Thêm timestamp để tránh cache
+      const separator = avatar.includes('?') ? '&' : '?';
+      return `${avatar}${separator}t=${Date.now()}`;
     }
     
     // Nếu là đường dẫn tương đối bắt đầu bằng /
@@ -101,7 +103,9 @@ const UsersPage = () => {
     }
     
     // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    return `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
+    const avatarUrl = `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
+    const separator = avatarUrl.includes('?') ? '&' : '?';
+    return `${avatarUrl}${separator}t=${Date.now()}`;
   };
 
   const getAuthToken = (): string | null => {
@@ -497,6 +501,17 @@ const UsersPage = () => {
           <h1 className={styles.title}>Quản lý người dùng</h1>
         </div>
         <div className={styles.headerActions}>
+          <button 
+            className={styles.addButton} 
+            onClick={() => {
+              setLoading(true);
+              fetchUsers();
+            }}
+            style={{ marginRight: '10px' }}
+          >
+            <RefreshCw size={16} />
+            Làm mới
+          </button>
           <Link href={"users/addUser"}>
           <button className={styles.addButton}>
             <Plus size={16} />

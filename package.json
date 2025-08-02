@@ -6,7 +6,11 @@
     "dev": "next dev --turbopack --port 3005",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev:local": "NEXT_PUBLIC_API_URL=http://localhost:3005 next dev --turbopack --port 3005",
+    "dev:prod": "NEXT_PUBLIC_API_URL=https://bevclock-production.up.railway.app next dev --turbopack --port 3005",
+    "backend:dev": "cd ../serverNode_datn && npm start",
+    "backend:prod": "echo 'Backend is running on Railway: https://bevclock-production.up.railway.app'"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",

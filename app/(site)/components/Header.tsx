@@ -24,10 +24,14 @@ function getAvatarSrc(avatar?: string | null): string {
   }
   // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
   if (avatar.startsWith('http')) {
-    return avatar;
+    // Thêm timestamp để tránh cache
+    const separator = avatar.includes('?') ? '&' : '?';
+    return `${avatar}${separator}t=${Date.now()}`;
   }
   // Nếu là avatar upload từ server
-  return API_ENDPOINTS.AVATAR_URL(avatar);
+  const avatarUrl = API_ENDPOINTS.AVATAR_URL(avatar);
+  const separator = avatarUrl.includes('?') ? '&' : '?';
+  return `${avatarUrl}${separator}t=${Date.now()}`;
 }
 
 function AvatarImage({ avatar, alt, size = 32, className = "" }: { avatar?: string | null, alt?: string, size?: number, className?: string }) {
@@ -63,7 +67,7 @@ function AvatarImage({ avatar, alt, size = 32, className = "" }: { avatar?: stri
 }
 
 const Header = () => {
-  const { user, setUser } = useAuth();
+  const { user, setUser, refreshUser } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -114,6 +118,15 @@ const Header = () => {
     window.addEventListener('storage', storageEventListener);
     return () => window.removeEventListener('storage', storageEventListener);
   }, [router, pathname, setUser]);
+
+  // Force refresh user data khi component mount để đảm bảo avatar cập nhật
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token && user) {
+      // Refresh user data từ server để lấy avatar mới nhất
+      refreshUser();
+    }
+  }, [refreshUser]);
 
   useEffect(() => {
     const history = localStorage.getItem('searchHistory');

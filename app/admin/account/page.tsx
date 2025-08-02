@@ -142,7 +142,9 @@ const AdminProfile = () => {
     
     // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
     if (avatar.startsWith('http')) {
-      return avatar;
+      // Thêm timestamp để tránh cache
+      const separator = avatar.includes('?') ? '&' : '?';
+      return `${avatar}${separator}t=${Date.now()}`;
     }
     
     // Nếu là đường dẫn tương đối bắt đầu bằng /
@@ -151,7 +153,9 @@ const AdminProfile = () => {
     }
     
     // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    return `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
+    const avatarUrl = `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
+    const separator = avatarUrl.includes('?') ? '&' : '?';
+    return `${avatarUrl}${separator}t=${Date.now()}`;
   };
 
   const fetchUserDataById = useCallback(
