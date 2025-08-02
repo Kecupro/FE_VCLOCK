@@ -1,58 +1,161 @@
 "use client";
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ICart, IAddress, IPaymentMethod, IVoucher } from "../cautrucdata";
-import { useCart } from "../components/CartContext";
-import AddressSelector from "../components/AddressSelector";
+import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
+import * as Dialog from "@radix-ui/react-dialog"; 
+// import { QRCodeSVG } from "qrcode.react";
+import AddressSelector from "../components/AddressSelector";
+
 import { useRouter } from "next/navigation";
 
+function formatCurrency(value: number) {
+	return value.toLocaleString("vi-VN") + "đ";
+  }
+  
+  function formatDate(date: Date | string) {
+	return new Date(date).toLocaleDateString("vi-VN");
+  }
+
 export default function CheckoutPage() {
-  const router = useRouter();
-  const { cart, selectedItems } = useCart();
-  const [addresses, setAddresses] = useState<IAddress[]>([]);
+	const [token, setToken] = useState<string | null>(null);
+	const [cart, setCart] = useState<ICart[]>([]);
+  	const [total, setTotal] = useState(0);
+  	const { user } = useAuth();
 	const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
-  const [vouchers, setVouchers] = useState<IVoucher[]>([]);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
-  const [selectedVoucher, setSelectedVoucher] = useState<IVoucher | null>(null);
+	const [selectedPayment, setSelectedPayment] = useState("COD"); // Giữ mặc định là COD	  
+	const [addresses, setAddresses] = useState<IAddress[]>([]);
 	const [showNewAddressForm, setShowNewAddressForm] = useState(false);
+	const [selectedAddressId, setSelectedAddressId] = useState(""); // chọn
+	const [isChangingAddress, setIsChangingAddress] = useState(false); // thay đổi địa chỉ
+	const [isSubmittingAddress, setIsSubmittingAddress] = useState(false);  // trạng thái khi đang submit địa chỉ
+	const [tempSelectedAddressId, setTempSelectedAddressId] = useState(""); // địa chỉ tạm thời khi đang thay đổi
+	const [isLoading, setIsLoading] = useState(false);
+
 	const [newAddress, setNewAddress] = useState({
-    receiver_name: "",
-    phone: "",
-    address: "",
-  });
-  const [form, setForm] = useState({
-    note: "",
-  });
-  const [selectedAddressId, setSelectedAddressId] = useState(""); // chọn
-  const [isLoading, setIsLoading] = useState(false);
-  const userManuallyClearedAddress = useRef(false); // Track if user manually cleared address
-  const [originalTotal, setOriginalTotal] = useState<number>(0); // Tổng tiền gốc
+		receiver_name: '',
+		phone: '',
+		address: ''
+	  });
+
+	  const router = useRouter();
+
+	  const headers = {
+		"Content-Type": "application/json",
+		...(token && { "Authorization": `Bearer ${token}` }),
+	  };
+	//   lấy token
+	  useEffect(() => {
+		const storedToken = localStorage.getItem("token");
+		setToken(storedToken);
+	  }, []);
+
+	//   hiện voucher của user
+	const [vouchers, setVouchers] = useState<IVoucher[]>([]);
+	const [selectedVoucher, setSelectedVoucher] = useState<IVoucher | null>(null);
+		
+	  useEffect(() => {
+		const fetchVouchers = async () => {
+		  try {
+			const token = localStorage.getItem("token");
+			if (!token) return;
+	
+			const res = await fetch("https://bevclock-production.up.railway.app/voucher-user", {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				  },
+			});
+	
+			const data: IVoucher[] = await res.json();
+
+			const unusedVouchers = data.filter(
+				(v) => !v.used && new Date(v.end_date) > new Date()
+			);
+
+			setVouchers(unusedVouchers);
+		  } catch (err) {
+			console.error("Lỗi khi fetch voucher:", err);
+		  }
+		};
+		fetchVouchers();
+		}, []);	  
+
+	// lấy địa chỉ giao hàng của người dùng
+	useEffect(() => {
+		fetchAddresses();
+	  }, [token]);
+
+	  const fetchAddresses = async () => {
+		const token = localStorage.getItem("token");
+		if (!token) return;
+	
+		try {
+			const response = await fetch('https://bevclock-production.up.railway.app/user/addresses', {
+				headers,
+			});
+			if (response.ok) {
+				const data = await response.json();
+	
+				// Đảo ngược thứ tự mảng
+				const reversedData = data.reverse();
+	
+				setAddresses(reversedData);
+				console.log("Dữ liệu địa chỉ (mới nhất trước):", reversedData);
+			}
+		} catch (error) {
+			console.error("Error fetching addresses:", error);
+		}
+	};
+	
+
+	useEffect(() => {
+		if (addresses.length > 0 && !selectedAddressId && !showNewAddressForm) {
+			// Ưu tiên địa chỉ mặc định
+			const defaultAddr = addresses.find(addr => addr.is_default);
+			if (defaultAddr) {
+				setSelectedAddressId(defaultAddr._id);
+			} else {
+				// Nếu không có mặc định, lấy địa chỉ mới nhất
+				const latest = getLatestAddress();
+				if (latest) setSelectedAddressId(latest._id);
+			}
+		}
+	}, [addresses, selectedAddressId, showNewAddressForm]);
+	
 
 	// lấy địa chỉ mới nhất
-  const getLatestAddress = useCallback(() => {
+	const getLatestAddress = () => {
 		if (addresses.length === 0) return null;
-    return [...addresses].sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())[0];
-  }, [addresses]);
+		return [...addresses].sort((a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime())[0];
+	  };
+	  
+	  const handleChangeAddressClick = () => {
+		setIsSubmittingAddress(true); // Bắt đầu loading
+	  
+		setTimeout(() => {
+		  setIsChangingAddress(true);
+		  setTempSelectedAddressId(selectedAddressId);
+		  setIsSubmittingAddress(false); // Kết thúc loading
+		}, 800); // Giả lập loading trong 0.8 giây
+	  };
+	  
 
 	// tính tổng tiền giỏ hàng
-  const subtotal = useCallback((cartItems: ICart[]) => {
+	const subtotal = (cartItems: ICart[]) => {
 		const sum = cartItems.reduce(
 		  (acc, item) =>
 			acc + (item.sale_price > 0 ? item.sale_price : item.price) * item.so_luong,
 		  0
 		);
-    return sum;
-  }, []);
+		setTotal(sum);
+		if (originalTotal !== sum) setOriginalTotal(sum);
+	  };
 	
-  // Tính total khi cartItems thay đổi
-  useEffect(() => {
-    const newTotal = subtotal(cart);
-    setOriginalTotal(newTotal);
-  }, [cart, subtotal]);
 
-  // Tính finalTotal với voucher
+	const [originalTotal, setOriginalTotal] = useState<number>(0); // Tổng tiền gốc
+
 	const finalTotal = useMemo(() => {
 		if (!selectedVoucher) return originalTotal;
 	  	
@@ -71,87 +174,39 @@ export default function CheckoutPage() {
 		return originalTotal - selectedVoucher.discount_value;
 	}, [originalTotal, selectedVoucher]);
 	  
-  // Fetch addresses
-  const fetchAddresses = useCallback(async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
 
-    try {
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-      const response = await fetch("https://bevclock-production.up.railway.app/user/addresses", {
-        headers,
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setAddresses(data);
-      }
-    } catch (error) {
-      console.error("Error fetching addresses:", error);
-    }
-  }, []);
 
+	  // lấy sản phẩm đã được selectedItems
 	  useEffect(() => {
-    fetchAddresses();
-  }, [fetchAddresses]);
-
-  useEffect(() => {
-    // Only auto-select address if user hasn't manually cleared it and new address form is not shown
-    if (addresses.length > 0 && !selectedAddressId && !showNewAddressForm && !userManuallyClearedAddress.current) {
-      // Ưu tiên địa chỉ mặc định
-      const defaultAddr = addresses.find(addr => addr.is_default);
-      if (defaultAddr) {
-        setSelectedAddressId(defaultAddr._id);
-      } else {
-        // Nếu không có mặc định, lấy địa chỉ mới nhất
-        const latest = getLatestAddress();
-        if (latest) setSelectedAddressId(latest._id);
-      }
-    }
-  }, [addresses, showNewAddressForm, selectedAddressId, getLatestAddress]);
-
-  // Fetch payment methods
-  useEffect(() => {
-    const fetchPaymentMethods = async () => {
-      try {
-        const response = await fetch("https://bevclock-production.up.railway.app/api/payment-methods");
-        if (response.ok) {
-          const data = await response.json();
-          setPaymentMethods(data);
-        }
-      } catch (error) {
-        console.error("Error fetching payment methods:", error);
-      }
-    };
-    fetchPaymentMethods();
+		const storedCart = localStorage.getItem("cart");
+		const storedSelected = localStorage.getItem("selectedItems");
+	  	
+		if (storedCart) {
+		  const parsedCart = JSON.parse(storedCart);
+		  const selectedIds: string[] = storedSelected ? JSON.parse(storedSelected) : [];
+	  	
+		  // Nếu có selectedIds thì lọc, không thì lấy toàn bộ
+		  const filteredCart =
+			selectedIds.length > 0
+			  ? parsedCart.filter((item: ICart) => selectedIds.includes(String(item._id)))
+			  : parsedCart;
+	  	
+		  setCart(filteredCart);
+		  subtotal(filteredCart);
+		}
 	  }, []);	  
 
-  // Fetch vouchers
-  useEffect(() => {
-    const fetchVouchers = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
 
-      try {
-        const response = await fetch("https://bevclock-production.up.railway.app/api/vouchers/available", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setVouchers(data);
-        }
-      } catch (error) {
-        console.error("Error fetching vouchers:", error);
-      }
-    };
-    fetchVouchers();
-  }, []);
-
-  // Lọc sản phẩm đã chọn
-  const selectedCartItems = cart.filter((item) => selectedItems.includes(item._id));
+	//   hiện thị form thanh toán
+	const [form, setForm] = useState({
+		name: "",
+		country: "Việt Nam",
+		address: "",
+		phone: "",
+		email: "",
+		note: "",
+		coupon: "",
+	});
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
 		const { name, value } = e.target;
@@ -161,34 +216,60 @@ export default function CheckoutPage() {
 		}));
 	};
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+	// fetch phương thức thanh toán
+	useEffect(() => {
+		const fetchPaymentMethods = async () => {
+			try {
+				const response = await fetch("https://bevclock-production.up.railway.app/api/payment-method");
+				if (!response.ok) {
+					throw new Error("Failed to fetch payment methods");
+				}
+				const data = await response.json();
+				setPaymentMethods(data.list);
+				setSelectedPayment("COD"); // mặc định là COD
+				console.log("Dữ liệu phương thức thanh toán:", data);
+			} catch (error) {
+				console.error("Error fetching payment methods:", error);
+			}
+		};
+		fetchPaymentMethods();
+	}, []);
 
-    if (!selectedAddressId && !showNewAddressForm) {
-      toast.error("Vui lòng chọn địa chỉ giao hàng");
-      return;
-    }
+	const handlePostOrderSuccess = () => {
+    toast.success("Đặt hàng thành công!");
 
-    if (!selectedPaymentMethod) {
-      toast.error("Vui lòng chọn phương thức thanh toán");
-      return;
-    }
+    // Lấy danh sách id sản phẩm đã mua
+    const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
+    const fullCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    if (selectedCartItems.length === 0) {
-      toast.error("Giỏ hàng trống");
-      return;
-    }
+    // Xóa sản phẩm đã mua khỏi giỏ hàng
+    const updatedCart = fullCart.filter((item: ICart) => !selectedIds.includes(String(item._id)));
 
-    setIsLoading(true);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    localStorage.removeItem("selectedItems");
+    setCart(updatedCart);
 
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.error("Vui lòng đăng nhập để tiếp tục");
-        return;
-      }
+    setForm({
+        name: "",
+        country: "Việt Nam",
+        address: "",
+        phone: "",
+        email: "",
+        note: "",
+        coupon: "",
+    });
+    setSelectedVoucher(null);
 
-      const selectedPaymentObj = paymentMethods.find(pm => pm._id === selectedPaymentMethod);
+    // Reload lại trang hoặc chuyển hướng
+    window.location.href = '/checkout-success';
+};	
+	
+	const submitOrder = async (addressId?: string) => {
+		const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
+		const selectedCartItems = cart.filter(item => selectedIds.includes(item._id));
+		const selectedPaymentObj = paymentMethods.find(p => p.code === selectedPayment);
+
+		const orderCode = Math.floor(100000 + Math.random() * 900000);
 	  	
 		const orderData = {
 		  cart: selectedCartItems,
@@ -199,17 +280,15 @@ export default function CheckoutPage() {
 		  payment_method_id: selectedPaymentObj?._id,
 		  ...(showNewAddressForm
 			? { new_address: newAddress }
-          : { address_id: selectedAddressId }),
-      };
-
-      const orderCode = `DH${Date.now()}`;
-
-      const response = await fetch("https://bevclock-production.up.railway.app/api/orders", {
+			: { address_id: addressId || selectedAddressId || null }),
+		};
+	  
+		try {
+		  if (selectedPayment === "BANK_TRANSFER") {
+			// 👉 BANK_TRANSFER → chỉ tạo payment link, KHÔNG tạo đơn hàng ngay
+			const response = await fetch("https://bevclock-production.up.railway.app/create-payment-link", {
 			  method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+			  headers: { "Content-Type": "application/json" },
 			  body: JSON.stringify({
 				orderData,
 				orderCode,
@@ -218,362 +297,610 @@ export default function CheckoutPage() {
 			  }),
 			});
 	  
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          toast.success("Đặt hàng thành công!");
-          router.push("/account");
-			} else {
-          toast.error(data.message || "Có lỗi xảy ra khi đặt hàng");
-			}
-		  } else {
-        const errorData = await response.json();
-        toast.error(errorData.message || "Có lỗi xảy ra khi đặt hàng");
-      }
-    } catch (error) {
-      console.error("Error submitting order:", error);
-      toast.error("Có lỗi xảy ra khi đặt hàng");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+			const resData = await response.json();
 
-  const formatCurrency = (value: number) => {
-    return value.toLocaleString("vi-VN") + " ₫";
-  };
+			if (resData.checkoutUrl) {
+			  window.location.href = resData.checkoutUrl;
+			} else {
+			  toast.error("Không thể lấy link thanh toán.");
+			}
+	  
+		  } else {
+			// 👉 COD hoặc các phương thức khác → tạo đơn hàng ngay
+			const res = await fetch("https://bevclock-production.up.railway.app/api/checkout", {
+			  method: "POST",
+			  headers,
+			  body: JSON.stringify({orderCode, orderData}),  
+			});
+			const data = await res.json();
+	  
+			if (data?.order_id) {
+			  handlePostOrderSuccess();
+			} else {
+			  toast.error(data.message || "Đặt hàng thất bại.");
+			  router.push('/checkout-cancel');
+			}
+		  }
+	  
+		} catch (err) {
+		  console.error("Lỗi khi xử lý đơn hàng:", err);
+		  toast.error("Đã xảy ra lỗi. Vui lòng thử lại sau.");
+		}
+	  };	  
+	
+	  const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setIsLoading(true); // Bắt đầu loading
+	
+		try {
+			// 1. Kiểm tra sản phẩm được chọn
+			const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
+			const selectedCartItems = cart.filter(item => selectedIds.includes(item._id));
+			console.log("selectedCartItems:", selectedCartItems);
+			if (selectedCartItems.length === 0) {
+				toast.error("Vui lòng chọn ít nhất 1 sản phẩm để đặt hàng.");
+				setIsLoading(false);
+				return;
+			}
+	
+			// 2. Người chưa đăng nhập
+			if (!user) {
+				const { name, address, phone, email, country } = form;
+				if (!name || !address || !phone || !email || !country) {
+					toast.error("Vui lòng điền đầy đủ thông tin người nhận.");
+					return;
+				}
+				if (name.length < 2 || !/^[\p{L}\d\s,.'-]+$/u.test(name)) return toast.error("Tên người nhận không hợp lệ.");
+				if (!/^\d{10,11}$/.test(phone)) return toast.error("Số điện thoại không hợp lệ.");
+				if (!/\S+@\S+\.\S+/.test(email)) return toast.error("Email không hợp lệ.");
+				if (address.length < 5 || !/^[\p{L}\d\s,.-]+$/u.test(address)) return toast.error("Địa chỉ không hợp lệ.");
+	
+				await submitOrder();
+				return;
+			}
+	
+			// 3. Người đã đăng nhập
+			if (!selectedAddressId && !showNewAddressForm) {
+				toast.error("Vui lòng chọn hoặc thêm địa chỉ.");
+				return;
+			}
+	
+			if (selectedAddressId && showNewAddressForm) {
+				toast.error("Vui lòng chỉ chọn 1 trong 2: địa chỉ cũ hoặc nhập mới.");
+				return;
+			}
+	
+			if (showNewAddressForm) {
+				const { receiver_name, phone, address } = newAddress;
+				if (!receiver_name || !phone || !address) {
+					toast.error("Vui lòng điền đầy đủ địa chỉ mới.");
+					return;
+				}
+				if (receiver_name.length < 2 || !/^[\p{L}\d\s,.'-]+$/u.test(receiver_name)) return toast.error("Tên người nhận không hợp lệ.");
+				if (!/^\d{10,11}$/.test(phone)) return toast.error("Số điện thoại không hợp lệ.");
+				if (address.length < 5 || !/^[\p{L}\d\s,.-]+$/u.test(address)) return toast.error("Địa chỉ không hợp lệ.");
+	
+				try {
+					const res = await fetch("https://bevclock-production.up.railway.app/checkout/addresses", {
+						method: "POST",
+						headers,
+						body: JSON.stringify(newAddress),
+					});
+					const data = await res.json();
+					if (data.success) {
+						toast.success("Đã thêm địa chỉ mới.");
+						setAddresses(prev => [...prev, data.address]);
+						setSelectedAddressId(data.address._id);
+						setShowNewAddressForm(false);
+						await submitOrder(data.address._id); // Đợi xong mới tiếp tục
+					} else {
+						toast.error(data.message || "Lỗi khi thêm địa chỉ.");
+					}
+				} catch (err) {
+					console.error("Lỗi thêm địa chỉ:", err);
+					toast.error("Vui lòng thử lại sau.");
+				}
+	
+			} else {
+				// Dùng địa chỉ đã có
+				const selectedAddress = addresses.find(addr => addr._id === selectedAddressId);
+				if (!selectedAddress) {
+					toast.error("Địa chỉ không hợp lệ.");
+					return;
+				}
+				setForm(prev => ({
+					...prev,
+					address: selectedAddress.address,
+					name: selectedAddress.receiver_name,
+					phone: String(selectedAddress.phone),
+				}));
+				await submitOrder(selectedAddress._id);
+			}
+	
+		} finally {
+			setIsLoading(false); // Đặt ở đây để luôn chạy bất kể thành công hay lỗi
+		}
+	};
+	
+	
 
 	return (
-    <div className="min-h-screen bg-gray-50 pt-40 pb-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Left Column - Order Details */}
-          <div className="lg:w-2/3">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Thông tin đơn hàng
-              </h2>
-              <div className="space-y-4">
-                {selectedCartItems.map((item) => (
-                  <div key={item._id} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
-                    <div className="flex-shrink-0 w-16 h-16">
-                      <Image
-                        src={`/images/product/${item.main_image?.image}`}
-                        alt={item.name}
-                        width={64}
-                        height={64}
-                        className="w-full h-full object-cover rounded"
+		<main className="max-w-7xl mx-auto py-10 px-2 sm:px-6 pt-40">
+			<h1 className="text-2xl font-bold mb-8 text-center">Thanh toán đơn hàng</h1>
+				<form onSubmit={handleSubmit}  className="flex flex-col md:flex-row gap-8">
+					<div className="flex-1 bg-white rounded border border-gray-300 p-6 space-y-5">
+
+						
+					{user ? (
+					""
+					) : (
+					<div className="mb-2 text-sm text-gray-600">
+						Bạn đã có tài khoản?{" "}
+						<Link href="/login" className="text-red-600 hover:underline font-semibold">
+						Ấn vào đây để đăng nhập
+						</Link>
+					</div>
+					)}
+
+
+						<h2 className="font-semibold text-lg mb-2">Thông tin thanh toán</h2>
+						<label className="block text-sm mb-1 font-medium">Địa chỉ giao hàng *</label>
+					{!user ? (
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<label className="block text-sm mb-1 font-medium">Tên *</label>
+								<input
+								name="name"
+								type="text"
+								placeholder="Họ và tên"
+								value={form.name}
+								onChange={handleChange}
+								className="w-full p-3 border border-gray-300 rounded"
 								/>
 							</div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-medium text-gray-900 truncate">
-                        {item.name}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Số lượng: {item.so_luong}
-                      </p>
+
+							<div>
+								<label className="block text-sm mb-1 font-medium">Số điện thoại *</label>
+								<input
+								name="phone"
+								type="tel"
+								placeholder="Số điện thoại"
+								value={form.phone}
+								onChange={handleChange}
+								className="w-full p-3 border border-gray-300 rounded"
+								/>
 							</div>
-                    <div className="flex-shrink-0 text-right">
-                      <p className="text-sm font-medium text-gray-900">
-                        {formatCurrency(
-                          (item.sale_price > 0 ? item.sale_price : item.price) * item.so_luong
-                        )}
-                      </p>
-                      {item.sale_price > 0 && (
-                        <p className="text-xs text-gray-500 line-through">
-                          {formatCurrency(item.price * item.so_luong)}
-                        </p>
-                      )}
+
+							<div className="md:col-span-2">
+								<label className="block text-sm mb-1 font-medium">Địa chỉ *</label>
+								<AddressSelector
+								value={newAddress.address}
+								onChange={(addr) => setNewAddress({ ...newAddress, address: addr })}
+								/>
+							</div>
+
+							<div className="md:col-span-2">
+								<label className="block text-sm mb-1 font-medium">Địa chỉ email *</label>
+								<input
+								name="email"
+								type="email"
+								placeholder="Email"
+								value={form.email}
+								onChange={handleChange}
+								className="w-full p-3 border border-gray-300 rounded"
+								/>
 							</div>
 							</div>
-                ))}
+						) : (
+							<div className="mb-4 p-4 bg-gray-50 rounded border border-gray-200">
+						<p className="text-sm text-gray-700 mb-2">
+							Chào <span className="font-semibold text-red-600">{user.fullName}</span> 👋,
+							vui lòng chọn địa chỉ giao hàng bên dưới hoặc thêm mới nếu cần:
+						</p>
+
+							{/* Danh sách địa chỉ */}
+							{!isChangingAddress ? (
+								<>
+									{(() => {
+									const defaultAddr = addresses.find((addr) => addr._id === selectedAddressId);
+									// Nếu không có địa chỉ nào cả
+									if (addresses.length === 0) {
+									return <p>Chưa có địa chỉ nào</p>;
+									}
+
+									// Nếu không có địa chỉ đang chọn
+									if (!defaultAddr) {
+									return <p>Vui lòng chọn địa chỉ giao hàng</p>; // hoặc return null nếu muốn ẩn
+									}
+									return (
+										<div className="border rounded-xl p-4 bg-white shadow-sm flex items-start justify-between">
+											<div className="flex items-center gap-3">
+												<div className="bg-red-100 text-red-600 rounded-full p-2">
+												<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none"
+													viewBox="0 0 24 24" stroke="currentColor">
+													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+													d="M16 7a4 4 0 00-8 0v1a4 4 0 008 0V7zM4 21h16M4 17h16" />
+												</svg>
+												</div>
+												<div>
+												<p className="font-semibold text-sm">{defaultAddr.receiver_name}</p>
+												<p className="text-sm text-gray-700">{defaultAddr.phone}</p>
+												<p className="text-sm text-gray-600">{defaultAddr.address}</p>
 												</div>
 											</div>
 
-            {/* Shipping Address */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Địa chỉ giao hàng
-                </h2>
+											<button
+												type="button"
+												onClick={handleChangeAddressClick}
+												disabled={isSubmittingAddress}
+												className={`text-sm font-medium px-4 py-2 rounded-md transition ${
+													isSubmittingAddress
+													? "bg-gray-400 text-white cursor-not-allowed"
+													: "bg-black text-white hover:bg-white hover:text-black hover:border hover:border-black"
+												}`}
+												>
+												{isSubmittingAddress ? (
+													<span className="flex items-center gap-2">
+													<span>Đang tải</span>
+													<span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+													</span>
+												) : (
+													"Thay đổi"
+												)}
+											</button>
+										</div>
+
+									);
+									})()}
+								</>
+								) : (
+								<>
+									<div className="space-y-3">
+									{addresses.map((addr) => (
+										<label key={addr._id} className="block border p-3 rounded hover:border-red-500 cursor-pointer">
+										<input
+											type="radio"
+											name="shippingAddressChange"
+											value={addr._id}
+											checked={tempSelectedAddressId === addr._id}
+											onChange={(e) => setTempSelectedAddressId(e.target.value)}
+											className="mr-2 accent-red-600"
+										/>
+										<span className="text-sm">{addr.receiver_name}</span>,{" "}
+										<span className="text-sm text-gray-600">{addr.phone}</span>,{" "}
+										<span className="text-sm">{addr.address}</span>
+										</label>
+									))}
+									</div>
+									<div className="mt-3 flex gap-3">
 									<button
 										type="button"
+										onClick={() => {
+										setSelectedAddressId(tempSelectedAddressId);
+										setIsChangingAddress(false);
+										}}
+										className="text-sm bg-red-600 text-white px-4 py-2 rounded"
+									>
+										Xác nhận
+									</button>
+									<button
+										type="button"
+										onClick={() => {setIsChangingAddress(false);
+											setTempSelectedAddressId(selectedAddressId); // quay lại địa chỉ đã chọn trước đó
+										}}
+										className="text-sm text-gray-600 underline"
+									>
+										Hủy
+									</button>
+									</div>
+								</>
+								)}
+
+
+							<div className="mt-3">
+								<button
+									type="button"
+									className="text-sm text-red-600 underline hover:text-red-700"
 									onClick={() => {
 										setShowNewAddressForm(!showNewAddressForm);
 										if (!showNewAddressForm) {
 										  setSelectedAddressId(""); // Hủy chọn địa chỉ cũ khi nhập mới
-                      userManuallyClearedAddress.current = true; // Mark that user manually cleared address
-                    } else {
-                      userManuallyClearedAddress.current = false; // Reset when hiding form
 										}
 									  }}
-                  className="text-red-600 hover:text-red-700 text-sm font-medium"
 								>
-                  {showNewAddressForm ? "Hủy" : "Thêm địa chỉ giao hàng mới"}
+									{showNewAddressForm ? "Ẩn biểu mẫu nhập mới" : "Thêm địa chỉ giao hàng mới"}
 								</button>
 							</div>
 
-              {showNewAddressForm ? (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+							{showNewAddressForm && (
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 								<div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Tên người nhận
-                      </label>
+								  <label className="block text-gray-700 text-sm font-medium mb-2">Tên người nhận</label>
 								  <input
 									type="text"
 									value={newAddress.receiver_name}
-                        onChange={(e) =>
-                          setNewAddress({ ...newAddress, receiver_name: e.target.value })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                        required
+									onChange={(e) => setNewAddress({...newAddress, receiver_name: e.target.value})}
+									className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+									placeholder="Ví dụ: Nguyễn Văn A"
 								  />
 								</div>
 								<div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Số điện thoại
-                      </label>
+								  <label className="block text-gray-700 text-sm font-medium mb-2">Số điện thoại</label>
 								  <input
 									type="tel"
-                        value={newAddress.phone}
-                        onChange={(e) =>
-                          setNewAddress({ ...newAddress, phone: e.target.value })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+									pattern="^0[35789][0-9]{8}$"
+									title="Số điện thoại phải có 10 chữ số và bắt đầu bằng 03, 05, 07, 08 hoặc 09"
 									required
+									value={newAddress.phone}
+									onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
+									className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+									placeholder="Ví dụ: 0123456789"
 								  />
 								</div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Địa chỉ
-                    </label>
+								<div className="md:col-span-2">
+								  <label className="block text-gray-700 text-sm font-medium mb-2">Địa chỉ giao hàng</label>
+								  <div className="relative">
+									
 									<AddressSelector
 									  value={newAddress.address}
-                      onChange={(address) =>
-                        setNewAddress({ ...newAddress, address })
-                      }
+									  onChange={(addr) => setNewAddress({ ...newAddress, address: addr })}
 									/>
 									</div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {addresses.length > 0 ? (
-                    addresses.map((address) => (
-                      <div
-                        key={address._id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                          selectedAddressId === address._id
-                            ? "border-red-500 bg-red-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
-                        onClick={() => {
-                          setSelectedAddressId(address._id);
-                          userManuallyClearedAddress.current = false; // Reset since user has selected an address
-                        }}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-medium text-gray-900">
-                              {address.receiver_name}
-                            </h3>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {address.phone}
-                            </p>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {address.address}
-                            </p>
+
 								</div>
-                          {selectedAddressId === address._id && (
-                            <div className="text-red-500">
-                              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                  fillRule="evenodd"
-                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
 							  </div>
 							)}
 							</div>
+						)}
+
+						{!user && (
+							<div className="text-sm text-gray-600 mb-4">
+								Địa chỉ giao hàng sẽ được sử dụng để gửi đơn hàng. Vui lòng điền đầy đủ thông tin.
 							</div>
-                    ))
-                  ) : (
-                    <p className="text-gray-500 text-center py-4">
-                      Bạn chưa có địa chỉ nào. Vui lòng thêm địa chỉ mới.
-                    </p>
+						)}
+						<div className="space-y-3">
+							<h2 className="font-semibold text-sm mb-1">Chọn voucher</h2>
+
+							{selectedVoucher ? (
+								<div className="flex items-center gap-2 text-green-600 text-sm">
+								✅ Đã chọn: {selectedVoucher.voucher_name} ({selectedVoucher.voucher_code})
+								</div>
+							) : (
+								<div className="text-sm text-gray-500">❗Bạn chưa chọn voucher nào</div>
+							)}
+
+							<Dialog.Root>
+								<Dialog.Trigger asChild>
+								<button className="px-4 py-2 rounded bg-black text-white font-semibold">
+									Chọn voucher
+								</button>
+								</Dialog.Trigger>
+
+								<Dialog.Portal>
+								<Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
+								<Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] p-6 overflow-y-auto space-y-4">
+									<Dialog.Title className="text-lg font-bold mb-2">Chọn voucher</Dialog.Title>
+									
+									{vouchers.length > 0 ? (
+									vouchers.map((v) => (
+										<div
+										key={v._id}
+										className="flex w-full h-[120px] bg-white rounded-lg shadow-md border border-gray-300 overflow-hidden relative"
+										>
+										{/* Cột trái */}
+										<div className="flex flex-col items-center justify-center bg-red-700 text-white px-3 py-2 w-[200px] rounded-l-lg relative">
+											<i className="fa-solid fa-ticket text-lg mb-1"></i>
+											<span className="font-bold text-xs text-center leading-tight line-clamp-2">
+											{v.voucher_name}
+											</span>
+											<span className="bg-white text-[10px] font-semibold px-1 py-0.5 rounded text-[#333] mt-1">
+											{v.voucher_code}
+											</span>
+											<span className="text-[9px] mt-1 text-center">
+											HSD: {formatDate(v.end_date)}
+											</span>
+										</div>
+
+										{/* Chấm bi */}
+										<div className="flex flex-col justify-center py-1 bg-transparent">
+											{Array.from({ length: 6 }).map((_, i) => (
+											<div
+												key={i}
+												className="w-1.5 h-1.5 rounded-full bg-gray-400 my-[2px]"
+											></div>
+											))}
+										</div>
+
+										{/* Cột phải */}
+										<div className="flex-1 flex flex-col justify-between px-4 py-2 bg-white">
+											<div className="space-y-1 overflow-hidden">
+											<div className="text-red-500 font-bold text-base leading-tight truncate">
+												{v.discount_type === "percentage"
+												? `Giảm ${v.discount_value}%`
+												: `Giảm ${formatCurrency(v.discount_value)}`}
+												{v.max_discount && v.discount_type === "percentage" && (
+												<span className="text-xs text-gray-500 ml-1 whitespace-nowrap">
+													(Tối đa {formatCurrency(v.max_discount)})
+												</span>
 												)}
 											</div>
+
+											<div className="text-gray-700 font-semibold text-xs truncate">
+												Đơn tối thiểu: {formatCurrency(v.minimum_order_value || 0)}
+											</div>
+
+											{new Date(v.end_date) > new Date() ? (
+												<span className="bg-green-100 text-green-700 text-[10px] font-semibold px-1.5 py-0.5 rounded inline-block w-fit">
+												Còn hiệu lực
+												</span>
+											) : (
+												<span className="bg-gray-200 text-gray-500 text-[10px] font-semibold px-1.5 py-0.5 rounded inline-block w-fit">
+												Hết hạn
+												</span>
 											)}
 											</div>
 
-            {/* Payment Method */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Phương thức thanh toán
-              </h2>
-              <div className="space-y-3">
-                {paymentMethods.map((method) => (
-                  <label
-                    key={method._id}
-                    className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${
-                      selectedPaymentMethod === method._id
-                        ? "border-red-500 bg-red-50"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value={method._id}
-                      checked={selectedPaymentMethod === method._id}
-                      onChange={(e) => setSelectedPaymentMethod(e.target.value)}
-                      className="sr-only"
-                    />
-                    <div className="flex items-center space-x-3">
-                      <div className="w-6 h-6 border-2 border-gray-300 rounded-full flex items-center justify-center">
-                        {selectedPaymentMethod === method._id && (
-                          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                        )}
+											<div className="flex justify-end">
+											<Dialog.Close asChild>
+												<button
+													onClick={() => setSelectedVoucher(v)}
+													className={`px-3 py-2 rounded text-white font-bold text-xs shadow transition ${
+														new Date(v.end_date) > new Date()
+														? "bg-red-600 hover:bg-red-700"
+														: "bg-gray-400 cursor-not-allowed"
+													}`}
+													disabled={new Date(v.end_date) <= new Date()}
+													>
+													{new Date(v.end_date) > new Date() ? "Sử Dụng" : "Hết hạn"}
+												</button>
+											</Dialog.Close>
 											</div>
-                      <div>
-                        <h3 className="font-medium text-gray-900">
-                          {method.name}
-                        </h3>
-                        <p className="text-sm text-gray-600">{method.description}</p>
 										</div>
 										</div>
-                  </label>
-                ))}
+									))
+									) : (
+									<div className="flex flex-col items-center justify-center w-full py-10 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+										<i className="fa-solid fa-ticket text-4xl text-gray-400 mb-3"></i>
+										<p className="text-gray-500 font-semibold text-sm">Bạn chưa có voucher nào</p>
+										<p className="text-gray-400 text-xs mt-1">Hãy quay lại sau hoặc săn voucher từ các chương trình khuyến mãi</p>
 									</div>
+									)}
+
+
+									<div className="flex justify-end mt-4">
+									<Dialog.Close asChild>
+										<button className="text-sm px-4 py-2 border rounded hover:bg-gray-100">
+										Đóng
+										</button>
+									</Dialog.Close>
+									</div>
+								</Dialog.Content>
+								</Dialog.Portal>
+							</Dialog.Root>
 						</div>
 												
-            {/* Order Note */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Ghi chú đơn hàng
-              </h2>
+						<div>
+							<label className="block text-sm mb-1 font-medium">Ghi chú đơn hàng (tuỳ chọn)</label>
 							<textarea
 								name="note"
+								placeholder="Ghi chú về đơn hàng"
 								value={form.note}
 								onChange={handleChange}
+								className="w-full p-3 border border-gray-300 rounded"
 								rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="Ghi chú cho đơn hàng (không bắt buộc)"
 							/>
 						</div>
+						
 					</div>
+					<div className="md:w-[420px] w-full bg-white rounded border border-gray-300 p-6 h-fit">
+						<h2 className="font-semibold text-lg mb-4">Đơn hàng của bạn</h2>
+						<table className="w-full text-base mb-4">
+							<thead>
+								<tr>
+									<th className="text-left py-2">Sản phẩm</th>
+									<th className="text-right py-2">Tổng</th>
+								</tr>
+							</thead>
+							<tbody>
+								{cart.map((item) => (
+									<tr key={item.name}>
+									<td className="py-2">{item.name} × {item.so_luong}</td>
+									<td className="py-2 text-right">{((item.sale_price > 0 ? item.sale_price : item.price) * item.so_luong).toLocaleString()} ₫</td>
+									</tr>
+								))}
 
-          {/* Right Column - Order Summary */}
-          <div className="lg:w-1/3">
-            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-24">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Tóm tắt đơn hàng
-              </h2>
+								<tr>
+									<td className="py-2 font-semibold">Tổng phụ</td>
+									<td className="py-2 text-right">{total.toLocaleString()} ₫</td>
+								</tr>
 
-              {/* Voucher Section */}
-              <div className="mb-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-3">
-                  Mã giảm giá
-                </h3>
-                <div className="space-y-2">
-                  {vouchers.map((voucher) => (
-                    <label
-                      key={voucher._id}
-                      className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${
-                        selectedVoucher?._id === voucher._id
-                          ? "border-red-500 bg-red-50"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
+								{selectedVoucher && (
+									<tr>
+									<td className="py-2 font-semibold text-green-700">
+										Mã giảm ({selectedVoucher.voucher_code})
+									</td>
+									<td className="py-2 text-right text-green-700">
+										- {(originalTotal - finalTotal).toLocaleString()} ₫
+
+									</td>
+									</tr>
+								)}
+
+								<tr>
+									<td className="py-2 font-semibold">Giao hàng</td>
+									<td className="py-2 text-right">Miễn phí</td>
+								</tr>
+
+								<tr>
+									<td className="py-2 font-bold text-lg">Tổng</td>
+									<td className="py-2 text-right text-red-600 font-bold text-lg">
+									{finalTotal.toLocaleString()} ₫
+									</td>
+								</tr>
+								</tbody>
+						</table>
+						<div className="mb-3">
+							<div className="font-semibold mb-1">Phương thức thanh toán</div>
+							<div className="flex flex-col gap-2">
+								{paymentMethods.map((method) => (
+									<label key={method.code} className="flex items-center gap-2 cursor-pointer">
 										<input
 											type="radio"
-                        name="voucher"
-                        checked={selectedVoucher?._id === voucher._id}
-                        onChange={() => setSelectedVoucher(voucher)}
-                        className="sr-only"
-                      />
-                      <div className="flex items-center space-x-3">
-                        <div className="w-4 h-4 border-2 border-gray-300 rounded flex items-center justify-center">
-                          {selectedVoucher?._id === voucher._id && (
-                            <div className="w-2 h-2 bg-red-500 rounded"></div>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900">
-                            {voucher.voucher_code}
-                          </h4>
-                          <p className="text-sm text-gray-600">
-                            {voucher.discount_type === "percentage"
-                              ? `Giảm ${voucher.discount_value}%`
-                              : `Giảm ${formatCurrency(voucher.discount_value)}`}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Đơn tối thiểu: {formatCurrency(voucher.minimum_order_value || 0)}
-                          </p>
-                        </div>
-                      </div>
+											name="payment"
+											className="accent-red-600"
+											checked={selectedPayment === method.code}
+											onChange={() => setSelectedPayment(method.code)}
+										/>
+										<Image
+											src={method.icon_url ? `/${method.icon_url}` : "/placeholder.png"}
+											alt={method.name}
+											width={24}
+											height={24}
+											className="h-6 w-6 object-contain"
+										/>
+										{method.name}
 									</label>
 								))}
-                  {vouchers.length === 0 && (
-                    <p className="text-gray-500 text-sm">
-                      Không có mã giảm giá khả dụng
-                    </p>
-                  )}
-                </div>
 							</div>
 
-              {/* Order Summary */}
-              <div className="border-t border-gray-200 pt-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>Tạm tính</span>
-                    <span>{formatCurrency(originalTotal)}</span>
-                  </div>
-                  {selectedVoucher && (
-                    <>
-                      <div className="flex justify-between text-sm text-gray-600">
-                        <span>Giảm giá</span>
-                        <span className="text-green-600">
-                          - {formatCurrency(originalTotal - finalTotal)}
-                        </span>
+							{/* Nếu chọn ví điện tử, có thể hiển thị QR code (placeholder) */}
+							{["MOMO_WALLET", "ZALOPAY_WALLET"].includes(selectedPayment) && (
+								<div className="mt-3 text-sm text-gray-700">
+									Vui lòng quét mã QR bên dưới để thanh toán:
+									<div className="mt-2">
+										<img src="/placeholder-qr.png" alt="QR code" className="h-32 w-32" />
 									</div>
-                      <div className="flex justify-between text-sm text-gray-600">
-                        <span>Phí vận chuyển</span>
-                        <span>Miễn phí</span>
 								</div>
-                    </>
-                  )}
-                  <div className="border-t border-gray-200 pt-2">
-                    <div className="flex justify-between text-lg font-semibold text-gray-900">
-                      <span>Tổng cộng</span>
-                      <span>{formatCurrency(finalTotal)}</span>
-                    </div>
-								</div>
-							</div>
-						</div>
+							)}
 
-              {/* Place Order Button */}
+							{/* {selectedPayment === "BANK_TRANSFER" && (
+							<div className="p-4 border rounded-lg bg-gray-50 mt-4 space-y-2">
+								<p className="font-semibold">Vui lòng chuyển khoản đến:</p>
+								<p>🏦 Ngân hàng: <strong>{bankInfo.bankName}</strong></p>
+								<p>👤 Chủ tài khoản: <strong>{bankInfo.accountName}</strong></p>
+								<p>🔢 Số tài khoản: <strong>{bankInfo.accountNumber}</strong></p>
+								<p>📝 Nội dung chuyển khoản: <strong>{bankInfo.note}</strong></p>
+								{qrCodeUrl && (
+								<div className="mt-4">
+									<QRCodeSVG value={qrCodeUrl} size={256} />
+									<p className="text-sm mt-2 text-red-500">
+									Vui lòng chuyển khoản đúng nội dung để hệ thống tự động xác nhận đơn hàng.
+									</p>
+								</div>
+								)}
+							</div>
+							)} */}
+						</div>
 						<button
-                onClick={handleSubmit}
-                disabled={isLoading || selectedCartItems.length === 0}
-                className="w-full mt-6 bg-red-600 text-white py-3 px-4 rounded-md font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+							type="submit"
+							className="w-full bg-red-600 text-white py-3 rounded font-semibold text-lg hover:bg-red-700 transition"
+							disabled={isLoading}
 						>
 							{isLoading ? "Đang xử lý..." : "Đặt hàng"}
 						</button>
-
-              <div className="mt-4 text-center">
-                <Link
-                  href="/cart"
-                  className="text-sm text-gray-600 hover:text-gray-900"
-                >
-                  ← Quay lại giỏ hàng
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 					</div>
+			</form>
+		</main>
 	);
 }

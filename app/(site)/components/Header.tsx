@@ -17,29 +17,17 @@ interface SearchSuggestion {
 const Height = 40; 
 
 import { API_ENDPOINTS } from '../../config/api';
-
-function getAvatarSrc(avatar?: string | null): string {
-  if (!avatar || avatar === '') {
-    return '/images/avatar-default.png';
-  }
-  // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
-  if (avatar.startsWith('http')) {
-    // Thêm timestamp để tránh cache
-    const separator = avatar.includes('?') ? '&' : '?';
-    return `${avatar}${separator}t=${Date.now()}`;
-  }
-  // Nếu là avatar upload từ server
-  const avatarUrl = API_ENDPOINTS.AVATAR_URL(avatar);
-  const separator = avatarUrl.includes('?') ? '&' : '?';
-  return `${avatarUrl}${separator}t=${Date.now()}`;
-}
+import { getAvatarSrc } from '../../utils/avatarUtils';
 
 function AvatarImage({ avatar, alt, size = 32, className = "" }: { avatar?: string | null, alt?: string, size?: number, className?: string }) {
   const [imgSrc, setImgSrc] = useState(getAvatarSrc(avatar));
+  const [key, setKey] = useState(0); // Thêm key để force re-render
   
   // Cập nhật imgSrc khi avatar thay đổi
   useEffect(() => {
-    setImgSrc(getAvatarSrc(avatar));
+    const newSrc = getAvatarSrc(avatar);
+    setImgSrc(newSrc);
+    setKey(prev => prev + 1); // Force re-render khi avatar thay đổi
   }, [avatar]);
   
   return (
@@ -55,6 +43,7 @@ function AvatarImage({ avatar, alt, size = 32, className = "" }: { avatar?: stri
       }}
     >
       <Image
+        key={key} // Thêm key để force re-render
         src={imgSrc}
         alt={alt || "avatar"}
         width={size}
@@ -568,12 +557,13 @@ const Header = () => {
         </div>
         <div className="header-cart">
           <Link href="/cart" className="flex items-center font-semibold relative">
-          <span className="ml-2">GIỎ HÀNG</span><i className="fa-solid fa-bag-shopping ml-2 text-2xl">
+            <span className="ml-2 hidden sm:inline">GIỎ HÀNG</span>
+            <i className="fa-solid fa-bag-shopping ml-2 text-2xl">
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
                 {cartCount}
               </span>
-          </i>
-        </Link>
+            </i>
+          </Link>
         </div>
 
       </nav>

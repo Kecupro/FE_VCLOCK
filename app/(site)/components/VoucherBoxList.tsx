@@ -111,18 +111,26 @@ const VoucherBoxList = () => {
         
         <Swiper
           modules={[Autoplay]}
-          spaceBetween={24}
-          slidesPerView={2}
+          spaceBetween={16}
+          slidesPerView={1}
           autoplay={{
-            delay: 2500,
+            delay: 3000,
             disableOnInteraction: false,
           }}
           breakpoints={{
             480: {
+              slidesPerView: 1,
+              spaceBetween: 20,
+            },
+            640: {
               slidesPerView: 2,
               spaceBetween: 24,
             },
             768: {
+              slidesPerView: 2,
+              spaceBetween: 24,
+            },
+            1024: {
               slidesPerView: 3,
               spaceBetween: 24,
             },
@@ -135,30 +143,30 @@ const VoucherBoxList = () => {
             const isUsed = savedState?.used;
             return (
               <SwiperSlide key={v._id}>
-                <div className="relative flex w-full h-[120px] bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div className="relative flex w-full h-[120px] sm:h-[130px] bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
                   {/* Left column */}
-                  <div className="flex flex-col items-center justify-center bg-gradient-to-br from-red-600 to-red-700 text-white px-3 py-2 w-[120px] rounded-l-lg relative z-20">
-                    <FaTicketAlt size={24} color="#fff" />
-                    <span className="font-bold text-xs text-center leading-tight line-clamp-2 mt-1">{v.voucher_name}</span>
-                    <span className="bg-white text-[10px] font-semibold px-2 py-1 rounded text-gray-800 mt-1">{v.voucher_code}</span>
-                    <span className="text-[9px] mt-1 text-center">HSD: {formatDate(v.end_date)}</span>
+                  <div className="flex flex-col items-center justify-center bg-gradient-to-br from-red-600 to-red-700 text-white px-2 sm:px-3 py-2 w-[100px] sm:w-[120px] rounded-l-lg relative z-20">
+                    <FaTicketAlt size={20} className="sm:w-6 sm:h-6" color="#fff" />
+                    <span className="font-bold text-[10px] sm:text-xs text-center leading-tight line-clamp-2 mt-1">{v.voucher_name}</span>
+                    <span className="bg-white text-[8px] sm:text-[10px] font-semibold px-1 sm:px-2 py-1 rounded text-gray-800 mt-1">{v.voucher_code}</span>
+                    <span className="text-[8px] sm:text-[9px] mt-1 text-center">HSD: {formatDate(v.end_date)}</span>
                   </div>
                   
                   {/* Right column */}
-                  <div className="flex-1 min-w-0 flex flex-col justify-between pl-4 px-3 py-2 bg-white">
+                  <div className="flex-1 min-w-0 flex flex-col justify-between pl-2 sm:pl-4 px-2 sm:px-3 py-2 bg-white">
                     <div className="space-y-1 overflow-hidden">
-                      <div className="text-red-500 font-bold text-sm leading-tight truncate">
+                      <div className="text-red-500 font-bold text-xs sm:text-sm leading-tight truncate">
                         {v.discount_type === "percentage" ? `Giảm ${v.discount_value}%` : `Giảm ${formatCurrency(v.discount_value)}`}
                         {v.max_discount && v.discount_type === "percentage" && (
-<span className="text-xs text-gray-500 ml-1 whitespace-nowrap">(Tối đa {formatCurrency(v.max_discount)})</span>
+                          <span className="text-[8px] sm:text-xs text-gray-500 ml-1 whitespace-nowrap">(Tối đa {formatCurrency(v.max_discount)})</span>
                         )}
                       </div>
-                      <div className="text-gray-700 font-semibold text-xs truncate">Đơn tối thiểu: {formatCurrency(v.minimum_order_value || 0)}</div>
+                      <div className="text-gray-700 font-semibold text-[10px] sm:text-xs truncate">Đơn tối thiểu: {formatCurrency(v.minimum_order_value || 0)}</div>
                       <span className={
                         (getVoucherStatus(v.start_date || '', v.end_date) === 0 ? "bg-green-100 text-green-700" :
                         getVoucherStatus(v.start_date || '', v.end_date) === 1 ? "bg-gray-200 text-gray-500" :
                         "bg-yellow-100 text-yellow-700") +
-                        " text-[9px] font-semibold px-2 py-1 rounded inline-block w-fit mt-1"
+                        " text-[8px] sm:text-[9px] font-semibold px-1 sm:px-2 py-1 rounded inline-block w-fit mt-1"
                       }>
                         {getVoucherStatus(v.start_date || '', v.end_date) === 0 ? "Còn hạn" :
                         getVoucherStatus(v.start_date || '', v.end_date) === 1 ? "Hết hạn" : "Sắp bắt đầu"}
@@ -166,7 +174,7 @@ const VoucherBoxList = () => {
                     </div>
                     <button
                       className={
-                        `self-end mt-2 px-3 py-1 rounded-md font-bold transition text-xs disabled:opacity-50 disabled:cursor-not-allowed ` +
+                        `self-end mt-2 px-2 sm:px-3 py-1 rounded-md font-bold transition text-[10px] sm:text-xs disabled:opacity-50 disabled:cursor-not-allowed ` +
                         (getVoucherStatus(v.start_date || '', v.end_date) === 1
                           ? 'bg-gray-400 text-white'
                           : isUsed

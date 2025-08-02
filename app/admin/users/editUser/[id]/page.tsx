@@ -4,6 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "../../../assets/css/add.module.css";
+import { getAvatarSrc } from '../../../../utils/avatarUtils';
 
 interface IAddress {
   _id: string;
@@ -241,28 +242,6 @@ const EditUser = () => {
       }
     };
   }, [previewUrl]);
-  const getImageSrc = (imagePath: string): string => {
-    if (!imagePath || imagePath.trim() === "") {
-      return "/images/avatar-default.png";
-    }
-    
-    // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
-    if (imagePath.startsWith('http')) {
-      // Thêm timestamp để tránh cache
-      const separator = imagePath.includes('?') ? '&' : '?';
-      return `${imagePath}${separator}t=${Date.now()}`;
-    }
-    
-    // Nếu là đường dẫn tương đối bắt đầu bằng /
-    if (imagePath.startsWith('/')) {
-      return imagePath;
-    }
-    
-    // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    const avatarUrl = `https://bevclock-production.up.railway.app/uploads/avatars/${imagePath}`;
-    const separator = avatarUrl.includes('?') ? '&' : '?';
-    return `${avatarUrl}${separator}t=${Date.now()}`;
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -778,7 +757,7 @@ const EditUser = () => {
                       Ảnh hiện tại:
                     </p>
                     <img
-                      src={getImageSrc(formData.currentImage)}
+                      src={getAvatarSrc(formData.currentImage)}
                       alt="Current avatar"
                       style={{
                         maxWidth: "100px",
