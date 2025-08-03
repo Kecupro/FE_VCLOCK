@@ -33,6 +33,26 @@ const VoucherBoxList = () => {
   const [savingVoucher, setSavingVoucher] = useState<string | null>(null);
   const [savedVoucherStates, setSavedVoucherStates] = useState<{ id: string, used: boolean }[]>([]);
 
+  // Function để refresh voucher states
+  const refreshVoucherStates = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    
+    try {
+      const res = await axios.get("https://bevclock-production.up.railway.app/voucher-user", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const arr = (res.data as (IVoucher & { used?: boolean })[]).map(v => ({ 
+        id: v._id, 
+        used: !!v.used 
+      }));
+      setSavedVoucherStates(arr);
+    } catch (error) {
+      console.error("Lỗi refresh voucher states:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchVouchers = async () => {
       try {
@@ -49,16 +69,7 @@ const VoucherBoxList = () => {
 
   // Fetch voucher đã lưu nếu đã đăng nhập
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    axios.get("https://bevclock-production.up.railway.app/voucher-user", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => {
-        const arr = (res.data as (IVoucher & { used?: boolean })[]).map(v => ({ id: v._id, used: !!v.used }));
-        setSavedVoucherStates(arr);
-      })
-      .catch(() => setSavedVoucherStates([]));
+    refreshVoucherStates();
   }, []);
 
   const handleSaveVoucher = async (voucherId: string) => {
@@ -80,7 +91,15 @@ const VoucherBoxList = () => {
         }
       );
       toast.success((response.data as { message: string }).message);
-      setSavedVoucherStates((prev) => [...prev, { id: voucherId, used: false }]); // Cập nhật luôn UI
+      
+      // Cập nhật UI ngay lập tức
+      setSavedVoucherStates((prev) => [...prev, { id: voucherId, used: false }]);
+      
+      // Refresh lại danh sách voucher đã lưu để đảm bảo dữ liệu chính xác
+      setTimeout(() => {
+        refreshVoucherStates();
+      }, 1000);
+      
     } catch (error: unknown) {
       const errorMessage = error && typeof error === 'object' && 'response' in error
         ? (error.response as { data?: { message?: string } })?.data?.message
@@ -137,6 +156,10 @@ const VoucherBoxList = () => {
             const savedState = savedVoucherStates.find(s => s.id === v._id);
             const isSaved = !!savedState;
             const isUsed = savedState?.used;
+            
+            // Debug log để kiểm tra trạng thái
+            console.log(`Voucher ${v.voucher_code}: isSaved=${isSaved}, isUsed=${isUsed}, savedState=`, savedState);
+            
             return (
               <SwiperSlide key={v._id}>
                 <div className="relative flex w-full h-[120px] bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
@@ -174,7 +197,7 @@ const VoucherBoxList = () => {
                         (getVoucherStatus(v.start_date || '', v.end_date) === 1
                           ? 'bg-gray-400 text-white'
                           : isUsed
-                          ? 'bg-black text-white'
+                          ? 'bg-gray-600 text-white'
                           : isSaved
                           ? 'bg-black text-white'
                           : 'bg-red-600 hover:bg-red-700 text-white')

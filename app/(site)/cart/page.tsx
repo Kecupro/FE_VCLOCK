@@ -129,7 +129,7 @@ export default function CartPage() {
                               value={item.so_luong}
                               onChange={(e) => {
                                 const val = parseInt(e.target.value);
-                                if (isNaN(val)) return;
+                                if (isNaN(val) || val < 1) return;
 
                                 const product = cart.find((p) => p._id === item._id);
                                 if (!product) return;
@@ -139,6 +139,12 @@ export default function CartPage() {
                                   updateQuantity(item._id, product.quantity); // auto set về tối đa
                                 } else {
                                   updateQuantity(item._id, val);
+                                }
+                              }}
+                              onKeyDown={(e) => {
+                                // Ngăn chặn nhập dấu trừ (-)
+                                if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                                  e.preventDefault();
                                 }
                               }}
                               className="w-12 text-center text-sm text-gray-900 focus:outline-none"

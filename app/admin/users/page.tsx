@@ -86,26 +86,29 @@ const UsersPage = () => {
   ];
 
   const getAvatarSource = (avatar: string | null | undefined): string => {
+    console.log("getAvatarSource input:", avatar);
+    
     if (!avatar || avatar.trim() === "") {
+      console.log("Avatar empty, using default");
       return "/images/avatar-default.png";
     }
     
     // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
     if (avatar.startsWith('http')) {
-      // Thêm timestamp để tránh cache
-      const separator = avatar.includes('?') ? '&' : '?';
-      return `${avatar}${separator}t=${Date.now()}`;
+      console.log("Avatar is URL:", avatar);
+      return avatar;
     }
     
     // Nếu là đường dẫn tương đối bắt đầu bằng /
     if (avatar.startsWith('/')) {
+      console.log("Avatar is relative path:", avatar);
       return avatar;
     }
     
     // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    const avatarUrl = `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
-    const separator = avatarUrl.includes('?') ? '&' : '?';
-    return `${avatarUrl}${separator}t=${Date.now()}`;
+    const result = `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
+    console.log("Avatar is filename, result:", result);
+    return result;
   };
 
   const getAuthToken = (): string | null => {
@@ -501,17 +504,6 @@ const UsersPage = () => {
           <h1 className={styles.title}>Quản lý người dùng</h1>
         </div>
         <div className={styles.headerActions}>
-          <button 
-            className={styles.addButton} 
-            onClick={() => {
-              setLoading(true);
-              fetchUsers();
-            }}
-            style={{ marginRight: '10px' }}
-          >
-            <RefreshCw size={16} />
-            Làm mới
-          </button>
           <Link href={"users/addUser"}>
           <button className={styles.addButton}>
             <Plus size={16} />
@@ -634,6 +626,13 @@ const UsersPage = () => {
                                 }}
                                 unoptimized={user.avatar?.startsWith('http')}
                                 priority={false}
+                                onError={(e) => {
+                                  console.error(`Lỗi load avatar cho user ${user.username}:`, e);
+                                  (e.target as HTMLImageElement).src = "/images/avatar-default.png";
+                                }}
+                                onLoad={() => {
+                                  console.log(`Avatar loaded successfully for user ${user.username}:`, user.avatar);
+                                }}
                               />
                             </div>
                           </div>

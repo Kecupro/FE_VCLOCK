@@ -225,11 +225,20 @@ export default function CheckoutPage() {
 					throw new Error("Failed to fetch payment methods");
 				}
 				const data = await response.json();
-				setPaymentMethods(data.list);
+	
+				if (data.list && Array.isArray(data.list)) {
+					setPaymentMethods(data.list);
+				} else if (Array.isArray(data)) {
+					setPaymentMethods(data);
+				} else {
+					console.error("Cấu trúc dữ liệu không đúng:", data);
+					setPaymentMethods([]);
+				}
+				
 				setSelectedPayment("COD"); // mặc định là COD
-				console.log("Dữ liệu phương thức thanh toán:", data);
 			} catch (error) {
 				console.error("Error fetching payment methods:", error);
+				setPaymentMethods([]);
 			}
 		};
 		fetchPaymentMethods();
@@ -238,7 +247,7 @@ export default function CheckoutPage() {
 	const handlePostOrderSuccess = () => {
     toast.success("Đặt hàng thành công!");
 
-    // Lấy danh sách id sản phẩm đã mua
+
     const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
     const fullCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
@@ -853,11 +862,18 @@ export default function CheckoutPage() {
 											onChange={() => setSelectedPayment(method.code)}
 										/>
 										<Image
-											src={method.icon_url ? `/${method.icon_url}` : "/placeholder.png"}
+											src={method.icon_url ? 
+												(method.icon_url.startsWith('http') ? method.icon_url : `/images/payment-Method/${method.icon_url}`) 
+												: "/images/payment-Method/placeholder.png"}
 											alt={method.name}
 											width={24}
 											height={24}
 											className="h-6 w-6 object-contain"
+											onError={(e) => {
+												// Fallback khi ảnh lỗi
+												const target = e.target as HTMLImageElement;
+												target.src = "/images/payment-Method/placeholder.png";
+											}}
 										/>
 										{method.name}
 									</label>

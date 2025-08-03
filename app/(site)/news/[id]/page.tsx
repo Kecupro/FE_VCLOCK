@@ -13,11 +13,51 @@ export default function NewsDetail() {
   const hasIncrementedView = useRef(false);
 
   useEffect(() => {
-    if (params?.id && !hasIncrementedView.current) {
+    if (params?.id) {
       fetchNewsDetail();
-      incrementView();
+      // Chỉ tăng lượt xem nếu chưa xem trong session này
+      if (!hasIncrementedView.current && !hasViewedInSession(params.id as string)) {
+        incrementView();
+      }
     }
   }, [params?.id]);
+
+  // Kiểm tra và xóa session cũ nếu cần
+  const cleanupOldSession = () => {
+    if (typeof window === 'undefined') return;
+    
+    const lastCleanup = localStorage.getItem('viewedNewsLastCleanup');
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000; // 24 giờ
+    
+    if (!lastCleanup || (now - parseInt(lastCleanup)) > oneDay) {
+      localStorage.removeItem('viewedNews');
+      localStorage.setItem('viewedNewsLastCleanup', now.toString());
+    }
+  };
+
+  // Kiểm tra xem đã xem tin tức này trong session chưa
+  const hasViewedInSession = (newsId: string): boolean => {
+    if (typeof window === 'undefined') return false;
+    
+    cleanupOldSession(); // Dọn dẹp session cũ trước khi kiểm tra
+    
+    const viewedNews = JSON.parse(localStorage.getItem('viewedNews') || '[]');
+    return viewedNews.includes(newsId);
+  };
+
+  // Đánh dấu đã xem tin tức trong session
+  const markAsViewed = (newsId: string) => {
+    if (typeof window === 'undefined') return;
+    
+    cleanupOldSession(); // Dọn dẹp session cũ trước khi thêm mới
+    
+    const viewedNews = JSON.parse(localStorage.getItem('viewedNews') || '[]');
+    if (!viewedNews.includes(newsId)) {
+      viewedNews.push(newsId);
+      localStorage.setItem('viewedNews', JSON.stringify(viewedNews));
+    }
+  };
 
   const fetchNewsDetail = async () => {
     try {
@@ -35,7 +75,17 @@ export default function NewsDetail() {
     
     try {
       hasIncrementedView.current = true;
-      await axios.post(`https://bevclock-production.up.railway.app/api/news/${params.id}/increment-view`);
+      const response = await axios.post(`https://bevclock-production.up.railway.app/api/news/${params.id}/increment-view`);
+      
+      if (response.data.success) {
+        // Đánh dấu đã xem trong session
+        markAsViewed(params.id as string);
+        
+        // Cập nhật lượt xem trong state nếu cần
+        if (news) {
+          setNews(prev => prev ? { ...prev, views: (prev.views || 0) + 1 } : null);
+        }
+      }
     } catch (error) {
       console.error('Error incrementing view:', error);
       hasIncrementedView.current = false; // Reset if failed

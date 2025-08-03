@@ -22,9 +22,9 @@ const Footer = () => (
         <ul className="list-none p-0 m-0">
          <li className="mb-4"><Link href="/" className="hover:text-red-400"><i className="fa-solid fa-caret-right mr-2"></i>Trang chủ</Link></li>
           <li className="mb-4"><a href="/about" className="hover:text-red-400"><i className="fa-solid fa-caret-right mr-2"></i>Giới thiệu</a></li>
-          <li className="mb-4"><a href="/services" className="hover:text-red-400"><i className="fa-solid fa-caret-right mr-2"></i>Dịch vụ</a></li>
+          <li className="mb-4"><a href="/shop" className="hover:text-red-400"><i className="fa-solid fa-caret-right mr-2"></i>Cửa hàng</a></li>
+          <li className="mb-4"><Link href="/news" className="hover:text-red-400"><i className="fa-solid fa-caret-right mr-2"></i>Tin tức</a></li>
           <li className="mb-4"><a href="/contact" className="hover:text-red-400"><i className="fa-solid fa-caret-right mr-2"></i>Liên hệ</a></li>
-          <li className="mb-4"><a href="/privacy" className="hover:text-red-400"><i className="fa-solid fa-caret-right mr-2"></i>Chính sách bảo mật</a></li>
         </ul>
       </div>
     <div>
