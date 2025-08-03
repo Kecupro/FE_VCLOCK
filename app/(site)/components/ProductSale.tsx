@@ -93,12 +93,9 @@ export default function ProductSale() {
 
                                     <div className="flex flex-col flex-grow min-h-[60px]">
                                         <div className="flex justify-between items-start mb-1">
-                                            <Link href={`/product/${slug}`} className="font-semibold text-base text-gray-800 flex-grow mr-2 line-clamp-2">
+                                            <Link href={`/product/${slug}`} className="font-semibold text-base text-gray-800 flex-grow mr-2 line-clamp-2 overflow-hidden">
                                                 {sp.name}
                                             </Link>
-                                            <div className="flex-shrink-0 text-gray-500 text-[12px] flex items-center">
-                                                <i className="fa-solid fa-star text-orange-400 mr-1"></i>4.0
-                                            </div>
                                         </div>
                                         <p className="text-[12px] text-gray-600 mb-2 truncate">
                                             {sp.brand?.name ?? "Không rõ thương hiệu"}
@@ -144,30 +141,6 @@ export default function ProductSale() {
                     })}
                 </Swiper>
             </div>
-            <style jsx global>{`
-                .swiper-button-next,
-                .swiper-button-prev {
-                    color: #6b7280 !important;
-                }
-                .swiper-button-next {
-                    right: -32px;
-                }
-                .swiper-button-prev {
-                    left: -32px;
-                }
-                .swiper-button-prev,
-                .swiper-button-next {
-                    top: 50%;
-                    transform: translateY(-50%);
-                    z-index: 10;
-                }
-                @media (max-width: 767px) {
-                    .swiper-button-next,
-                    .swiper-button-prev {
-                        display: none;
-                    }
-                }
-            `}</style>
         </div>
     );
 }

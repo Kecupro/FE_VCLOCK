@@ -1,7 +1,6 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import AddToCart from "../components/AddToCart";
 import WishlistButton from "../components/WishlistButton";
 import { IProduct } from "../cautrucdata";
@@ -43,8 +42,7 @@ function handleBrandImageError(e: React.SyntheticEvent<HTMLImageElement, Event>,
   }
 }
 
-function ShopPageContent() {
-  const searchParams = useSearchParams();
+export default function ShopPage() {
   const [categories, setCategories] = useState<string[]>(["Tất cả"]);
   const [products, setProducts] = useState<IProduct[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
@@ -68,13 +66,7 @@ function ShopPageContent() {
   const [maxPrice, setMaxPrice] = useState(20000000);
   const [showFilterModal, setShowFilterModal] = useState(false);
 
-  // Đọc brand từ URL parameters khi component mount
-  useEffect(() => {
-    const brandFromUrl = searchParams.get('brand');
-    if (brandFromUrl) {
-      setSelectedBrand(decodeURIComponent(brandFromUrl));
-    }
-  }, [searchParams]);
+
 
   // Fetch categories
   useEffect(() => {
@@ -479,7 +471,7 @@ function ShopPageContent() {
                 </Link>
                 <div className="flex flex-col flex-grow min-h-[60px]">
                   <div className="flex justify-between items-start mb-1">
-                    <h6 className="font-semibold text-base text-gray-800 flex-grow mr-2 line-clamp-2">
+                    <h6 className="font-semibold text-base text-gray-800 flex-grow mr-2 line-clamp-2 overflow-hidden">
                       {sp.name}
                     </h6>
                   </div>
@@ -646,17 +638,5 @@ function ShopPageContent() {
         </div>
       )}
     </main>
-  );
-}
-
-export default function ShopPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-      </div>
-    }>
-      <ShopPageContent />
-    </Suspense>
   );
 }
