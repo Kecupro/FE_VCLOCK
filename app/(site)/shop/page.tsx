@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import AddToCart from "../components/AddToCart";
@@ -43,7 +43,7 @@ function handleBrandImageError(e: React.SyntheticEvent<HTMLImageElement, Event>,
   }
 }
 
-export default function ShopPage() {
+function ShopPageContent() {
   const searchParams = useSearchParams();
   const [categories, setCategories] = useState<string[]>(["Tất cả"]);
   const [products, setProducts] = useState<IProduct[]>([]);
@@ -482,9 +482,6 @@ export default function ShopPage() {
                     <h6 className="font-semibold text-base text-gray-800 flex-grow mr-2 line-clamp-2">
                       {sp.name}
                     </h6>
-                    <div className="flex-shrink-0 text-gray-500 text-[12px] flex items-center">
-                      <i className="fa-solid fa-star text-orange-400 mr-1"></i>4.0
-                    </div>
                   </div>
                   <p className="text-[12px] text-gray-600 mb-2 truncate">
                     {sp.brand.name ?? "Không rõ thương hiệu"}
@@ -649,5 +646,17 @@ export default function ShopPage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+      </div>
+    }>
+      <ShopPageContent />
+    </Suspense>
   );
 }
