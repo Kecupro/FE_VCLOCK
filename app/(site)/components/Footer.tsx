@@ -23,7 +23,7 @@ const Footer = () => (
          <li className="mb-4"><Link href="/" className="hover:text-red-400"><i className="fa-solid fa-caret-right mr-2"></i>Trang chủ</Link></li>
           <li className="mb-4"><a href="/about" className="hover:text-red-400"><i className="fa-solid fa-caret-right mr-2"></i>Giới thiệu</a></li>
           <li className="mb-4"><a href="/shop" className="hover:text-red-400"><i className="fa-solid fa-caret-right mr-2"></i>Cửa hàng</a></li>
-          <li className="mb-4"><Link href="/news" className="hover:text-red-400"><i className="fa-solid fa-caret-right mr-2"></i>Tin tức</Link></li>
+          <li className="mb-4"><a href="/new" className="hover:text-red-400"><i className="fa-solid fa-caret-right mr-2"></i>Tin tức</a></li>
           <li className="mb-4"><a href="/contact" className="hover:text-red-400"><i className="fa-solid fa-caret-right mr-2"></i>Liên hệ</a></li>
         </ul>
       </div>
