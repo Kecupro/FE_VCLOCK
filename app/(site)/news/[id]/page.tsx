@@ -77,7 +77,10 @@ export default function NewsDetail() {
       hasIncrementedView.current = true;
       const response = await axios.post(`https://bevclock-production.up.railway.app/api/news/${params.id}/increment-view`);
       
-      if (response.data.success) {
+      // Type assertion để xử lý response.data
+      const responseData = response.data as { success?: boolean; message?: string; views?: number };
+      
+      if (responseData.success) {
         // Đánh dấu đã xem trong session
         markAsViewed(params.id as string);
         
