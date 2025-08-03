@@ -23,6 +23,7 @@ import {
   removeFromLocalStorage,
   isBrowser,
 } from "./utils/localStorage";
+import { getAvatarSrc } from "../../utils/avatarUtils";
 
 // Hàm hiển thị tên role
 const getRoleDisplayName = (role: number): string => {
@@ -134,29 +135,7 @@ const AdminProfile = () => {
     return userData.fullName || userData.username || "Chưa cập nhật";
   };
 
-  // Hàm xử lý đường dẫn avatar
-  const getAvatarSrc = (avatar: string | null | undefined): string => {
-    if (!avatar || avatar.trim() === "") {
-      return "/images/avatar-default.png";
-    }
-    
-    // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
-    if (avatar.startsWith('http')) {
-      // Thêm timestamp để tránh cache
-      const separator = avatar.includes('?') ? '&' : '?';
-      return `${avatar}${separator}t=${Date.now()}`;
-    }
-    
-    // Nếu là đường dẫn tương đối bắt đầu bằng /
-    if (avatar.startsWith('/')) {
-      return avatar;
-    }
-    
-    // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    const avatarUrl = `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
-    const separator = avatarUrl.includes('?') ? '&' : '?';
-    return `${avatarUrl}${separator}t=${Date.now()}`;
-  };
+
 
   const fetchUserDataById = useCallback(
     async (id: string) => {

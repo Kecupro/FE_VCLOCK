@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
       'scontent.fsgn5-9.fna.fbcdn.net',
       "scontent.fsgn8-3.fna.fbcdn.net",
       'localhost',
+      'bevclock-production.up.railway.app',
     ],
 
     remotePatterns: [
@@ -51,6 +52,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'icones.pro',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'bevclock-production.up.railway.app',
         port: '',
         pathname: '/**',
       },

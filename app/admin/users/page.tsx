@@ -15,6 +15,7 @@ import { useAppContext } from "../../context/AppContext";
 import Link from "next/link";
 import Image from "next/image";
 import { IUser } from "@/app/(site)/cautrucdata";
+import { getAvatarSrc } from "../../utils/avatarUtils";
 
 interface UserRoleInfo {
   id: number;
@@ -85,31 +86,7 @@ const UsersPage = () => {
     { value: 1, label: "Hoạt động" },
   ];
 
-  const getAvatarSource = (avatar: string | null | undefined): string => {
-    console.log("getAvatarSource input:", avatar);
-    
-    if (!avatar || avatar.trim() === "") {
-      console.log("Avatar empty, using default");
-      return "/images/avatar-default.png";
-    }
-    
-    // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
-    if (avatar.startsWith('http')) {
-      console.log("Avatar is URL:", avatar);
-      return avatar;
-    }
-    
-    // Nếu là đường dẫn tương đối bắt đầu bằng /
-    if (avatar.startsWith('/')) {
-      console.log("Avatar is relative path:", avatar);
-      return avatar;
-    }
-    
-    // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    const result = `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
-    console.log("Avatar is filename, result:", result);
-    return result;
-  };
+
 
   const getAuthToken = (): string | null => {
     return localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -615,7 +592,7 @@ const UsersPage = () => {
                               }}
                             >
                               <Image
-                                src={getAvatarSource(user.avatar)}
+                                src={getAvatarSrc(user.avatar)}
                                 alt={`Avatar của ${user.username || user.fullName || 'User'}`}
                                 width={40}
                                 height={40}
@@ -624,7 +601,7 @@ const UsersPage = () => {
                                   objectFit: "cover",
                                   borderRadius: "50%",
                                 }}
-                                unoptimized={user.avatar?.startsWith('http')}
+                                unoptimized={true}
                                 priority={false}
                                 onError={(e) => {
                                   console.error(`Lỗi load avatar cho user ${user.username}:`, e);

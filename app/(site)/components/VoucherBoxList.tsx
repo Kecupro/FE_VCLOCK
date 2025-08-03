@@ -22,9 +22,9 @@ function getVoucherStatus(start: string | number | Date, end: string | number | 
   const now = new Date();
   const startDate = new Date(start);
   const endDate = new Date(end);
-  if (now < startDate) return 2; // Sắp bắt đầu
-  if (now > endDate) return 1; // Hết hạn
-  return 0; // Còn hạn
+  if (now < startDate) return 2; 
+  if (now > endDate) return 1; 
+  return 0; 
 }
 
 const VoucherBoxList = () => {
@@ -66,7 +66,6 @@ const VoucherBoxList = () => {
     fetchVouchers();
   }, []);
 
-  // Fetch voucher đã lưu nếu đã đăng nhập
   useEffect(() => {
     refreshVoucherStates();
   }, []);
@@ -91,10 +90,8 @@ const VoucherBoxList = () => {
       );
       toast.success((response.data as { message: string }).message);
       
-      // Cập nhật UI ngay lập tức
       setSavedVoucherStates((prev) => [...prev, { id: voucherId, used: false }]);
       
-      // Refresh lại danh sách voucher đã lưu để đảm bảo dữ liệu chính xác
       setTimeout(() => {
         refreshVoucherStates();
       }, 1000);
@@ -109,7 +106,7 @@ const VoucherBoxList = () => {
     }
   };
 
-  // Ẩn box voucher nếu chưa đăng nhập
+
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   if (!token) return null;
 
