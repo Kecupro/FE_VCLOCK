@@ -142,7 +142,7 @@ export default function CartPage() {
                                 }
                               }}
                               onKeyDown={(e) => {
-                                // Ngăn chặn nhập dấu trừ (-)
+                              
                                 if (e.key === '-' || e.key === 'e' || e.key === 'E') {
                                   e.preventDefault();
                                 }

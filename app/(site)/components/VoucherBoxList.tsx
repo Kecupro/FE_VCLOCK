@@ -33,7 +33,6 @@ const VoucherBoxList = () => {
   const [savingVoucher, setSavingVoucher] = useState<string | null>(null);
   const [savedVoucherStates, setSavedVoucherStates] = useState<{ id: string, used: boolean }[]>([]);
 
-  // Function để refresh voucher states
   const refreshVoucherStates = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;

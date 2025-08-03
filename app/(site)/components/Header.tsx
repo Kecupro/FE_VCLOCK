@@ -417,7 +417,7 @@ const Header = () => {
               href="/shop"
               className="hover:text-red-400 transition flex items-center font-semibold"
             >
-              SHOP
+              CỬA HÀNG
               {/* <i className="fa-solid fa-chevron-down ml-1 transition-transform duration-200"></i> */}
             </Link>
           </div>
