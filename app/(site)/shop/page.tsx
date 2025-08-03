@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import AddToCart from "../components/AddToCart";
@@ -43,7 +43,7 @@ function handleBrandImageError(e: React.SyntheticEvent<HTMLImageElement, Event>,
   }
 }
 
-export default function ShopPage() {
+function ShopPageContent() {
   const searchParams = useSearchParams();
   const [categories, setCategories] = useState<string[]>(["Tất cả"]);
   const [products, setProducts] = useState<IProduct[]>([]);
@@ -648,5 +648,13 @@ export default function ShopPage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={<div className="max-w-7xl mx-auto py-10 px-4 pt-40">Đang tải...</div>}>
+      <ShopPageContent />
+    </Suspense>
   );
 }
