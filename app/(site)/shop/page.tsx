@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import AddToCart from "../components/AddToCart";
 import WishlistButton from "../components/WishlistButton";
 import { IProduct } from "../cautrucdata";
@@ -43,6 +44,7 @@ function handleBrandImageError(e: React.SyntheticEvent<HTMLImageElement, Event>,
 }
 
 export default function ShopPage() {
+  const searchParams = useSearchParams();
   const [categories, setCategories] = useState<string[]>(["Tất cả"]);
   const [products, setProducts] = useState<IProduct[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
@@ -85,6 +87,14 @@ export default function ShopPage() {
       .then((res) => res.json())
       .then((data: IBrand[]) => setBrands(data));
   }, []);
+
+  // Đọc brand parameter từ URL
+  useEffect(() => {
+    const brandParam = searchParams.get('brand');
+    if (brandParam) {
+      setSelectedBrand(decodeURIComponent(brandParam));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetch('https://bevclock-production.up.railway.app/api/product/price-range')
