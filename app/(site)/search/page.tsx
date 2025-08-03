@@ -21,6 +21,7 @@ const SearchPage = () => {
     sortBy: 'relevance'
   });
   const [brands, setBrands] = useState<IBrand[]>([]);
+  const [categories, setCategories] = useState<{ name: string }[]>([]);
   const [suggestedProducts, setSuggestedProducts] = useState<SearchProduct[]>([]);
 
   useEffect(() => {
@@ -33,6 +34,12 @@ const SearchPage = () => {
     fetch(`https://bevclock-production.up.railway.app/api/brand`)
       .then(res => res.json())
       .then(data => setBrands(data));
+  }, []);
+
+  useEffect(() => {
+    fetch(`https://bevclock-production.up.railway.app/api/category`)
+      .then(res => res.json())
+      .then(data => setCategories(data));
   }, []);
 
   const brandMap = useMemo(() => Object.fromEntries(brands.map(b => [b._id, b.name])), [brands]);
@@ -115,9 +122,11 @@ const SearchPage = () => {
                 className="w-full p-2 border border-gray-300 rounded"
               >
                 <option value="">Tất cả</option>
-                <option value="breguet">Breguet</option>
-                <option value="cartier">Cartier</option>
-                <option value="rolex">Rolex</option>
+                {brands.map((brand) => (
+                  <option key={brand._id} value={brand.name}>
+                    {brand.name}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -132,8 +141,11 @@ const SearchPage = () => {
                 className="w-full p-2 border border-gray-300 rounded"
               >
                 <option value="">Tất cả</option>
-                <option value="dong-ho-nam">Đồng hồ nam</option>
-                <option value="dong-ho-nu">Đồng hồ nữ</option>
+                {categories.map((category) => (
+                  <option key={category.name} value={category.name}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
             </div>
 

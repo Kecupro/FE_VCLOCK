@@ -40,10 +40,10 @@ export default function Categories() {
 					{brands.map((cat, idx) => (
 						<SwiperSlide key={idx}>
 							<div className="w-full h-full p-2">
-								<Link
-									href={'/'}
-									className="flex flex-col items-center text-center bg-white rounded shadow hover:shadow-lg transition group w-full h-full"
-								>
+															<Link
+								href={`/shop?brand=${encodeURIComponent(cat.name)}`}
+								className="flex flex-col items-center text-center bg-white rounded shadow hover:shadow-lg transition group w-full h-full"
+							>
 									<img
 										src={`/images/brand/${cat.image}`}
 										alt={cat.name}
