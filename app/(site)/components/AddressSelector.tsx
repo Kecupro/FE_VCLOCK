@@ -61,7 +61,7 @@ export default function AddressSelector({ value, onChange }: {
   // Sử dụng ref để theo dõi việc đang trong quá trình parse
   const isParsing = useRef(false);
 
-  // Sử dụng ref để theo dõi việc đang nhập từ user
+  // Sử dụng ref để theo dõi việc đang user input
   const isUserInput = useRef(false);
 
   // Reset hasParsedValue khi value thay đổi
@@ -277,6 +277,41 @@ export default function AddressSelector({ value, onChange }: {
     }, 300); // Debounce 300ms
   };
 
+  // Hàm xử lý khi user thay đổi dropdown
+  const handleDropdownChange = (type: 'province' | 'district' | 'ward', code: string) => {
+    console.log(`handleDropdownChange: ${type} = ${code}`);
+    
+    // Tạm thời chặn onChange khi thay đổi dropdown
+    isUserInput.current = true;
+    
+    if (type === 'province') {
+      setProvince(code);
+    } else if (type === 'district') {
+      setDistrict(code);
+    } else if (type === 'ward') {
+      setWard(code);
+    }
+    
+    // Reset flag sau một khoảng thời gian ngắn
+    setTimeout(() => {
+      isUserInput.current = false;
+    }, 50); // Giảm thời gian xuống 50ms
+  };
+
+  // Hàm xử lý khi user nhập street
+  const handleStreetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(`handleStreetChange: ${e.target.value}`);
+    
+    // Tạm thời chặn onChange khi nhập
+    isUserInput.current = true;
+    setStreet(e.target.value);
+    
+    // Reset flag sau một khoảng thời gian ngắn
+    setTimeout(() => {
+      isUserInput.current = false;
+    }, 50); // Giảm thời gian xuống 50ms
+  };
+
   // Tạo full address và gọi onChange
   useEffect(() => {
     // Chỉ gọi onChange khi không đang parse và không đang user input
@@ -298,35 +333,6 @@ export default function AddressSelector({ value, onChange }: {
       callOnChange(fullAddress);
     }
   }, [street, wardName, districtName, provinceName]);
-
-  // Hàm xử lý khi user thay đổi dropdown
-  const handleDropdownChange = (type: 'province' | 'district' | 'ward', code: string) => {
-    isUserInput.current = true;
-    
-    if (type === 'province') {
-      setProvince(code);
-    } else if (type === 'district') {
-      setDistrict(code);
-    } else if (type === 'ward') {
-      setWard(code);
-    }
-    
-    // Reset flag sau một khoảng thời gian ngắn
-    setTimeout(() => {
-      isUserInput.current = false;
-    }, 100);
-  };
-
-  // Hàm xử lý khi user nhập street
-  const handleStreetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    isUserInput.current = true;
-    setStreet(e.target.value);
-    
-    // Reset flag sau một khoảng thời gian ngắn
-    setTimeout(() => {
-      isUserInput.current = false;
-    }, 100);
-  };
 
   return (
     <div className="space-y-4">
