@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import { Listbox } from "@headlessui/react";
 import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 export interface Province {
@@ -26,7 +25,6 @@ export interface Ward {
   district_code: string;
 }
 
-
 export default function AddressSelector({ value, onChange }: {
   value?: string;
   onChange: (fullAddress: string) => void;
@@ -39,6 +37,16 @@ export default function AddressSelector({ value, onChange }: {
   const [district, setDistrict] = useState('');
   const [ward, setWard] = useState('');
   const [street, setStreet] = useState("");
+
+  // Dropdown states
+  const [isProvinceOpen, setIsProvinceOpen] = useState(false);
+  const [isDistrictOpen, setIsDistrictOpen] = useState(false);
+  const [isWardOpen, setIsWardOpen] = useState(false);
+
+  // Refs for dropdown containers
+  const provinceRef = useRef<HTMLDivElement>(null);
+  const districtRef = useRef<HTMLDivElement>(null);
+  const wardRef = useRef<HTMLDivElement>(null);
 
   // Sử dụng useRef để lưu trữ onChange function và tránh vòng lặp vô hạn
   const onChangeRef = useRef(onChange);
@@ -55,6 +63,26 @@ export default function AddressSelector({ value, onChange }: {
     hasParsedValue.current = false;
     lastSentValue.current = ''; // Reset lastSentValue khi value thay đổi
   }, [value]);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (provinceRef.current && !provinceRef.current.contains(event.target as Node)) {
+        setIsProvinceOpen(false);
+      }
+      if (districtRef.current && !districtRef.current.contains(event.target as Node)) {
+        setIsDistrictOpen(false);
+      }
+      if (wardRef.current && !wardRef.current.contains(event.target as Node)) {
+        setIsWardOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     fetch("https://bevclock-production.up.railway.app/api/provinces")
@@ -142,71 +170,65 @@ export default function AddressSelector({ value, onChange }: {
     }
   }, [value, wards]);
 
-  // Xóa useEffect trùng lặp này
-  // useEffect(() => {
-  //   const p = provinces.find(p => p.code === province)?.name || '';
-  //   const d = districts.find(d => d.code === district)?.name || '';
-  //   const w = wards.find(w => w.code === ward)?.name || '';
-  //   const full = [w, d, p].filter(Boolean).join(', ');
-  //   onChange(full); // Cập nhật ra ngoài
-  // }, [province, district, ward, onChange]);
-
-    // Dropdown component
-    const Dropdown = ({
+  // Custom Dropdown component
+  const CustomDropdown = ({
     items,
     selected,
-    setSelected,
+    onSelect,
     placeholder,
-    }: {
+    isOpen,
+    setIsOpen,
+    ref,
+  }: {
     items: { name: string; code: string }[];
     selected: { name: string; code: string } | null;
-    setSelected: (value: { name: string; code: string } | null) => void;
+    onSelect: (value: { name: string; code: string }) => void;
     placeholder: string;
-    }) => (
-    <Listbox value={selected} onChange={setSelected}>
-        <div className="relative w-full">
-        <Listbox.Button className="relative w-full cursor-pointer rounded-lg border border-gray-300 bg-white py-2 pl-4 pr-10 text-left shadow-sm transition focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 hover:border-red-300">
-            <span className="block truncate text-gray-800">{selected ? selected.name : placeholder}</span>
-            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-            <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-            </span>
-        </Listbox.Button>
-        <Listbox.Options 
-            className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-            static={false}
-        >
-            {items.map((item) => (
-            <Listbox.Option
-                key={item.code}
-                className={({ active }) =>
-                `relative cursor-pointer select-none py-2 pl-10 pr-4 transition ${
-                    active ? "bg-red-100 text-red-700" : "text-gray-900"
-                }`
-                }
-                value={item}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
+    isOpen: boolean;
+    setIsOpen: (open: boolean) => void;
+    ref: React.RefObject<HTMLDivElement>;
+  }) => (
+    <div className="relative w-full" ref={ref}>
+      <button
+        type="button"
+        className="relative w-full cursor-pointer rounded-lg border border-gray-300 bg-white py-2 pl-4 pr-10 text-left shadow-sm transition focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 hover:border-red-300"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="block truncate text-gray-800">
+          {selected ? selected.name : placeholder}
+        </span>
+        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+          <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+        </span>
+      </button>
+      
+      {isOpen && (
+        <div className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+          {items.map((item) => (
+            <div
+              key={item.code}
+              className="relative cursor-pointer select-none py-2 pl-10 pr-4 hover:bg-red-100 hover:text-red-700 transition"
+              onClick={() => {
+                onSelect(item);
+                setIsOpen(false);
+              }}
             >
-                {({ selected }) => (
-                <>
-                    <span className={`block truncate ${selected ? "font-semibold text-red-600" : "font-normal"}`}>
-                    {item.name}
-                    </span>
-                    {selected && (
-                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-red-600">
-                        ✔
-                    </span>
-                    )}
-                </>
-                )}
-            </Listbox.Option>
-            ))}
-        </Listbox.Options>
+              <span className={`block truncate ${
+                selected?.code === item.code ? "font-semibold text-red-600" : "font-normal"
+              }`}>
+                {item.name}
+              </span>
+              {selected?.code === item.code && (
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-red-600">
+                  ✔
+                </span>
+              )}
+            </div>
+          ))}
         </div>
-    </Listbox>
-    );
+      )}
+    </div>
+  );
 
   useEffect(() => {
     const p = provinces.find((p) => p.code === province)?.name || "";
@@ -224,26 +246,35 @@ export default function AddressSelector({ value, onChange }: {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                 <Dropdown
-           items={provinces}
-           selected={provinces.find((p) => p.code === province) || null}
-           setSelected={(p) => p ? setProvince(p.code) : setProvince('')}
-           placeholder="Chọn tỉnh"
-         />
+        <CustomDropdown
+          items={provinces}
+          selected={provinces.find((p) => p.code === province) || null}
+          onSelect={(p) => setProvince(p.code)}
+          placeholder="Chọn tỉnh"
+          isOpen={isProvinceOpen}
+          setIsOpen={setIsProvinceOpen}
+          ref={provinceRef}
+        />
 
-         <Dropdown
-           items={districts}
-           selected={districts.find((d) => d.code === district) || null}
-           setSelected={(d) => d ? setDistrict(d.code) : setDistrict('')}
-           placeholder="Chọn huyện"
-         />
+        <CustomDropdown
+          items={districts}
+          selected={districts.find((d) => d.code === district) || null}
+          onSelect={(d) => setDistrict(d.code)}
+          placeholder="Chọn huyện"
+          isOpen={isDistrictOpen}
+          setIsOpen={setIsDistrictOpen}
+          ref={districtRef}
+        />
 
-         <Dropdown
-           items={wards}
-           selected={wards.find((w) => w.code === ward) || null}
-           setSelected={(w) => w ? setWard(w.code) : setWard('')}
-           placeholder="Chọn xã"
-         />
+        <CustomDropdown
+          items={wards}
+          selected={wards.find((w) => w.code === ward) || null}
+          onSelect={(w) => setWard(w.code)}
+          placeholder="Chọn xã"
+          isOpen={isWardOpen}
+          setIsOpen={setIsWardOpen}
+          ref={wardRef}
+        />
       </div>
 
       <input
