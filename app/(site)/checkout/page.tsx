@@ -406,62 +406,15 @@ export default function CheckoutPage() {
 	
 			if (showNewAddressForm) {
 				const { receiver_name, phone, address } = newAddress;
-				
-				// Debug: Log ra giá trị để kiểm tra
-				console.log("Debug newAddress:", {
-					receiver_name: `"${receiver_name}"`,
-					phone: `"${phone}"`,
-					address: `"${address}"`,
-					receiver_name_trim: `"${receiver_name.trim()}"`,
-					phone_trim: `"${phone.trim()}"`,
-					address_trim: `"${address.trim()}"`
-				});
-				
-				// Kiểm tra chi tiết từng trường
-				if (!receiver_name || !receiver_name.trim()) {
-					toast.error("Vui lòng nhập tên người nhận.");
+				if (!receiver_name || !phone || !address) {
+					toast.error("Vui lòng điền đầy đủ địa chỉ mới.");
 					return;
 				}
-				if (!phone || !phone.trim()) {
-					toast.error("Vui lòng nhập số điện thoại.");
-					return;
-				}
-				if (!address || !address.trim()) {
-					toast.error("Vui lòng nhập địa chỉ giao hàng.");
-					return;
-				}
-				
-				// Kiểm tra format
-				if (receiver_name.trim().length < 2 || !/^[\p{L}\d\s,.'-]+$/u.test(receiver_name.trim())) {
-					toast.error("Tên người nhận không hợp lệ.");
-					return;
-				}
-				if (!/^\d{10,11}$/.test(phone.trim())) {
-					toast.error("Số điện thoại không hợp lệ.");
-					return;
-				}
-				if (address.trim().length < 5 || !/^[\p{L}\d\s,.-]+$/u.test(address.trim())) {
-					toast.error("Địa chỉ không hợp lệ.");
-					return;
-				}
+				if (receiver_name.length < 2 || !/^[\p{L}\d\s,.'-]+$/u.test(receiver_name)) return toast.error("Tên người nhận không hợp lệ.");
+				if (!/^\d{10,11}$/.test(phone)) return toast.error("Số điện thoại không hợp lệ.");
+				if (address.length < 5 || !/^[\p{L}\d\s,.-]+$/u.test(address)) return toast.error("Địa chỉ không hợp lệ.");
 	
 				try {
-					// Kiểm tra xem địa chỉ đã tồn tại chưa
-					const existingAddress = addresses.find(addr => 
-						addr.receiver_name === newAddress.receiver_name &&
-						String(addr.phone) === newAddress.phone &&
-						addr.address === newAddress.address
-					);
-
-					if (existingAddress) {
-						// Nếu địa chỉ đã tồn tại, sử dụng địa chỉ cũ
-						toast.info("Địa chỉ này đã tồn tại, sử dụng địa chỉ có sẵn.");
-						setSelectedAddressId(existingAddress._id);
-						setShowNewAddressForm(false);
-						await submitOrder(existingAddress._id);
-						return;
-					}
-
 					const res = await fetch("https://bevclock-production.up.railway.app/checkout/addresses", {
 						method: "POST",
 						headers,
@@ -470,15 +423,7 @@ export default function CheckoutPage() {
 					const data = await res.json();
 					if (data.success) {
 						toast.success("Đã thêm địa chỉ mới.");
-						// Chỉ thêm vào state nếu chưa tồn tại
-						setAddresses(prev => {
-							const exists = prev.some(addr => 
-								addr.receiver_name === data.address.receiver_name &&
-								String(addr.phone) === String(data.address.phone) &&
-								addr.address === data.address.address
-							);
-							return exists ? prev : [...prev, data.address];
-						});
+						setAddresses(prev => [...prev, data.address]);
 						setSelectedAddressId(data.address._id);
 						setShowNewAddressForm(false);
 						await submitOrder(data.address._id); // Đợi xong mới tiếp tục
@@ -733,10 +678,7 @@ export default function CheckoutPage() {
 									
 									<AddressSelector
 									  value={newAddress.address}
-									  onChange={(addr) => {
-										console.log("AddressSelector onChange called with:", `"${addr}"`);
-										setNewAddress({ ...newAddress, address: addr });
-									  }}
+									  onChange={(addr) => setNewAddress({ ...newAddress, address: addr })}
 									/>
 									</div>
 

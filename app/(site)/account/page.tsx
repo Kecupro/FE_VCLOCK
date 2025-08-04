@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, useEffect, useMemo } from "react";
+import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { IAddress, IProduct } from "../cautrucdata";
 import OrderCard from "./OrderCard ";
@@ -72,14 +72,24 @@ export default function AccountPage() {
       
       // Sử dụng user từ AuthContext
       if (user) {
-        setEditForm({ fullName: user.fullName || '' });
+        // Chỉ set editForm khi không đang edit để tránh reset input
+        if (!isEditingProfile) {
+          setEditForm({ fullName: user.fullName || '' });
+        }
         // Luôn set avatar, kể cả khi user không có avatar
         const newAvatar = getAvatarSrc(user.avatar);
         setAvatar(newAvatar);
       }
       setIsLoading(false);
     }
-  }, [user, router]);
+  }, [user, router, isEditingProfile]);
+
+  // Khởi tạo editForm khi user có sẵn
+  useEffect(() => {
+    if (user && !isEditingProfile) {
+      setEditForm({ fullName: user.fullName || '' });
+    }
+  }, [user, isEditingProfile]);
 
   // Tối ưu hóa avatar với useMemo
   const memoizedAvatar = useMemo(() => {
@@ -230,7 +240,7 @@ const result = await response.json();
     }
   };
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setIsEditingProfile(false);
     setEditForm({ fullName: user?.fullName || '' });
     setSelectedAvatarFile(null);
@@ -238,24 +248,17 @@ const result = await response.json();
       const originalAvatar = getAvatarSrc(user.avatar);
       setAvatar(originalAvatar);
     }
-  };
+  }, [user?.fullName, user?.avatar]);
+
+  const handleFullNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setEditForm(prev => ({ ...prev, fullName: newValue }));
+  }, []);
 
   const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
     if (!token) return;
-
-    // Kiểm tra xem địa chỉ đã tồn tại chưa
-    const existingAddress = addresses.find(addr => 
-      addr.receiver_name === newAddress.receiver_name &&
-      String(addr.phone) === newAddress.phone &&
-      addr.address === newAddress.address
-    );
-
-    if (existingAddress) {
-      toast.warning('Địa chỉ này đã tồn tại trong danh sách của bạn!');
-      return;
-    }
 
     try {
       const response = await fetch('https://bevclock-production.up.railway.app/user/addresses', {
@@ -272,11 +275,9 @@ const result = await response.json();
         setAddresses([...addresses, data]);
         setNewAddress({ receiver_name: '', phone: '', address: '' });
         setIsAddingAddress(false);
-        toast.success('Thêm địa chỉ thành công!');
       }
     } catch (error) {
       console.error("Error adding address:", error);
-      toast.error('Có lỗi xảy ra khi thêm địa chỉ!');
     }
   };
 
@@ -296,11 +297,9 @@ const result = await response.json();
 
       if (response.ok) {
         setAddresses(addresses.filter(addr => addr._id !== addressId));
-        toast.success('Xóa địa chỉ thành công!');
       }
     } catch (error) {
       console.error("Error deleting address:", error);
-      toast.error('Có lỗi xảy ra khi xóa địa chỉ!');
     }
   };
 
@@ -318,19 +317,6 @@ address: address.address
     e.preventDefault();
     const token = localStorage.getItem("token");
     if (!token || !editingAddressId) return;
-
-    // Kiểm tra xem địa chỉ đã tồn tại chưa (trừ địa chỉ đang edit)
-    const existingAddress = addresses.find(addr => 
-      addr._id !== editingAddressId &&
-      addr.receiver_name === newAddress.receiver_name &&
-      String(addr.phone) === newAddress.phone &&
-      addr.address === newAddress.address
-    );
-
-    if (existingAddress) {
-      toast.warning('Địa chỉ này đã tồn tại trong danh sách của bạn!');
-      return;
-    }
 
     try {
       const response = await fetch(`https://bevclock-production.up.railway.app/user/addresses/${editingAddressId}`, {
@@ -354,11 +340,9 @@ address: address.address
         setNewAddress({ receiver_name: '', phone: '', address: '' });
         setIsEditingAddress(false);
         setEditingAddressId(null);
-        toast.success('Cập nhật địa chỉ thành công!');
       }
     } catch (error) {
       console.error("Error updating address:", error);
-      toast.error('Có lỗi xảy ra khi cập nhật địa chỉ!');
     }
   };
 
@@ -500,7 +484,10 @@ return (
                   {!isEditingProfile && (
                     <button
                       type="button"
-                      onClick={() => setIsEditingProfile(true)}
+                      onClick={() => {
+                        setEditForm({ fullName: user?.fullName || '' });
+                        setIsEditingProfile(true);
+                      }}
                       className="bg-red-600 text-sm text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-all duration-200 flex items-center space-x-2"
                     >
                       <i className="fa-solid fa-pen-to-square"></i>
@@ -527,7 +514,7 @@ return (
                         <input
                           type="text"
                           value={editForm.fullName}
-                          onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
+                          onChange={handleFullNameChange}
                           className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200 text-sm"
                           placeholder="Nhập tên đầy đủ"
                         />
