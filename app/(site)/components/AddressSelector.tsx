@@ -48,7 +48,7 @@ export default function AddressSelector({ value, onChange }: {
   const districtRef = useRef<HTMLDivElement>(null);
   const wardRef = useRef<HTMLDivElement>(null);
 
-  // Sử dụng useRef để lưu trữ onChange function và tránh vòng lặp vô hạn
+  // Sử dụng useRef để lưu trữ onChange function
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
@@ -60,6 +60,9 @@ export default function AddressSelector({ value, onChange }: {
 
   // Sử dụng ref để theo dõi việc đang trong quá trình parse
   const isParsing = useRef(false);
+
+  // Sử dụng ref để theo dõi việc đang nhập từ user
+  const isUserInput = useRef(false);
 
   // Reset hasParsedValue khi value thay đổi
   useEffect(() => {
@@ -253,11 +256,32 @@ export default function AddressSelector({ value, onChange }: {
     [wards, ward]
   );
 
+  // Hàm tạo full address
+  const createFullAddress = () => {
+    return [street, wardName, districtName, provinceName].filter(Boolean).join(", ");
+  };
+
+  // Hàm gọi onChange với debounce
+  const debouncedOnChange = useRef<NodeJS.Timeout | null>(null);
+  
+  const callOnChange = (fullAddress: string) => {
+    if (debouncedOnChange.current) {
+      clearTimeout(debouncedOnChange.current);
+    }
+    
+    debouncedOnChange.current = setTimeout(() => {
+      if (fullAddress !== lastSentValue.current && fullAddress.trim() !== '') {
+        lastSentValue.current = fullAddress;
+        onChangeRef.current(fullAddress);
+      }
+    }, 300); // Debounce 300ms
+  };
+
   // Tạo full address và gọi onChange
   useEffect(() => {
-    // Chỉ gọi onChange khi không đang parse
-    if (!isParsing.current) {
-      const fullAddress = [street, wardName, districtName, provinceName].filter(Boolean).join(", ");
+    // Chỉ gọi onChange khi không đang parse và không đang user input
+    if (!isParsing.current && !isUserInput.current) {
+      const fullAddress = createFullAddress();
       
       // Debug: Log ra để kiểm tra
       console.log("AddressSelector Debug:", {
@@ -267,16 +291,42 @@ export default function AddressSelector({ value, onChange }: {
         provinceName: `"${provinceName}"`,
         fullAddress: `"${fullAddress}"`,
         lastSentValue: `"${lastSentValue.current}"`,
-        isParsing: isParsing.current
+        isParsing: isParsing.current,
+        isUserInput: isUserInput.current
       });
       
-      // Chỉ gọi onChange khi giá trị thực sự thay đổi và không rỗng
-      if (fullAddress !== lastSentValue.current && fullAddress.trim() !== '') {
-        lastSentValue.current = fullAddress;
-        onChangeRef.current(fullAddress);
-      }
+      callOnChange(fullAddress);
     }
   }, [street, wardName, districtName, provinceName]);
+
+  // Hàm xử lý khi user thay đổi dropdown
+  const handleDropdownChange = (type: 'province' | 'district' | 'ward', code: string) => {
+    isUserInput.current = true;
+    
+    if (type === 'province') {
+      setProvince(code);
+    } else if (type === 'district') {
+      setDistrict(code);
+    } else if (type === 'ward') {
+      setWard(code);
+    }
+    
+    // Reset flag sau một khoảng thời gian ngắn
+    setTimeout(() => {
+      isUserInput.current = false;
+    }, 100);
+  };
+
+  // Hàm xử lý khi user nhập street
+  const handleStreetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    isUserInput.current = true;
+    setStreet(e.target.value);
+    
+    // Reset flag sau một khoảng thời gian ngắn
+    setTimeout(() => {
+      isUserInput.current = false;
+    }, 100);
+  };
 
   return (
     <div className="space-y-4">
@@ -284,7 +334,7 @@ export default function AddressSelector({ value, onChange }: {
         <CustomDropdown
           items={provinces}
           selected={provinces.find((p) => p.code === province) || null}
-          onSelect={(p) => setProvince(p.code)}
+          onSelect={(p) => handleDropdownChange('province', p.code)}
           placeholder="Chọn tỉnh"
           isOpen={isProvinceOpen}
           setIsOpen={setIsProvinceOpen}
@@ -294,7 +344,7 @@ export default function AddressSelector({ value, onChange }: {
         <CustomDropdown
           items={districts}
           selected={districts.find((d) => d.code === district) || null}
-          onSelect={(d) => setDistrict(d.code)}
+          onSelect={(d) => handleDropdownChange('district', d.code)}
           placeholder="Chọn huyện"
           isOpen={isDistrictOpen}
           setIsOpen={setIsDistrictOpen}
@@ -304,7 +354,7 @@ export default function AddressSelector({ value, onChange }: {
         <CustomDropdown
           items={wards}
           selected={wards.find((w) => w.code === ward) || null}
-          onSelect={(w) => setWard(w.code)}
+          onSelect={(w) => handleDropdownChange('ward', w.code)}
           placeholder="Chọn xã"
           isOpen={isWardOpen}
           setIsOpen={setIsWardOpen}
@@ -317,7 +367,7 @@ export default function AddressSelector({ value, onChange }: {
         placeholder="Số nhà, tên đường (VD: 123 Lý Thường Kiệt, Block A2)"
         className="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400"
         value={street}
-        onChange={(e) => setStreet(e.target.value)}
+        onChange={handleStreetChange}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
