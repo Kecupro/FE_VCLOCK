@@ -92,7 +92,7 @@ export default function CheckoutPage() {
 		if (!token) return;
 	
 		try {
-			const response = await fetch('https://bevclock-production.up.railway.app/api/user/addresses', {
+			const response = await fetch('https://bevclock-production.up.railway.app/user/addresses', {
 				headers,
 			});
 			if (response.ok) {
@@ -209,7 +209,6 @@ export default function CheckoutPage() {
 	});
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-		e.preventDefault();
 		const { name, value } = e.target;
 		setForm((prev) => ({
 			...prev,
@@ -510,9 +509,7 @@ export default function CheckoutPage() {
 								<label className="block text-sm mb-1 font-medium">Địa chỉ *</label>
 								<AddressSelector
 								value={newAddress.address}
-								onChange={(addr) => {
-									setNewAddress(prev => ({ ...prev, address: addr }));
-								}}
+								onChange={(addr) => setNewAddress({ ...newAddress, address: addr })}
 								/>
 							</div>
 
@@ -657,15 +654,7 @@ export default function CheckoutPage() {
 								  <input
 									type="text"
 									value={newAddress.receiver_name}
-									onChange={(e) => {
-										e.preventDefault();
-										setNewAddress(prev => ({...prev, receiver_name: e.target.value}));
-									}}
-									onKeyDown={(e) => {
-										if (e.key === 'Enter') {
-											e.preventDefault();
-										}
-									}}
+									onChange={(e) => setNewAddress({...newAddress, receiver_name: e.target.value})}
 									className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
 									placeholder="Ví dụ: Nguyễn Văn A"
 								  />
@@ -678,15 +667,7 @@ export default function CheckoutPage() {
 									title="Số điện thoại phải có 10 chữ số và bắt đầu bằng 03, 05, 07, 08 hoặc 09"
 									required
 									value={newAddress.phone}
-									onChange={(e) => {
-										e.preventDefault();
-										setNewAddress(prev => ({...prev, phone: e.target.value}));
-									}}
-									onKeyDown={(e) => {
-										if (e.key === 'Enter') {
-											e.preventDefault();
-										}
-									}}
+									onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
 									className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
 									placeholder="Ví dụ: 0123456789"
 								  />
@@ -697,9 +678,7 @@ export default function CheckoutPage() {
 									
 									<AddressSelector
 									  value={newAddress.address}
-									  onChange={(addr) => {
-										setNewAddress(prev => ({ ...prev, address: addr }));
-									}}
+									  onChange={(addr) => setNewAddress({ ...newAddress, address: addr })}
 									/>
 									</div>
 

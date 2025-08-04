@@ -69,23 +69,65 @@ export default function AccountPage() {
       setIsLoading(false);
     } else {
       setIsAuthenticated(true);
+      
+      // Debug: Kiểm tra user data từ localStorage
+      const userDataFromStorage = localStorage.getItem("user");
+      console.log('Account page: User data from localStorage:', userDataFromStorage);
+      if (userDataFromStorage) {
+        try {
+          const parsedUser = JSON.parse(userDataFromStorage);
+          console.log('Account page: Parsed user from localStorage:', parsedUser);
+          console.log('Account page: Avatar from localStorage:', parsedUser.avatar);
+        } catch (e) {
+          console.error('Account page: Error parsing user data:', e);
+        }
+      }
+      
+      // Sử dụng user từ AuthContext
+      if (user) {
+        setEditForm({ fullName: user.fullName || '' });
+        // Luôn set avatar, kể cả khi user không có avatar
+        const newAvatar = getAvatarSrc(user.avatar);
+        setAvatar(newAvatar);
+        console.log('Account page: User avatar:', user.avatar);
+        console.log('Account page: Processed avatar:', newAvatar);
+      }
       setIsLoading(false);
     }
-  }, [router]);
+  }, [user, router]);
 
-  // Tách riêng việc xử lý user data
+  // Cập nhật avatar khi user thay đổi
   useEffect(() => {
-    if (user && !isEditingProfile) {
-      setEditForm({ fullName: user.fullName || '' });
+    if (user?.avatar) {
       const newAvatar = getAvatarSrc(user.avatar);
       setAvatar(newAvatar);
+      console.log('Account page: Updated avatar from user change:', newAvatar);
     }
-  }, [user, isEditingProfile]);
+  }, [user?.avatar]);
 
-  // Reset avatar error khi avatar thay đổi
+  // Đảm bảo avatar được set khi component mount
   useEffect(() => {
-    setAvatarError(false);
+    if (user && !avatar) {
+      const newAvatar = getAvatarSrc(user.avatar);
+      setAvatar(newAvatar);
+      console.log('Account page: Setting avatar on mount:', newAvatar);
+      console.log('Account page: Original user avatar:', user.avatar);
+    }
+  }, [user, avatar]);
+
+  // Debug useEffect để theo dõi avatar state
+  useEffect(() => {
+    console.log('Account page: Avatar state changed to:', avatar);
+    setAvatarError(false); // Reset error khi avatar thay đổi
   }, [avatar]);
+
+  // Debug useEffect để theo dõi user data
+  useEffect(() => {
+    console.log('Account page: User data changed:', user);
+    if (user) {
+      console.log('Account page: User avatar from context:', user.avatar);
+    }
+  }, [user]);
 
 
 
@@ -101,7 +143,7 @@ export default function AccountPage() {
     if (!token) return;
 
     try {
-      const response = await fetch('https://bevclock-production.up.railway.app/api/user/addresses', {
+      const response = await fetch('https://bevclock-production.up.railway.app/user/addresses', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -128,7 +170,7 @@ export default function AccountPage() {
 
     try {
       setIsLoadingWishlist(true);
-      const response = await fetch('https://bevclock-production.up.railway.app/api/user/wishlist', {
+      const response = await fetch('https://bevclock-production.up.railway.app/user/wishlist', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -179,7 +221,7 @@ export default function AccountPage() {
 
     try {
       setIsLoading(true);
-      const response = await fetch('https://bevclock-production.up.railway.app/api/user/profile/update', {
+      const response = await fetch('https://bevclock-production.up.railway.app/user/profile/update', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -235,7 +277,7 @@ const result = await response.json();
     if (!token) return;
 
     try {
-      const response = await fetch('https://bevclock-production.up.railway.app/api/user/addresses', {
+      const response = await fetch('https://bevclock-production.up.railway.app/user/addresses', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -262,7 +304,7 @@ const result = await response.json();
     if (!token) return;
 
     try {
-      const response = await fetch(`https://bevclock-production.up.railway.app/api/user/addresses/${addressId}`, {
+      const response = await fetch(`https://bevclock-production.up.railway.app/user/addresses/${addressId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -293,7 +335,7 @@ address: address.address
     if (!token || !editingAddressId) return;
 
     try {
-      const response = await fetch(`https://bevclock-production.up.railway.app/api/user/addresses/${editingAddressId}`, {
+      const response = await fetch(`https://bevclock-production.up.railway.app/user/addresses/${editingAddressId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -326,7 +368,7 @@ address: address.address
     if (!token) return;
 
     try {
-      const response = await fetch(`https://bevclock-production.up.railway.app/api/user/wishlist/${productId}`, {
+      const response = await fetch(`https://bevclock-production.up.railway.app/user/wishlist/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -485,15 +527,7 @@ return (
                         <input
                           type="text"
                           value={editForm.fullName}
-                          onChange={(e) => {
-                            e.preventDefault();
-                            setEditForm(prev => ({ ...prev, fullName: e.target.value }));
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                            }
-                          }}
+                          onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
                           className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200 text-sm"
                           placeholder="Nhập tên đầy đủ"
                         />
@@ -576,15 +610,7 @@ className="bg-gray-600 text-sm text-white px-6 py-2 rounded-lg font-semibold hov
                         <input
                           type="text"
                           value={newAddress.receiver_name}
-                          onChange={(e) => {
-                            e.preventDefault();
-                            setNewAddress(prev => ({...prev, receiver_name: e.target.value}));
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                            }
-                          }}
+                          onChange={(e) => setNewAddress({...newAddress, receiver_name: e.target.value})}
                           className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                           placeholder="Ví dụ: Nguyễn Văn A"
                           required
@@ -598,15 +624,7 @@ className="bg-gray-600 text-sm text-white px-6 py-2 rounded-lg font-semibold hov
                           title="Số điện thoại phải có 10 chữ số và bắt đầu bằng 03, 05, 07, 08 hoặc 09"
                           required
                           value={newAddress.phone}
-                          onChange={(e) => {
-                            e.preventDefault();
-                            setNewAddress(prev => ({...prev, phone: e.target.value}));
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                            }
-                          }}
+                          onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
                           className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                           placeholder="Ví dụ: 0901234567"
                         />
@@ -616,9 +634,7 @@ className="bg-gray-600 text-sm text-white px-6 py-2 rounded-lg font-semibold hov
                         <label className="block text-gray-700 text-sm font-medium mb-2">Địa chỉ</label>
                         <AddressSelector
                           value={newAddress.address}
-                          onChange={(addr) => {
-                            setNewAddress(prev => ({ ...prev, address: addr }));
-                          }}
+                          onChange={(addr) => setNewAddress({ ...newAddress, address: addr })}
                         />
                       </div>
                     </div>
@@ -653,15 +669,7 @@ className="bg-gray-600 text-sm text-white px-6 py-2 rounded-lg font-semibold hov
                         <input
                           type="text"
                           value={newAddress.receiver_name}
-                          onChange={(e) => {
-                            e.preventDefault();
-                            setNewAddress(prev => ({...prev, receiver_name: e.target.value}));
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                            }
-                          }}
+                          onChange={(e) => setNewAddress({...newAddress, receiver_name: e.target.value})}
                           className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                           required
                         />
@@ -674,15 +682,7 @@ className="bg-gray-600 text-sm text-white px-6 py-2 rounded-lg font-semibold hov
                           title="Số điện thoại phải có 10 chữ số và bắt đầu bằng 03, 05, 07, 08 hoặc 09"
                           required
                           value={newAddress.phone}
-                          onChange={(e) => {
-                            e.preventDefault();
-                            setNewAddress(prev => ({...prev, phone: e.target.value}));
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                            }
-                          }}
+                          onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
                           className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                         />
                       </div>
@@ -691,15 +691,7 @@ className="bg-gray-600 text-sm text-white px-6 py-2 rounded-lg font-semibold hov
                         <input
                           type="text"
                           value={newAddress.address}
-                          onChange={(e) => {
-                            e.preventDefault();
-                            setNewAddress(prev => ({...prev, address: e.target.value}));
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                            }
-                          }}
+                          onChange={(e) => setNewAddress({...newAddress, address: e.target.value})}
                           className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                           required
                         />

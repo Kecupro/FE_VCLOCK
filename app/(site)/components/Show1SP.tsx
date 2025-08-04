@@ -35,7 +35,7 @@ export default function Show1SP(props: { sp: IProduct }) {
                 const token = localStorage.getItem("token");
                 if (token) {
                     try {
-                        const res = await fetch("https://bevclock-production.up.railway.app/api/user/wishlist", {
+                        const res = await fetch("https://bevclock-production.up.railway.app/user/wishlist", {
                             headers: {
                                 'Authorization': `Bearer ${token}`
                             }

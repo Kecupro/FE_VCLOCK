@@ -167,7 +167,7 @@ function ShopPageContent() {
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
     if (token) {
-              fetch(`https://bevclock-production.up.railway.app/api/user/wishlist`, {
+      fetch(`https://bevclock-production.up.railway.app/user/wishlist`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())
