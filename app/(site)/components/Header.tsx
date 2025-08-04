@@ -67,6 +67,7 @@ const Header = () => {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownTimeout = useRef<NodeJS.Timeout | null>(null);
+  const hasRefreshed = useRef(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -78,6 +79,7 @@ const Header = () => {
         try {
           const loadedUser = JSON.parse(userData);
           setUser(loadedUser);
+          hasRefreshed.current = false; // Reset flag khi có user data
           // console.log('Header: loadedUser', loadedUser);
           const isAdmin = ['1', '2'].includes(loadedUser.role);
           const isTryingToAccessAdminArea = pathname.startsWith('/admin');
@@ -96,6 +98,7 @@ const Header = () => {
           router.push('/');
         }
         setUser(null);
+        hasRefreshed.current = false; // Reset flag khi không có user data
       }
     };
     handleAuthStateChange();
@@ -112,9 +115,9 @@ const Header = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
-    // Chỉ refresh khi có cả token và user data, tránh refresh sau khi logout
-    if (token && userData && user) {
-      console.log('🔍 Header: Refreshing user data');
+    // Chỉ refresh khi có token nhưng chưa có user data và chưa refresh, tránh vòng lặp vô hạn
+    if (token && !userData && !user && !hasRefreshed.current) {
+      hasRefreshed.current = true;
       refreshUser();
     }
   }, [refreshUser, user]);
