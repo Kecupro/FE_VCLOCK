@@ -252,7 +252,7 @@ export default function AddressSelector({ value, onChange }: {
       lastSentValue.current = full;
       onChangeRef.current(full);
     }
-  }, [province, district, ward, street, provinceName, districtName, wardName]); // Thêm tên đã được tối ưu
+  }, [street, wardName, districtName, provinceName]); // Chỉ phụ thuộc vào các giá trị đã được memo
 
   return (
     <div className="space-y-4">

@@ -101,7 +101,7 @@ export default function AccountPage() {
     if (!token) return;
 
     try {
-      const response = await fetch('https://bevclock-production.up.railway.app/user/addresses', {
+      const response = await fetch('https://bevclock-production.up.railway.app/api/user/addresses', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -128,7 +128,7 @@ export default function AccountPage() {
 
     try {
       setIsLoadingWishlist(true);
-      const response = await fetch('https://bevclock-production.up.railway.app/user/wishlist', {
+      const response = await fetch('https://bevclock-production.up.railway.app/api/user/wishlist', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -179,7 +179,7 @@ export default function AccountPage() {
 
     try {
       setIsLoading(true);
-      const response = await fetch('https://bevclock-production.up.railway.app/user/profile/update', {
+      const response = await fetch('https://bevclock-production.up.railway.app/api/user/profile/update', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -235,7 +235,7 @@ const result = await response.json();
     if (!token) return;
 
     try {
-      const response = await fetch('https://bevclock-production.up.railway.app/user/addresses', {
+      const response = await fetch('https://bevclock-production.up.railway.app/api/user/addresses', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -262,7 +262,7 @@ const result = await response.json();
     if (!token) return;
 
     try {
-      const response = await fetch(`https://bevclock-production.up.railway.app/user/addresses/${addressId}`, {
+      const response = await fetch(`https://bevclock-production.up.railway.app/api/user/addresses/${addressId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -293,7 +293,7 @@ address: address.address
     if (!token || !editingAddressId) return;
 
     try {
-      const response = await fetch(`https://bevclock-production.up.railway.app/user/addresses/${editingAddressId}`, {
+      const response = await fetch(`https://bevclock-production.up.railway.app/api/user/addresses/${editingAddressId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -326,7 +326,7 @@ address: address.address
     if (!token) return;
 
     try {
-      const response = await fetch(`https://bevclock-production.up.railway.app/user/wishlist/${productId}`, {
+      const response = await fetch(`https://bevclock-production.up.railway.app/api/user/wishlist/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

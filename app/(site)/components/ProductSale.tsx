@@ -36,7 +36,7 @@ export default function ProductSale() {
             const token = localStorage.getItem("token");
             if (token) {
                 try {
-                    const res = await fetch("https://bevclock-production.up.railway.app/user/wishlist", {
+                    const res = await fetch("https://bevclock-production.up.railway.app/api/user/wishlist", {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }

@@ -92,7 +92,7 @@ export default function CheckoutPage() {
 		if (!token) return;
 	
 		try {
-			const response = await fetch('https://bevclock-production.up.railway.app/user/addresses', {
+			const response = await fetch('https://bevclock-production.up.railway.app/api/user/addresses', {
 				headers,
 			});
 			if (response.ok) {

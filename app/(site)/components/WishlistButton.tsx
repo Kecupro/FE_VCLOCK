@@ -20,7 +20,7 @@ export default function WishlistButton({ productId, initialIsWishlisted }: Wishl
 
         setIsLoading(true);
         try {
-            const response = await fetch(`https://bevclock-production.up.railway.app/user/wishlist/${productId}`, {
+            const response = await fetch(`https://bevclock-production.up.railway.app/api/user/wishlist/${productId}`, {
                 method: isWishlisted ? "DELETE" : "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`

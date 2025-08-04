@@ -13,7 +13,7 @@ export default function GoogleSuccess() {
     if (token) {
       localStorage.setItem("token", token);
   
-      fetch("https://bevclock-production.up.railway.app/user/profile", {
+              fetch("https://bevclock-production.up.railway.app/api/user/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
