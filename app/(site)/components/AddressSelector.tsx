@@ -186,7 +186,7 @@ export default function AddressSelector({ value, onChange }: {
     placeholder: string;
     isOpen: boolean;
     setIsOpen: (open: boolean) => void;
-    ref: React.RefObject<HTMLDivElement>;
+    ref: React.RefObject<HTMLDivElement | null>;
   }) => (
     <div className="relative w-full" ref={ref}>
       <button
