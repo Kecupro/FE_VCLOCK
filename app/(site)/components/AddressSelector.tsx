@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 export interface Province {
@@ -57,6 +57,9 @@ export default function AddressSelector({ value, onChange }: {
 
   // Sử dụng ref để lưu trữ giá trị cuối cùng đã gửi ra ngoài
   const lastSentValue = useRef('');
+
+  // Sử dụng ref để theo dõi việc đang trong quá trình parse
+  const isParsing = useRef(false);
 
   // Reset hasParsedValue khi value thay đổi
   useEffect(() => {
@@ -122,7 +125,8 @@ export default function AddressSelector({ value, onChange }: {
 
   // Parse value prop to set initial state
   useEffect(() => {
-    if (value && provinces.length > 0 && !hasParsedValue.current) {
+    if (value && provinces.length > 0 && !hasParsedValue.current && !isParsing.current) {
+      isParsing.current = true;
       const addressParts = value.split(', ').reverse(); // Reverse to get [province, district, ward, street]
       
       // Find province
@@ -134,12 +138,14 @@ export default function AddressSelector({ value, onChange }: {
       
       // Đánh dấu đã parse để tránh chạy lại
       hasParsedValue.current = true;
+      isParsing.current = false;
     }
   }, [value, provinces]); // Chỉ phụ thuộc vào value và provinces
 
   // Parse district và ward sau khi có districts và wards
   useEffect(() => {
-    if (value && districts.length > 0 && hasParsedValue.current) {
+    if (value && districts.length > 0 && hasParsedValue.current && !isParsing.current) {
+      isParsing.current = true;
       const addressParts = value.split(', ').reverse();
       const districtName = addressParts[1];
       if (districtName) {
@@ -148,11 +154,13 @@ export default function AddressSelector({ value, onChange }: {
           setDistrict(foundDistrict.code);
         }
       }
+      isParsing.current = false;
     }
   }, [value, districts]);
 
   useEffect(() => {
-    if (value && wards.length > 0 && hasParsedValue.current) {
+    if (value && wards.length > 0 && hasParsedValue.current && !isParsing.current) {
+      isParsing.current = true;
       const addressParts = value.split(', ').reverse();
       const wardName = addressParts[2];
       if (wardName) {
@@ -167,6 +175,7 @@ export default function AddressSelector({ value, onChange }: {
       if (streetAddress) {
         setStreet(streetAddress);
       }
+      isParsing.current = false;
     }
   }, [value, wards]);
 
@@ -244,15 +253,23 @@ export default function AddressSelector({ value, onChange }: {
     [wards, ward]
   );
 
+  // Sử dụng useCallback để tối ưu việc tạo full address
+  const createFullAddress = useCallback(() => {
+    return [street, wardName, districtName, provinceName].filter(Boolean).join(", ");
+  }, [street, wardName, districtName, provinceName]);
+
+  // Sử dụng useMemo để tối ưu việc tạo full address
+  const fullAddress = useMemo(() => {
+    return createFullAddress();
+  }, [createFullAddress]);
+
+  // Chỉ gọi onChange khi giá trị thực sự thay đổi và không rỗng, và không đang trong quá trình parse
   useEffect(() => {
-    const full = [street, wardName, districtName, provinceName].filter(Boolean).join(", ");
-    
-    // Chỉ gọi onChange khi giá trị thực sự thay đổi và không rỗng
-    if (full !== lastSentValue.current && full.trim() !== '') {
-      lastSentValue.current = full;
-      onChangeRef.current(full);
+    if (!isParsing.current && fullAddress !== lastSentValue.current && fullAddress.trim() !== '') {
+      lastSentValue.current = fullAddress;
+      onChangeRef.current(fullAddress);
     }
-  }, [street, wardName, districtName, provinceName]); // Chỉ phụ thuộc vào các giá trị đã được memo
+  }, [fullAddress]);
 
   return (
     <div className="space-y-4">

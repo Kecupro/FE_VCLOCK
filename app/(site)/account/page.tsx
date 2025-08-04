@@ -245,6 +245,18 @@ const result = await response.json();
     const token = localStorage.getItem("token");
     if (!token) return;
 
+    // Kiểm tra xem địa chỉ đã tồn tại chưa
+    const existingAddress = addresses.find(addr => 
+      addr.receiver_name === newAddress.receiver_name &&
+      String(addr.phone) === newAddress.phone &&
+      addr.address === newAddress.address
+    );
+
+    if (existingAddress) {
+      toast.warning('Địa chỉ này đã tồn tại trong danh sách của bạn!');
+      return;
+    }
+
     try {
       const response = await fetch('https://bevclock-production.up.railway.app/user/addresses', {
         method: 'POST',
@@ -260,9 +272,11 @@ const result = await response.json();
         setAddresses([...addresses, data]);
         setNewAddress({ receiver_name: '', phone: '', address: '' });
         setIsAddingAddress(false);
+        toast.success('Thêm địa chỉ thành công!');
       }
     } catch (error) {
       console.error("Error adding address:", error);
+      toast.error('Có lỗi xảy ra khi thêm địa chỉ!');
     }
   };
 
@@ -282,9 +296,11 @@ const result = await response.json();
 
       if (response.ok) {
         setAddresses(addresses.filter(addr => addr._id !== addressId));
+        toast.success('Xóa địa chỉ thành công!');
       }
     } catch (error) {
       console.error("Error deleting address:", error);
+      toast.error('Có lỗi xảy ra khi xóa địa chỉ!');
     }
   };
 
@@ -302,6 +318,19 @@ address: address.address
     e.preventDefault();
     const token = localStorage.getItem("token");
     if (!token || !editingAddressId) return;
+
+    // Kiểm tra xem địa chỉ đã tồn tại chưa (trừ địa chỉ đang edit)
+    const existingAddress = addresses.find(addr => 
+      addr._id !== editingAddressId &&
+      addr.receiver_name === newAddress.receiver_name &&
+      String(addr.phone) === newAddress.phone &&
+      addr.address === newAddress.address
+    );
+
+    if (existingAddress) {
+      toast.warning('Địa chỉ này đã tồn tại trong danh sách của bạn!');
+      return;
+    }
 
     try {
       const response = await fetch(`https://bevclock-production.up.railway.app/user/addresses/${editingAddressId}`, {
@@ -325,9 +354,11 @@ address: address.address
         setNewAddress({ receiver_name: '', phone: '', address: '' });
         setIsEditingAddress(false);
         setEditingAddressId(null);
+        toast.success('Cập nhật địa chỉ thành công!');
       }
     } catch (error) {
       console.error("Error updating address:", error);
+      toast.error('Có lỗi xảy ra khi cập nhật địa chỉ!');
     }
   };
 

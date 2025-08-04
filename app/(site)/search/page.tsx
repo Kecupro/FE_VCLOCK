@@ -222,9 +222,6 @@ const SearchPage = () => {
                             <h6 className="font-semibold text-base text-gray-800 flex-grow mr-2 line-clamp-2">
                               {product.name}
                             </h6>
-                            <div className="flex-shrink-0 text-gray-500 text-[12px] flex items-center">
-                              <i className="fa-solid fa-star text-orange-400 mr-1"></i>4.0
-                            </div>
                           </div>
                           <p className="text-[12px] text-gray-600 mb-2 truncate">
                             {product.brand?.name ?? brandMap[product.brand_id || ''] ?? "Không rõ thương hiệu"}

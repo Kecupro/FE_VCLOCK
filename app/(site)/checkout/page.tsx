@@ -415,6 +415,22 @@ export default function CheckoutPage() {
 				if (address.length < 5 || !/^[\p{L}\d\s,.-]+$/u.test(address)) return toast.error("Địa chỉ không hợp lệ.");
 	
 				try {
+					// Kiểm tra xem địa chỉ đã tồn tại chưa
+					const existingAddress = addresses.find(addr => 
+						addr.receiver_name === newAddress.receiver_name &&
+						String(addr.phone) === newAddress.phone &&
+						addr.address === newAddress.address
+					);
+
+					if (existingAddress) {
+						// Nếu địa chỉ đã tồn tại, sử dụng địa chỉ cũ
+						toast.info("Địa chỉ này đã tồn tại, sử dụng địa chỉ có sẵn.");
+						setSelectedAddressId(existingAddress._id);
+						setShowNewAddressForm(false);
+						await submitOrder(existingAddress._id);
+						return;
+					}
+
 					const res = await fetch("https://bevclock-production.up.railway.app/checkout/addresses", {
 						method: "POST",
 						headers,
@@ -423,7 +439,15 @@ export default function CheckoutPage() {
 					const data = await res.json();
 					if (data.success) {
 						toast.success("Đã thêm địa chỉ mới.");
-						setAddresses(prev => [...prev, data.address]);
+						// Chỉ thêm vào state nếu chưa tồn tại
+						setAddresses(prev => {
+							const exists = prev.some(addr => 
+								addr.receiver_name === data.address.receiver_name &&
+								String(addr.phone) === String(data.address.phone) &&
+								addr.address === data.address.address
+							);
+							return exists ? prev : [...prev, data.address];
+						});
 						setSelectedAddressId(data.address._id);
 						setShowNewAddressForm(false);
 						await submitOrder(data.address._id); // Đợi xong mới tiếp tục
