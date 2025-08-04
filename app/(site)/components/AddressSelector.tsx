@@ -61,9 +61,6 @@ export default function AddressSelector({ value, onChange }: {
   // Sử dụng ref để theo dõi việc đang trong quá trình parse
   const isParsing = useRef(false);
 
-  // Sử dụng ref để theo dõi việc đang trong quá trình thay đổi từ user
-  const isUserTyping = useRef(false);
-
   // Reset hasParsedValue khi value thay đổi
   useEffect(() => {
     hasParsedValue.current = false;
@@ -258,8 +255,8 @@ export default function AddressSelector({ value, onChange }: {
 
   // Tạo full address và gọi onChange
   useEffect(() => {
-    // Chỉ gọi onChange khi không đang parse và không đang user typing
-    if (!isParsing.current && !isUserTyping.current) {
+    // Chỉ gọi onChange khi không đang parse
+    if (!isParsing.current) {
       const fullAddress = [street, wardName, districtName, provinceName].filter(Boolean).join(", ");
       
       // Debug: Log ra để kiểm tra
@@ -270,8 +267,7 @@ export default function AddressSelector({ value, onChange }: {
         provinceName: `"${provinceName}"`,
         fullAddress: `"${fullAddress}"`,
         lastSentValue: `"${lastSentValue.current}"`,
-        isParsing: isParsing.current,
-        isUserTyping: isUserTyping.current
+        isParsing: isParsing.current
       });
       
       // Chỉ gọi onChange khi giá trị thực sự thay đổi và không rỗng
@@ -282,42 +278,13 @@ export default function AddressSelector({ value, onChange }: {
     }
   }, [street, wardName, districtName, provinceName]);
 
-  // Hàm xử lý khi user thay đổi dropdown
-  const handleDropdownChange = (type: 'province' | 'district' | 'ward', code: string) => {
-    isUserTyping.current = true;
-    
-    if (type === 'province') {
-      setProvince(code);
-    } else if (type === 'district') {
-      setDistrict(code);
-    } else if (type === 'ward') {
-      setWard(code);
-    }
-    
-    // Reset flag sau một khoảng thời gian ngắn
-    setTimeout(() => {
-      isUserTyping.current = false;
-    }, 100);
-  };
-
-  // Hàm xử lý khi user nhập street
-  const handleStreetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    isUserTyping.current = true;
-    setStreet(e.target.value);
-    
-    // Reset flag sau một khoảng thời gian ngắn
-    setTimeout(() => {
-      isUserTyping.current = false;
-    }, 100);
-  };
-
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <CustomDropdown
           items={provinces}
           selected={provinces.find((p) => p.code === province) || null}
-          onSelect={(p) => handleDropdownChange('province', p.code)}
+          onSelect={(p) => setProvince(p.code)}
           placeholder="Chọn tỉnh"
           isOpen={isProvinceOpen}
           setIsOpen={setIsProvinceOpen}
@@ -327,7 +294,7 @@ export default function AddressSelector({ value, onChange }: {
         <CustomDropdown
           items={districts}
           selected={districts.find((d) => d.code === district) || null}
-          onSelect={(d) => handleDropdownChange('district', d.code)}
+          onSelect={(d) => setDistrict(d.code)}
           placeholder="Chọn huyện"
           isOpen={isDistrictOpen}
           setIsOpen={setIsDistrictOpen}
@@ -337,7 +304,7 @@ export default function AddressSelector({ value, onChange }: {
         <CustomDropdown
           items={wards}
           selected={wards.find((w) => w.code === ward) || null}
-          onSelect={(w) => handleDropdownChange('ward', w.code)}
+          onSelect={(w) => setWard(w.code)}
           placeholder="Chọn xã"
           isOpen={isWardOpen}
           setIsOpen={setIsWardOpen}
@@ -350,7 +317,7 @@ export default function AddressSelector({ value, onChange }: {
         placeholder="Số nhà, tên đường (VD: 123 Lý Thường Kiệt, Block A2)"
         className="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400"
         value={street}
-        onChange={handleStreetChange}
+        onChange={(e) => setStreet(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
