@@ -17,12 +17,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const storageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isLoggingOutRef = useRef(false);
+  const hasLoggedOutRef = useRef(false);
 
   // Wrapper function để đồng bộ localStorage khi setUser
   const setUserAndSync = (userData: IUser | null) => {
     setUser(userData);
     if (userData) {
       localStorage.setItem("user", JSON.stringify(userData));
+      // Reset logout flag khi có user mới
+      hasLoggedOutRef.current = false;
     } else {
       localStorage.removeItem("user");
     }
@@ -30,6 +33,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   
   // Hàm lấy user từ API (dùng khi đăng nhập Google hoặc refresh avatar)
   const refreshUser = async () => {
+    // Bỏ qua nếu đang trong quá trình logout
+    if (isLoggingOutRef.current) {
+      return;
+    }
+    
     const token = localStorage.getItem("token");
     if (token) {
       const res = await fetch(API_ENDPOINTS.USER_PROFILE, {
@@ -57,8 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     // Nếu không có token thì logout
     if (!token) {
-      setUserAndSync(null);
-      localStorage.removeItem("cart");
+      setUser(null);
       return;
     }
     
@@ -75,7 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUserAndSync(parsedUser);
       } catch (error) {
         console.error("Error parsing user data:", error);
-        setUserAndSync(null);
+        setUser(null);
       }
     }
   }, []);
@@ -83,13 +90,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Lắng nghe sự kiện đăng nhập/đăng xuất từ tab khác
   useEffect(() => {
     const handleStorage = (event: StorageEvent) => {
-      // Bỏ qua nếu đang trong quá trình logout
-      if (isLoggingOutRef.current) {
+      // Bỏ qua nếu đang trong quá trình logout hoặc đã logout
+      if (isLoggingOutRef.current || hasLoggedOutRef.current) {
         return;
       }
       
-      // Chỉ xử lý khi có thay đổi thực sự
-      if (event.key === "user" || event.key === "token") {
+      // Chỉ xử lý khi có thay đổi thực sự và newValue khác null
+      if ((event.key === "user" || event.key === "token") && event.newValue !== null) {
         // Clear timeout cũ nếu có
         if (storageTimeoutRef.current) {
           clearTimeout(storageTimeoutRef.current);
@@ -102,8 +109,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           
           // Nếu token bị xóa thì logout
           if (!token) {
-            setUserAndSync(null);
-            localStorage.removeItem("cart");
+            setUser(null);
             return;
           }
           
@@ -120,10 +126,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               setUserAndSync(parsedUser);
             } catch (error) {
               console.error("Error parsing user data:", error);
-              setUserAndSync(null);
+              setUser(null);
             }
           }
-        }, 200);
+        }, 100);
       }
     };
     window.addEventListener("storage", handleStorage);
@@ -154,27 +160,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     // Set flag để tránh xử lý storage event trong quá trình logout
     isLoggingOutRef.current = true;
+    hasLoggedOutRef.current = true;
+    
+    // Cập nhật state trước (để UI cập nhật ngay lập tức)
+    setUser(null);
     
     // Xóa tất cả dữ liệu
     clearAllData();
     
-    // Cập nhật state ngay lập tức
-    setUserAndSync(null);
-    
-    // Trigger storage events để đồng bộ với các tab khác
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'token',
-      newValue: null
-    }));
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'user',
-      newValue: null
-    }));
-    
-    // Reset flag sau một khoảng thời gian
+    // Reset flag sau một khoảng thời gian ngắn hơn
     setTimeout(() => {
       isLoggingOutRef.current = false;
-    }, 1000);
+    }, 500);
     
     // Chuyển hướng
     router.push("/");

@@ -28,6 +28,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const storageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isLoggingOutRef = useRef(false);
+  const hasLoggedOutRef = useRef(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -84,12 +85,13 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   // Lắng nghe sự kiện đăng nhập/đăng xuất từ tab khác
   useEffect(() => {
     const handleStorage = (event: StorageEvent) => {
-      // Bỏ qua nếu đang trong quá trình logout
-      if (isLoggingOutRef.current) {
+      // Bỏ qua nếu đang trong quá trình logout hoặc đã logout
+      if (isLoggingOutRef.current || hasLoggedOutRef.current) {
         return;
       }
       
-      if (event.key === "user" || event.key === "token") {
+      // Chỉ xử lý khi có thay đổi thực sự và newValue khác null
+      if ((event.key === "user" || event.key === "token") && event.newValue !== null) {
         // Clear timeout cũ nếu có
         if (storageTimeoutRef.current) {
           clearTimeout(storageTimeoutRef.current);
@@ -102,8 +104,6 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
             // Nếu token bị xóa thì logout
             setUser(null);
             setIsAuthorized(false);
-            localStorage.removeItem("user");
-            localStorage.removeItem("cart");
           } else {
             // Nếu có token, thử decode lại để kiểm tra
             try {
@@ -112,6 +112,8 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
               if (userRole === 1 || userRole === 2) {
                 setUser(decoded);
                 setIsAuthorized(true);
+                // Reset logout flag khi có user mới
+                hasLoggedOutRef.current = false;
               } else {
                 setUser(null);
                 setIsAuthorized(false);
@@ -122,7 +124,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
               setIsAuthorized(false);
             }
           }
-        }, 200);
+        }, 100);
       }
     };
     window.addEventListener("storage", handleStorage);
@@ -163,6 +165,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     // Set flag để tránh xử lý storage event trong quá trình logout
     isLoggingOutRef.current = true;
+    hasLoggedOutRef.current = true;
     
     // Xóa tất cả dữ liệu
     clearAllData();
@@ -171,20 +174,10 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setIsAuthorized(false);
     
-    // Trigger storage events để đồng bộ với các tab khác
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'token',
-      newValue: null
-    }));
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'user',
-      newValue: null
-    }));
-    
     // Reset flag sau một khoảng thời gian
     setTimeout(() => {
       isLoggingOutRef.current = false;
-    }, 1000);
+    }, 500);
   };
 
   const value: AdminAuthContextType = {
