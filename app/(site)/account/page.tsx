@@ -168,8 +168,7 @@ export default function AccountPage() {
 
   const handleLogout = () => {
     if (window.confirm('Bạn có chắc chắn muốn đăng xuất?')) {
-      localStorage.removeItem('cart'); // Xóa cart trước khi logout
-      logout(); // Sử dụng hàm logout từ AuthContext
+      logout();
     }
   };
 
@@ -273,14 +272,9 @@ const result = await response.json();
         setAddresses([...addresses, data]);
         setNewAddress({ receiver_name: '', phone: '', address: '' });
         setIsAddingAddress(false);
-        toast.success("Đã thêm địa chỉ mới thành công!");
-      } else {
-        const errorData = await response.json();
-        toast.error(errorData.message || "Lỗi khi thêm địa chỉ");
       }
     } catch (error) {
       console.error("Error adding address:", error);
-      toast.error("Lỗi kết nối, vui lòng thử lại");
     }
   };
 
@@ -300,14 +294,9 @@ const result = await response.json();
 
       if (response.ok) {
         setAddresses(addresses.filter(addr => addr._id !== addressId));
-        toast.success("Đã xóa địa chỉ thành công!");
-      } else {
-        const errorData = await response.json();
-        toast.error(errorData.message || "Lỗi khi xóa địa chỉ");
       }
     } catch (error) {
       console.error("Error deleting address:", error);
-      toast.error("Lỗi kết nối, vui lòng thử lại");
     }
   };
 
@@ -348,14 +337,9 @@ address: address.address
         setNewAddress({ receiver_name: '', phone: '', address: '' });
         setIsEditingAddress(false);
         setEditingAddressId(null);
-        toast.success("Đã cập nhật địa chỉ thành công!");
-      } else {
-        const errorData = await response.json();
-        toast.error(errorData.message || "Lỗi khi cập nhật địa chỉ");
       }
     } catch (error) {
       console.error("Error updating address:", error);
-      toast.error("Lỗi kết nối, vui lòng thử lại");
     }
   };
 

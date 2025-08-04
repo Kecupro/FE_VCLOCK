@@ -18,6 +18,7 @@ const Height = 40;
 
 import { API_ENDPOINTS } from '../../config/api';
 import { getAvatarSrc } from '../../utils/avatarUtils';
+import { clearAuthData } from '../../utils/authUtils';
 
 function AvatarImage({ avatar, alt, size = 32, className = "" }: { avatar?: string | null, alt?: string, size?: number, className?: string }) {
   const [imgSrc, setImgSrc] = useState(getAvatarSrc(avatar));
@@ -56,7 +57,7 @@ function AvatarImage({ avatar, alt, size = 32, className = "" }: { avatar?: stri
 }
 
 const Header = () => {
-  const { user, refreshUser, logout } = useAuth();
+  const { user, setUser, refreshUser, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -69,20 +70,43 @@ const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Kiểm tra quyền truy cập admin
   useEffect(() => {
-    if (user) {
-      const isAdmin = ['1', '2'].includes(String(user.role));
-      const isTryingToAccessAdminArea = pathname.startsWith('/admin');
-      if (!isAdmin && isTryingToAccessAdminArea) {
-        router.push('/');
+    const handleAuthStateChange = () => {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      if (token && userData) {
+        try {
+          const loadedUser = JSON.parse(userData);
+          setUser(loadedUser);
+          // console.log('Header: loadedUser', loadedUser);
+          const isAdmin = ['1', '2'].includes(loadedUser.role);
+          const isTryingToAccessAdminArea = pathname.startsWith('/admin');
+          if (!isAdmin && isTryingToAccessAdminArea) {
+            router.push('/');
+          }
+
+
+        } catch (e) {
+          console.error("Error parsing user data from localStorage:", e);
+          clearAuthData();
+          setUser(null);
+        }
+      } else {
+        if (pathname.startsWith('/admin')) {
+          router.push('/');
+        }
+        setUser(null);
       }
-    } else {
-      if (pathname.startsWith('/admin')) {
-        router.push('/');
+    };
+    handleAuthStateChange();
+    const storageEventListener = (event: StorageEvent) => {
+      if (event.key === 'token' || event.key === 'user' || event.key === null) {
+        handleAuthStateChange();
       }
-    }
-  }, [user, pathname, router]);
+    };
+    window.addEventListener('storage', storageEventListener);
+    return () => window.removeEventListener('storage', storageEventListener);
+  }, [router, pathname, setUser]);
 
   // Force refresh user data khi component mount để đảm bảo avatar cập nhật
   useEffect(() => {
@@ -91,7 +115,7 @@ const Header = () => {
       // Refresh user data từ server để lấy avatar mới nhất
       refreshUser();
     }
-  }, [refreshUser, user]);
+  }, [refreshUser]);
 
   useEffect(() => {
     const history = localStorage.getItem('searchHistory');
@@ -342,7 +366,7 @@ const Header = () => {
               </button>
             </form>
             {user ? (
-              <div className="mt-auto mb-4 space-y-2">
+              <div className="mt-auto mb-4">
                 <Link 
                   href="/account" 
                   className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded"
@@ -351,18 +375,6 @@ const Header = () => {
                   <AvatarImage avatar={user.avatar} alt="avatar" size={32} />
                   <span className="font-medium">{user.username}</span>
                 </Link>
-                <button
-                  onClick={() => {
-                    setSidebarOpen(false);
-                    if (window.confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
-                      logout();
-                    }
-                  }}
-                  className="w-full text-left p-2 hover:bg-red-50 rounded text-red-600 font-semibold"
-                >
-                  <i className="fa-solid fa-right-from-bracket mr-2"></i>
-                  Đăng xuất
-                </button>
               </div>
             ) : (
               <div className="mt-auto">

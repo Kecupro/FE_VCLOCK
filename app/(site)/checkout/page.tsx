@@ -421,7 +421,7 @@ export default function CheckoutPage() {
 						body: JSON.stringify(newAddress),
 					});
 					const data = await res.json();
-					if (res.ok && data.success) {
+					if (data.success) {
 						toast.success("Đã thêm địa chỉ mới.");
 						setAddresses(prev => [...prev, data.address]);
 						setSelectedAddressId(data.address._id);
@@ -429,12 +429,10 @@ export default function CheckoutPage() {
 						await submitOrder(data.address._id); // Đợi xong mới tiếp tục
 					} else {
 						toast.error(data.message || "Lỗi khi thêm địa chỉ.");
-						return; // Dừng lại nếu có lỗi
 					}
 				} catch (err) {
 					console.error("Lỗi thêm địa chỉ:", err);
 					toast.error("Vui lòng thử lại sau.");
-					return; // Dừng lại nếu có lỗi
 				}
 	
 			} else {
