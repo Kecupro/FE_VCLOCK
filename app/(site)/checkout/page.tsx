@@ -406,13 +406,44 @@ export default function CheckoutPage() {
 	
 			if (showNewAddressForm) {
 				const { receiver_name, phone, address } = newAddress;
-				if (!receiver_name || !phone || !address) {
-					toast.error("Vui lòng điền đầy đủ địa chỉ mới.");
+				
+				// Debug: Log ra giá trị để kiểm tra
+				console.log("Debug newAddress:", {
+					receiver_name: `"${receiver_name}"`,
+					phone: `"${phone}"`,
+					address: `"${address}"`,
+					receiver_name_trim: `"${receiver_name.trim()}"`,
+					phone_trim: `"${phone.trim()}"`,
+					address_trim: `"${address.trim()}"`
+				});
+				
+				// Kiểm tra chi tiết từng trường
+				if (!receiver_name || !receiver_name.trim()) {
+					toast.error("Vui lòng nhập tên người nhận.");
 					return;
 				}
-				if (receiver_name.length < 2 || !/^[\p{L}\d\s,.'-]+$/u.test(receiver_name)) return toast.error("Tên người nhận không hợp lệ.");
-				if (!/^\d{10,11}$/.test(phone)) return toast.error("Số điện thoại không hợp lệ.");
-				if (address.length < 5 || !/^[\p{L}\d\s,.-]+$/u.test(address)) return toast.error("Địa chỉ không hợp lệ.");
+				if (!phone || !phone.trim()) {
+					toast.error("Vui lòng nhập số điện thoại.");
+					return;
+				}
+				if (!address || !address.trim()) {
+					toast.error("Vui lòng nhập địa chỉ giao hàng.");
+					return;
+				}
+				
+				// Kiểm tra format
+				if (receiver_name.trim().length < 2 || !/^[\p{L}\d\s,.'-]+$/u.test(receiver_name.trim())) {
+					toast.error("Tên người nhận không hợp lệ.");
+					return;
+				}
+				if (!/^\d{10,11}$/.test(phone.trim())) {
+					toast.error("Số điện thoại không hợp lệ.");
+					return;
+				}
+				if (address.trim().length < 5 || !/^[\p{L}\d\s,.-]+$/u.test(address.trim())) {
+					toast.error("Địa chỉ không hợp lệ.");
+					return;
+				}
 	
 				try {
 					// Kiểm tra xem địa chỉ đã tồn tại chưa
@@ -702,7 +733,10 @@ export default function CheckoutPage() {
 									
 									<AddressSelector
 									  value={newAddress.address}
-									  onChange={(addr) => setNewAddress({ ...newAddress, address: addr })}
+									  onChange={(addr) => {
+										console.log("AddressSelector onChange called with:", `"${addr}"`);
+										setNewAddress({ ...newAddress, address: addr });
+									  }}
 									/>
 									</div>
 

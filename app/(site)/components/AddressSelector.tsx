@@ -262,6 +262,18 @@ export default function AddressSelector({ value, onChange }: {
     if (!isParsing.current && !isUserTyping.current) {
       const fullAddress = [street, wardName, districtName, provinceName].filter(Boolean).join(", ");
       
+      // Debug: Log ra để kiểm tra
+      console.log("AddressSelector Debug:", {
+        street: `"${street}"`,
+        wardName: `"${wardName}"`,
+        districtName: `"${districtName}"`,
+        provinceName: `"${provinceName}"`,
+        fullAddress: `"${fullAddress}"`,
+        lastSentValue: `"${lastSentValue.current}"`,
+        isParsing: isParsing.current,
+        isUserTyping: isUserTyping.current
+      });
+      
       // Chỉ gọi onChange khi giá trị thực sự thay đổi và không rỗng
       if (fullAddress !== lastSentValue.current && fullAddress.trim() !== '') {
         lastSentValue.current = fullAddress;
