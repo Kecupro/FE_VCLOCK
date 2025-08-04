@@ -7,10 +7,17 @@
  * for cross-tab synchronization
  */
 export const clearAuthData = () => {
+  console.log('🔍 clearAuthData: Bắt đầu xóa dữ liệu auth');
+  
   // Remove all auth-related data
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   localStorage.removeItem('cart');
+  
+  console.log('🔍 clearAuthData: Đã xóa dữ liệu, kiểm tra lại:');
+  console.log('  - token:', localStorage.getItem('token'));
+  console.log('  - user:', localStorage.getItem('user'));
+  console.log('  - cart:', localStorage.getItem('cart'));
   
   // Trigger storage events for cross-tab synchronization
   window.dispatchEvent(new StorageEvent('storage', {
@@ -21,6 +28,8 @@ export const clearAuthData = () => {
     key: 'user',
     newValue: null
   }));
+  
+  console.log('🔍 clearAuthData: Đã trigger storage events');
 };
 
 /**

@@ -111,11 +111,13 @@ const Header = () => {
   // Force refresh user data khi component mount để đảm bảo avatar cập nhật
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token && user) {
-      // Refresh user data từ server để lấy avatar mới nhất
+    const userData = localStorage.getItem('user');
+    // Chỉ refresh khi có cả token và user data, tránh refresh sau khi logout
+    if (token && userData && user) {
+      console.log('🔍 Header: Refreshing user data');
       refreshUser();
     }
-  }, [refreshUser]);
+  }, [refreshUser, user]);
 
   useEffect(() => {
     const history = localStorage.getItem('searchHistory');
