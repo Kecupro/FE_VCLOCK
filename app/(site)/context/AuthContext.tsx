@@ -62,9 +62,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Đăng xuất
   const logout = () => {
+    // Xóa localStorage trước
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("cart"); // Xóa cart khi đăng xuất
+    
+    // Cập nhật state ngay lập tức
     setUser(null);
+    
+    // Trigger storage event để đồng bộ với các tab khác
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'token',
+      newValue: null
+    }));
+    
+    // Chuyển hướng
     router.push("/");
   };
 

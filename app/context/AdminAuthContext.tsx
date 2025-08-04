@@ -85,9 +85,20 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
+    // Xóa localStorage trước
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('cart'); // Xóa cart khi đăng xuất
+    
+    // Cập nhật state ngay lập tức
     setUser(null);
     setIsAuthorized(false);
+    
+    // Trigger storage event để đồng bộ với các tab khác
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'token',
+      newValue: null
+    }));
   };
 
   const value: AdminAuthContextType = {

@@ -56,7 +56,7 @@ function AvatarImage({ avatar, alt, size = 32, className = "" }: { avatar?: stri
 }
 
 const Header = () => {
-  const { user, setUser, refreshUser } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -69,44 +69,20 @@ const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Kiểm tra quyền truy cập admin
   useEffect(() => {
-    const handleAuthStateChange = () => {
-      const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('user');
-      if (token && userData) {
-        try {
-          const loadedUser = JSON.parse(userData);
-          setUser(loadedUser);
-          // console.log('Header: loadedUser', loadedUser);
-          const isAdmin = ['1', '2'].includes(loadedUser.role);
-          const isTryingToAccessAdminArea = pathname.startsWith('/admin');
-          if (!isAdmin && isTryingToAccessAdminArea) {
-            router.push('/');
-          }
-
-
-        } catch (e) {
-          console.error("Error parsing user data from localStorage:", e);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setUser(null);
-        }
-      } else {
-        if (pathname.startsWith('/admin')) {
-          router.push('/');
-        }
-        setUser(null);
+    if (user) {
+      const isAdmin = ['1', '2'].includes(String(user.role));
+      const isTryingToAccessAdminArea = pathname.startsWith('/admin');
+      if (!isAdmin && isTryingToAccessAdminArea) {
+        router.push('/');
       }
-    };
-    handleAuthStateChange();
-    const storageEventListener = (event: StorageEvent) => {
-      if (event.key === 'token' || event.key === 'user' || event.key === null) {
-        handleAuthStateChange();
+    } else {
+      if (pathname.startsWith('/admin')) {
+        router.push('/');
       }
-    };
-    window.addEventListener('storage', storageEventListener);
-    return () => window.removeEventListener('storage', storageEventListener);
-  }, [router, pathname, setUser]);
+    }
+  }, [user, pathname, router]);
 
   // Force refresh user data khi component mount để đảm bảo avatar cập nhật
   useEffect(() => {
@@ -115,7 +91,7 @@ const Header = () => {
       // Refresh user data từ server để lấy avatar mới nhất
       refreshUser();
     }
-  }, [refreshUser]);
+  }, [refreshUser, user]);
 
   useEffect(() => {
     const history = localStorage.getItem('searchHistory');
@@ -257,7 +233,7 @@ const Header = () => {
                     style={{ minWidth: 220, transition: 'opacity 0.2s' }}
                   >
                     <div className="flex items-center gap-3 mb-3">
-                      <AvatarImage avatar={user.avatar} alt="avatar" size={48} className="border-2 border-red-600" />
+                      <AvatarImage avatar={user.avatar} alt="avatar" size={48}/>
                       <div>
                         <div className="font-bold text-[13px] truncate max-w-[140px]" title={user.username}>
                           {user.fullName || user.username}
@@ -287,10 +263,7 @@ const Header = () => {
                       className="w-full flex items-center gap-2 text-left px-3 py-2 hover:bg-red-50 rounded text-red-600 transition"
                       onClick={() => {
                         if (window.confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
-                          localStorage.removeItem('token');
-                          localStorage.removeItem('user');
-                          setUser(null);
-                          router.push('/');
+                          logout();
                         }
                       }}
                     >
@@ -369,7 +342,7 @@ const Header = () => {
               </button>
             </form>
             {user ? (
-              <div className="mt-auto mb-4">
+              <div className="mt-auto mb-4 space-y-2">
                 <Link 
                   href="/account" 
                   className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded"
@@ -378,6 +351,18 @@ const Header = () => {
                   <AvatarImage avatar={user.avatar} alt="avatar" size={32} />
                   <span className="font-medium">{user.username}</span>
                 </Link>
+                <button
+                  onClick={() => {
+                    setSidebarOpen(false);
+                    if (window.confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
+                      logout();
+                    }
+                  }}
+                  className="w-full text-left p-2 hover:bg-red-50 rounded text-red-600 font-semibold"
+                >
+                  <i className="fa-solid fa-right-from-bracket mr-2"></i>
+                  Đăng xuất
+                </button>
               </div>
             ) : (
               <div className="mt-auto">

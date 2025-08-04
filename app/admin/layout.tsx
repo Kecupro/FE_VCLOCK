@@ -563,7 +563,11 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
                 <p><span>{user?.email || 'NaN'}</span></p>
                 <Dropdown.Divider />
                 <Dropdown.Item href="/admin/account">Cài đặt tài khoản</Dropdown.Item>
-                <Dropdown.Item onClick={logout}>Đăng xuất</Dropdown.Item>
+                <Dropdown.Item onClick={() => {
+                  if (window.confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
+                    logout();
+                  }
+                }}>Đăng xuất</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </Nav>
