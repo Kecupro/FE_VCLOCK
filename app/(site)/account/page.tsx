@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, useEffect, useMemo, useCallback } from "react";
+import { useRef, useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { IAddress, IProduct } from "../cautrucdata";
 import OrderCard from "./OrderCard ";
@@ -33,7 +33,7 @@ const tabItems: TabItem[] = [
   { key: "voucher", label: "Voucher", icon: "fa-solid fa-ticket" },
 ];
 
-export default function AccountPage() {
+function AccountPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, refreshUser, logout } = useAuth();
@@ -870,5 +870,17 @@ type="submit"
       
       
     </main>
+  );
+}
+
+export default function AccountPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+      </div>
+    }>
+      <AccountPageContent />
+    </Suspense>
   );
 }
