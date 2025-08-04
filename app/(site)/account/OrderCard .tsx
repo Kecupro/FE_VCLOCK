@@ -364,7 +364,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
                     {selectedDetails.map((item) => (
                       <div key={item._id} className="flex gap-3 items-start border-b pb-3">
                         <Image
-                          src={`/upload/product/${item.product_id.main_image.image}`}
+                          src={`/images/product/${item.product_id.main_image.image}`}
                           alt={item.product_id.main_image.alt}
                           width={60}
                           height={60}

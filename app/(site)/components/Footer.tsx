@@ -9,8 +9,8 @@ const Footer = () => (
         <Image 
           src="/images/logoVCLOCK.png" 
           alt="DUANTN Logo" 
-          width={200}
-          height={80}
+          width={246}
+          height={72}
           className="h-22 mb-4 mx-auto md:mx-0" 
         />
         <p className="text-sm mb-2">1073/23 CMT8, P7, Q.Tân Bình, TP.HCM</p>

@@ -7,8 +7,20 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { API_ENDPOINTS } from "../../config/api";
 
+// Tạo socket connection một lần duy nhất
+let socket: any = null;
 
-const socket = io(API_ENDPOINTS.SOCKET_URL); // đổi sang đúng địa chỉ server
+const getSocket = () => {
+  if (!socket) {
+    socket = io(API_ENDPOINTS.SOCKET_URL, {
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
+  }
+  return socket;
+};
 
 interface Message {
 	_id?: string;
@@ -29,6 +41,8 @@ export default function ChatBox() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const socketRef = useRef<any>(null);
+  const isConnectedRef = useRef(false);
 
 interface UserToken {
   userId: string;
@@ -50,8 +64,7 @@ const conversationIdRef = useRef<string>("guest-conversation");
       const decoded: UserToken = jwtDecode(token);
       const cid = `user-${decoded.userId}`;
       conversationIdRef.current = cid;
-      socket.emit("joinConversation", cid);
-      setUserInfo(decoded); // Đặt sau cùng
+      setUserInfo(decoded);
     } else {
       let guestName = localStorage.getItem("guestName");
       if (!guestName) {
@@ -64,63 +77,78 @@ const conversationIdRef = useRef<string>("guest-conversation");
         avatar: defaultUserAvatar,
       };
       conversationIdRef.current = "guest-conversation";
-      socket.emit("joinConversation", "guest-conversation");
-      setUserInfo(guestInfo); // Cũng đặt sau cùng
+      setUserInfo(guestInfo);
     }
   }, []);
 
-    // Lắng nghe tin nhắn mới
-    useEffect(() => {
-  const handleNewMessage = (msg: Message) => {
-    if (msg.conversationId === conversationIdRef.current) {
-      setMessages((prev) => {
-        const alreadyExists = prev.some(m => m._id === msg._id);
-        if (alreadyExists) return prev;
-        return [...prev, msg];
-      });
+  // Khởi tạo socket connection
+  useEffect(() => {
+    if (!userInfo) return;
+
+    const socketInstance = getSocket();
+    socketRef.current = socketInstance;
+
+    // Chỉ join conversation một lần
+    if (!isConnectedRef.current) {
+      socketInstance.emit("joinConversation", conversationIdRef.current);
+      isConnectedRef.current = true;
     }
-  };
 
-  socket.on("newMessage", handleNewMessage);
+    // Lắng nghe tin nhắn mới với deduplication tốt hơn
+    const handleNewMessage = (msg: Message) => {
+      if (msg.conversationId === conversationIdRef.current) {
+        setMessages((prev) => {
+          // Kiểm tra duplicate bằng nhiều cách
+          const alreadyExists = prev.some(m => 
+            m._id === msg._id || 
+            (m.senderId === msg.senderId && 
+             m.text === msg.text && 
+             Math.abs(new Date(m.createdAt).getTime() - new Date(msg.createdAt).getTime()) < 1000)
+          );
+          if (alreadyExists) return prev;
+          return [...prev, msg];
+        });
+      }
+    };
 
-  return () => {
-    socket.off("newMessage", handleNewMessage);
-  };
-}, []); // <-- Để dependency array là [] để không bị cảnh báo
+    socketInstance.on("newMessage", handleNewMessage);
 
+    // Cleanup
+    return () => {
+      socketInstance.off("newMessage", handleNewMessage);
+    };
+  }, [userInfo]);
 
   // Lấy tin nhắn khi mở chat
   const fetchMessages = async () => {
-  const token = localStorage.getItem("token");
-  try {
-    const res = await axios.get<Message[]>(
-      API_ENDPOINTS.MESSAGES(conversationIdRef.current),
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    setMessages(res.data);
+    const token = localStorage.getItem("token");
+    try {
+      const res = await axios.get<Message[]>(
+        API_ENDPOINTS.MESSAGES(conversationIdRef.current),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setMessages(res.data);
     } catch (err) {
       console.error("Lỗi khi lấy tin nhắn:", err);
     }
   };
 
   useEffect(() => {
-  if (isOpen && userInfo) {
-    console.log("📡 conversationIdRef:", conversationIdRef.current);
-    fetchMessages();
-  }
-}, [isOpen, userInfo]);
-
-
+    if (isOpen && userInfo) {
+      console.log("📡 conversationIdRef:", conversationIdRef.current);
+      fetchMessages();
+    }
+  }, [isOpen, userInfo]);
 
   const handleSend = () => {
-    if (!input.trim() || !userInfo) return;
+    if (!input.trim() || !userInfo || !socketRef.current) return;
   
     const newMessage: Message = {
-      conversationId: conversationIdRef.current,    //  Dùng ref luôn đúng
+      conversationId: conversationIdRef.current,
       senderId: userInfo.userId,
       senderName: userInfo.name,
       senderAvatar: userInfo.avatar || defaultUserAvatar,
@@ -129,12 +157,13 @@ const conversationIdRef = useRef<string>("guest-conversation");
       createdAt: new Date().toISOString(),
     };
   
+    // Thêm tin nhắn vào UI ngay lập tức
     setMessages(prev => [...prev, newMessage]);
-    socket.emit("sendMessage", newMessage);
+    
+    // Gửi qua socket
+    socketRef.current.emit("sendMessage", newMessage);
     setInput("");
   }; 
-
-  
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -205,7 +234,6 @@ const conversationIdRef = useRef<string>("guest-conversation");
                 </div>
               );
             })}
-
 
             <div ref={messagesEndRef} />
           </div>

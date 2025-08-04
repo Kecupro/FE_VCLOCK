@@ -278,6 +278,9 @@ export default function CheckoutPage() {
 		const selectedCartItems = cart.filter(item => selectedIds.includes(item._id));
 		const selectedPaymentObj = paymentMethods.find(p => p.code === selectedPayment);
 
+		console.log("Selected payment method:", selectedPayment);
+		console.log("Selected payment object:", selectedPaymentObj);
+
 		const orderCode = Math.floor(100000 + Math.random() * 900000);
 	  	
 		const orderData = {
@@ -293,11 +296,25 @@ export default function CheckoutPage() {
 		};
 	  
 		try {
+		  // Kiểm tra xem payment method có tồn tại không
+		  if (!selectedPaymentObj) {
+			toast.error("Phương thức thanh toán không hợp lệ.");
+			return;
+		  }
+		  
 		  if (selectedPayment === "BANK_TRANSFER") {
 			// 👉 BANK_TRANSFER → chỉ tạo payment link, KHÔNG tạo đơn hàng ngay
+			console.log("Đang tạo payment link cho BANK_TRANSFER...");
+			console.log("orderData:", orderData);
+			console.log("orderCode:", orderCode);
+			console.log("amount:", finalTotal);
+			
 			const response = await fetch("https://bevclock-production.up.railway.app/create-payment-link", {
 			  method: "POST",
-			  headers: { "Content-Type": "application/json" },
+			  headers: { 
+				"Content-Type": "application/json",
+				...(token && { "Authorization": `Bearer ${token}` })
+			  },
 			  body: JSON.stringify({
 				orderData,
 				orderCode,
@@ -305,13 +322,17 @@ export default function CheckoutPage() {
 				description: `Thanh toán DH ${orderCode}`,
 			  }),
 			});
-	  
+			
+			console.log("Response status:", response.status);
 			const resData = await response.json();
+			console.log("Response data:", resData);
 
 			if (resData.checkoutUrl) {
+			  console.log("Chuyển hướng đến:", resData.checkoutUrl);
 			  window.location.href = resData.checkoutUrl;
 			} else {
-			  toast.error("Không thể lấy link thanh toán.");
+			  console.error("Không có checkoutUrl trong response:", resData);
+			  toast.error("Không thể lấy link thanh toán. Vui lòng thử lại.");
 			}
 	  
 		  } else {
@@ -333,7 +354,11 @@ export default function CheckoutPage() {
 	  
 		} catch (err) {
 		  console.error("Lỗi khi xử lý đơn hàng:", err);
-		  toast.error("Đã xảy ra lỗi. Vui lòng thử lại sau.");
+		  if (selectedPayment === "BANK_TRANSFER") {
+			toast.error("Lỗi khi tạo link thanh toán. Vui lòng thử lại sau.");
+		  } else {
+			toast.error("Đã xảy ra lỗi. Vui lòng thử lại sau.");
+		  }
 		}
 	  };	  
 	

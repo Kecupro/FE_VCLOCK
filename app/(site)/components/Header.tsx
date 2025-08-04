@@ -259,7 +259,7 @@ const Header = () => {
                     <div className="flex items-center gap-3 mb-3">
                       <AvatarImage avatar={user.avatar} alt="avatar" size={48} className="border-2 border-red-600" />
                       <div>
-                        <div className="font-bold text-base truncate max-w-[140px]" title={user.username}>
+                        <div className="font-bold text-[13px] truncate max-w-[140px]" title={user.username}>
                           {user.fullName || user.username}
                         </div>
                         <div className="text-xs text-gray-500">{user.email}</div>
@@ -557,7 +557,7 @@ const Header = () => {
         </div>
         <div className="header-cart">
           <Link href="/cart" className="flex items-center font-semibold relative">
-          <span className="ml-2">GIỎ HÀNG</span><i className="fa-solid fa-bag-shopping ml-2 text-2xl">
+            <i className="fa-solid fa-bag-shopping ml-2 text-2xl">
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
                 {cartCount}
               </span>
