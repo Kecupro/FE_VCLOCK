@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { IAddress, IProduct } from "../cautrucdata";
 import OrderCard from "./OrderCard ";
@@ -70,64 +70,33 @@ export default function AccountPage() {
     } else {
       setIsAuthenticated(true);
       
-      // Debug: Kiểm tra user data từ localStorage
-      const userDataFromStorage = localStorage.getItem("user");
-      console.log('Account page: User data from localStorage:', userDataFromStorage);
-      if (userDataFromStorage) {
-        try {
-          const parsedUser = JSON.parse(userDataFromStorage);
-          console.log('Account page: Parsed user from localStorage:', parsedUser);
-          console.log('Account page: Avatar from localStorage:', parsedUser.avatar);
-        } catch (e) {
-          console.error('Account page: Error parsing user data:', e);
-        }
-      }
-      
       // Sử dụng user từ AuthContext
       if (user) {
         setEditForm({ fullName: user.fullName || '' });
         // Luôn set avatar, kể cả khi user không có avatar
         const newAvatar = getAvatarSrc(user.avatar);
         setAvatar(newAvatar);
-        console.log('Account page: User avatar:', user.avatar);
-        console.log('Account page: Processed avatar:', newAvatar);
       }
       setIsLoading(false);
     }
   }, [user, router]);
 
+  // Tối ưu hóa avatar với useMemo
+  const memoizedAvatar = useMemo(() => {
+    return getAvatarSrc(user?.avatar);
+  }, [user?.avatar]);
+
   // Cập nhật avatar khi user thay đổi
   useEffect(() => {
     if (user?.avatar) {
-      const newAvatar = getAvatarSrc(user.avatar);
-      setAvatar(newAvatar);
-      console.log('Account page: Updated avatar from user change:', newAvatar);
+      setAvatar(memoizedAvatar);
     }
-  }, [user?.avatar]);
+  }, [memoizedAvatar]);
 
-  // Đảm bảo avatar được set khi component mount
+  // Reset avatar error khi avatar thay đổi
   useEffect(() => {
-    if (user && !avatar) {
-      const newAvatar = getAvatarSrc(user.avatar);
-      setAvatar(newAvatar);
-      console.log('Account page: Setting avatar on mount:', newAvatar);
-      console.log('Account page: Original user avatar:', user.avatar);
-    }
-  }, [user, avatar]);
-
-  // Debug useEffect để theo dõi avatar state
-  useEffect(() => {
-    console.log('Account page: Avatar state changed to:', avatar);
-    setAvatarError(false); // Reset error khi avatar thay đổi
+    setAvatarError(false);
   }, [avatar]);
-
-  // Debug useEffect để theo dõi user data
-  useEffect(() => {
-    console.log('Account page: User data changed:', user);
-    if (user) {
-      console.log('Account page: User avatar from context:', user.avatar);
-    }
-  }, [user]);
 
 
 

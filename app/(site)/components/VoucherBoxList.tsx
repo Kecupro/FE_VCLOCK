@@ -153,8 +153,7 @@ const VoucherBoxList = () => {
             const isSaved = !!savedState;
             const isUsed = savedState?.used;
             
-            // Debug log để kiểm tra trạng thái
-            console.log(`Voucher ${v.voucher_code}: isSaved=${isSaved}, isUsed=${isUsed}, savedState=`, savedState);
+
             
             return (
               <SwiperSlide key={v._id}>
