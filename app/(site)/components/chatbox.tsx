@@ -2,15 +2,15 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Send, X, MessageCircle } from "lucide-react";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { API_ENDPOINTS } from "../../config/api";
 
 // Tạo socket connection một lần duy nhất
-let socket: any = null;
+let socket: Socket | null = null;
 
-const getSocket = () => {
+const getSocket = (): Socket => {
   if (!socket) {
     socket = io(API_ENDPOINTS.SOCKET_URL, {
       transports: ['websocket', 'polling'],
@@ -41,7 +41,7 @@ export default function ChatBox() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const socketRef = useRef<any>(null);
+  const socketRef = useRef<Socket | null>(null);
   const isConnectedRef = useRef(false);
 
 interface UserToken {
