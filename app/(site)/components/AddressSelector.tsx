@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 export interface Province {
@@ -60,6 +60,9 @@ export default function AddressSelector({ value, onChange }: {
 
   // Sử dụng ref để theo dõi việc đang trong quá trình parse
   const isParsing = useRef(false);
+
+  // Sử dụng ref để theo dõi việc đang trong quá trình thay đổi từ user
+  const isUserTyping = useRef(false);
 
   // Reset hasParsedValue khi value thay đổi
   useEffect(() => {
@@ -253,23 +256,48 @@ export default function AddressSelector({ value, onChange }: {
     [wards, ward]
   );
 
-  // Sử dụng useCallback để tối ưu việc tạo full address
-  const createFullAddress = useCallback(() => {
-    return [street, wardName, districtName, provinceName].filter(Boolean).join(", ");
+  // Tạo full address và gọi onChange
+  useEffect(() => {
+    // Chỉ gọi onChange khi không đang parse và không đang user typing
+    if (!isParsing.current && !isUserTyping.current) {
+      const fullAddress = [street, wardName, districtName, provinceName].filter(Boolean).join(", ");
+      
+      // Chỉ gọi onChange khi giá trị thực sự thay đổi và không rỗng
+      if (fullAddress !== lastSentValue.current && fullAddress.trim() !== '') {
+        lastSentValue.current = fullAddress;
+        onChangeRef.current(fullAddress);
+      }
+    }
   }, [street, wardName, districtName, provinceName]);
 
-  // Sử dụng useMemo để tối ưu việc tạo full address
-  const fullAddress = useMemo(() => {
-    return createFullAddress();
-  }, [createFullAddress]);
-
-  // Chỉ gọi onChange khi giá trị thực sự thay đổi và không rỗng, và không đang trong quá trình parse
-  useEffect(() => {
-    if (!isParsing.current && fullAddress !== lastSentValue.current && fullAddress.trim() !== '') {
-      lastSentValue.current = fullAddress;
-      onChangeRef.current(fullAddress);
+  // Hàm xử lý khi user thay đổi dropdown
+  const handleDropdownChange = (type: 'province' | 'district' | 'ward', code: string) => {
+    isUserTyping.current = true;
+    
+    if (type === 'province') {
+      setProvince(code);
+    } else if (type === 'district') {
+      setDistrict(code);
+    } else if (type === 'ward') {
+      setWard(code);
     }
-  }, [fullAddress]);
+    
+    // Reset flag sau một khoảng thời gian ngắn
+    setTimeout(() => {
+      isUserTyping.current = false;
+    }, 100);
+  };
+
+  // Hàm xử lý khi user nhập street
+  const handleStreetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    isUserTyping.current = true;
+    setStreet(e.target.value);
+    
+    // Reset flag sau một khoảng thời gian ngắn
+    setTimeout(() => {
+      isUserTyping.current = false;
+    }, 100);
+  };
 
   return (
     <div className="space-y-4">
@@ -277,7 +305,7 @@ export default function AddressSelector({ value, onChange }: {
         <CustomDropdown
           items={provinces}
           selected={provinces.find((p) => p.code === province) || null}
-          onSelect={(p) => setProvince(p.code)}
+          onSelect={(p) => handleDropdownChange('province', p.code)}
           placeholder="Chọn tỉnh"
           isOpen={isProvinceOpen}
           setIsOpen={setIsProvinceOpen}
@@ -287,7 +315,7 @@ export default function AddressSelector({ value, onChange }: {
         <CustomDropdown
           items={districts}
           selected={districts.find((d) => d.code === district) || null}
-          onSelect={(d) => setDistrict(d.code)}
+          onSelect={(d) => handleDropdownChange('district', d.code)}
           placeholder="Chọn huyện"
           isOpen={isDistrictOpen}
           setIsOpen={setIsDistrictOpen}
@@ -297,7 +325,7 @@ export default function AddressSelector({ value, onChange }: {
         <CustomDropdown
           items={wards}
           selected={wards.find((w) => w.code === ward) || null}
-          onSelect={(w) => setWard(w.code)}
+          onSelect={(w) => handleDropdownChange('ward', w.code)}
           placeholder="Chọn xã"
           isOpen={isWardOpen}
           setIsOpen={setIsWardOpen}
@@ -310,10 +338,7 @@ export default function AddressSelector({ value, onChange }: {
         placeholder="Số nhà, tên đường (VD: 123 Lý Thường Kiệt, Block A2)"
         className="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400"
         value={street}
-        onChange={(e) => {
-          e.preventDefault();
-          setStreet(e.target.value);
-        }}
+        onChange={handleStreetChange}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
