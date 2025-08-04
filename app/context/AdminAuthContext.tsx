@@ -145,14 +145,27 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Hàm cleanup để xóa tất cả dữ liệu
+  const clearAllData = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("cart");
+    localStorage.removeItem("selectedItems");
+    localStorage.removeItem("searchHistory");
+    // Xóa tất cả dữ liệu khác có thể liên quan
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('user_') || key.startsWith('auth_')) {
+        localStorage.removeItem(key);
+      }
+    });
+  };
+
   const logout = () => {
     // Set flag để tránh xử lý storage event trong quá trình logout
     isLoggingOutRef.current = true;
     
-    // Xóa localStorage trước
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('cart'); // Xóa cart khi đăng xuất
+    // Xóa tất cả dữ liệu
+    clearAllData();
     
     // Cập nhật state ngay lập tức
     setUser(null);

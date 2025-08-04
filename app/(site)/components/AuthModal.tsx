@@ -77,13 +77,13 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       const data = await response.json();
       
       if (response.ok) {
+        // Chỉ set token, AuthContext sẽ tự động xử lý user
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user); 
         onClose();
         setError("");
-            toast.success('Đăng nhập thành công!');
-            router.refresh();
+        toast.success('Đăng nhập thành công!');
+        router.refresh();
       
         if (data.user.role === '1' || data.user.role === '2') {
           router.push('/admin');

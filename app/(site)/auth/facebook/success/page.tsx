@@ -20,14 +20,8 @@ export default function FacebookSuccess() {
       })
         .then((res) => res.json())
         .then((user) => {
-          localStorage.setItem("user", JSON.stringify(user));
-          // Cập nhật user state ngay lập tức
+          // Chỉ set token, AuthContext sẽ tự động xử lý user
           setUser(user);
-          // Trigger storage event để các component khác cập nhật
-          window.dispatchEvent(new StorageEvent('storage', {
-            key: 'user',
-            newValue: JSON.stringify(user)
-          }));
           router.push("/"); 
         })
         .catch((error) => {

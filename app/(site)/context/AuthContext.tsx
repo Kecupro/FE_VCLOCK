@@ -17,6 +17,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const storageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isLoggingOutRef = useRef(false);
+
+  // Wrapper function để đồng bộ localStorage khi setUser
+  const setUserAndSync = (userData: IUser | null) => {
+    setUser(userData);
+    if (userData) {
+      localStorage.setItem("user", JSON.stringify(userData));
+    } else {
+      localStorage.removeItem("user");
+    }
+  };
   
   // Hàm lấy user từ API (dùng khi đăng nhập Google hoặc refresh avatar)
   const refreshUser = async () => {
@@ -27,18 +37,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
       if (res.ok) {
         const userData = await res.json();
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
+        setUserAndSync(userData);
       } else {
-        setUser(null);
-        localStorage.removeItem("user");
+        setUserAndSync(null);
         localStorage.removeItem("token");
         localStorage.removeItem("cart");
       }
     } else {
-      setUser(null);
+      setUserAndSync(null);
       // Đảm bảo xóa sạch localStorage nếu không có token
-      localStorage.removeItem("user");
       localStorage.removeItem("cart");
     }
   };
@@ -50,8 +57,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     // Nếu không có token thì logout
     if (!token) {
-      setUser(null);
-      localStorage.removeItem("user");
+      setUserAndSync(null);
       localStorage.removeItem("cart");
       return;
     }
@@ -66,11 +72,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (token && userData) {
       try {
         const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
+        setUserAndSync(parsedUser);
       } catch (error) {
         console.error("Error parsing user data:", error);
-        setUser(null);
-        localStorage.removeItem("user");
+        setUserAndSync(null);
       }
     }
   }, []);
@@ -97,8 +102,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           
           // Nếu token bị xóa thì logout
           if (!token) {
-            setUser(null);
-            localStorage.removeItem("user");
+            setUserAndSync(null);
             localStorage.removeItem("cart");
             return;
           }
@@ -113,10 +117,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           if (token && userData) {
             try {
               const parsedUser = JSON.parse(userData);
-              setUser(parsedUser);
+              setUserAndSync(parsedUser);
             } catch (error) {
               console.error("Error parsing user data:", error);
-              setUser(null);
+              setUserAndSync(null);
             }
           }
         }, 200);
@@ -131,18 +135,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
+  // Hàm cleanup để xóa tất cả dữ liệu
+  const clearAllData = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("cart");
+    localStorage.removeItem("selectedItems");
+    localStorage.removeItem("searchHistory");
+    // Xóa tất cả dữ liệu khác có thể liên quan
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('user_') || key.startsWith('auth_')) {
+        localStorage.removeItem(key);
+      }
+    });
+  };
+
   // Đăng xuất
   const logout = () => {
     // Set flag để tránh xử lý storage event trong quá trình logout
     isLoggingOutRef.current = true;
     
-    // Xóa localStorage trước
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("cart"); // Xóa cart khi đăng xuất
+    // Xóa tất cả dữ liệu
+    clearAllData();
     
     // Cập nhật state ngay lập tức
-    setUser(null);
+    setUserAndSync(null);
     
     // Trigger storage events để đồng bộ với các tab khác
     window.dispatchEvent(new StorageEvent('storage', {
@@ -164,7 +181,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, setUser: setUserAndSync, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
