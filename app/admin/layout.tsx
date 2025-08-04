@@ -559,11 +559,14 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
               </Dropdown.Toggle>
 
               <Dropdown.Menu>
-                <p>{user?.fullName}</p>
-                <p><span>{user?.email || 'NaN'}</span></p>
+                <p>{user?.fullName || 'N/A'}</p>
+                <p><span>{user?.email || 'N/A'}</span></p>
                 <Dropdown.Divider />
                 <Dropdown.Item href="/admin/account">Cài đặt tài khoản</Dropdown.Item>
-                <Dropdown.Item onClick={logout}>Đăng xuất</Dropdown.Item>
+                <Dropdown.Item onClick={() => {
+                  logout();
+                  window.location.href = '/';
+                }}>Đăng xuất</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </Nav>
