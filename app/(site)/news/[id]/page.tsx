@@ -15,7 +15,6 @@ export default function NewsDetail() {
   useEffect(() => {
     if (params?.id) {
       fetchNewsDetail();
-      // Chỉ tăng lượt xem nếu chưa xem trong session này
       if (!hasIncrementedView.current && !hasViewedInSession(params.id as string)) {
         incrementView();
       }

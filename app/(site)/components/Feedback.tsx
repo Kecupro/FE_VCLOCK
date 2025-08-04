@@ -238,32 +238,7 @@ export default function Feedback() {
         .top-rated-swiper .swiper-slide {
           width: 100% !important;
           max-width: 100% !important;
-        }
-        
-        .top-rated-swiper .swiper-button-next,
-        .top-rated-swiper .swiper-button-prev {
-          color: #dc2626 !important;
-          background: rgba(255, 255, 255, 0.9);
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          transition: all 0.3s ease;
-        }
-        
-        .top-rated-swiper .swiper-button-next:hover,
-        .top-rated-swiper .swiper-button-prev:hover {
-          background: rgba(255, 255, 255, 1);
-     
-        }
-        
-        .top-rated-swiper .swiper-button-next {
-          right: -1px;
-        }
-        
-        .top-rated-swiper .swiper-button-prev {
-          left: -1px;
-        }
-        
+        }    
         .top-rated-swiper .swiper-pagination-bullet {
           background: #dc2626;
           width: 12px;
@@ -280,12 +255,6 @@ export default function Feedback() {
           bottom: 20px;
         }
         
-        @media (max-width: 1024px) {
-          .top-rated-swiper .swiper-button-next,
-          .top-rated-swiper .swiper-button-prev {
-            display: none;
-          }
-        }
       `}</style>
     </div>
   );
