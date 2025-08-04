@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
       "scontent.fsgn8-3.fna.fbcdn.net",
       'localhost',
       'bevclock-production.up.railway.app',
+      'encrypted-tbn0.gstatic.com',
     ],
 
     remotePatterns: [
@@ -18,10 +19,33 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-      
+      {
+        protocol: 'https',
+        hostname: 'encrypted-tbn0.gstatic.com',
+        port: '',
+        pathname: '/**',
+      },
       {
         protocol: 'https',
         hostname: 'graph.facebook.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'scontent.fhan3-4.fna.fbcdn.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'scontent.fsgn5-9.fna.fbcdn.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'scontent.fsgn8-3.fna.fbcdn.net',
         port: '',
         pathname: '/**',
       },
@@ -67,6 +91,11 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // Cấu hình để xử lý lỗi ảnh
+    unoptimized: false,
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   
   // Bỏ qua một số trang khỏi static generation

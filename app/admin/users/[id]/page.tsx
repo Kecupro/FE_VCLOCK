@@ -147,9 +147,7 @@ const UserDetailPage = () => {
     
     // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
     if (avatar.startsWith('http')) {
-      // Thêm timestamp để tránh cache
-      const separator = avatar.includes('?') ? '&' : '?';
-      return `${avatar}${separator}t=${Date.now()}`;
+      return avatar; // Bỏ timestamp để tránh reload liên tục
     }
     
     // Nếu là đường dẫn tương đối bắt đầu bằng /
@@ -159,8 +157,7 @@ const UserDetailPage = () => {
     
     // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
     const avatarUrl = `https://bevclock-production.up.railway.app/uploads/avatars/${avatar}`;
-    const separator = avatarUrl.includes('?') ? '&' : '?';
-    return `${avatarUrl}${separator}t=${Date.now()}`;
+    return avatarUrl; // Bỏ timestamp để tránh reload liên tục
   };
 
   const handleImageError = () => {

@@ -25,10 +25,7 @@ export const getAvatarSrc = (avatar: string | null | undefined): string => {
   }
   
   // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-  // Thêm timestamp để tránh cache
   const baseUrl = API_ENDPOINTS.AVATAR_URL(avatar);
-  const separator = baseUrl.includes('?') ? '&' : '?';
-  const result = `${baseUrl}${separator}t=${Date.now()}`;
-  console.log("Avatar is filename, result:", result);
-  return result;
+  console.log("Avatar is filename, result:", baseUrl);
+  return baseUrl;
 }; 

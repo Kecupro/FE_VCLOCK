@@ -248,9 +248,7 @@ const EditUser = () => {
     
     // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
     if (imagePath.startsWith('http')) {
-      // Thêm timestamp để tránh cache
-      const separator = imagePath.includes('?') ? '&' : '?';
-      return `${imagePath}${separator}t=${Date.now()}`;
+      return imagePath; // Bỏ timestamp để tránh reload liên tục
     }
     
     // Nếu là đường dẫn tương đối bắt đầu bằng /
@@ -260,8 +258,7 @@ const EditUser = () => {
     
     // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
     const avatarUrl = `https://bevclock-production.up.railway.app/uploads/avatars/${imagePath}`;
-    const separator = avatarUrl.includes('?') ? '&' : '?';
-    return `${avatarUrl}${separator}t=${Date.now()}`;
+    return avatarUrl; // Bỏ timestamp để tránh reload liên tục
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

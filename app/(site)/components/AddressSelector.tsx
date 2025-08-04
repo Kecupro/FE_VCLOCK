@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 export interface Province {
@@ -230,18 +230,29 @@ export default function AddressSelector({ value, onChange }: {
     </div>
   );
 
+  // Sử dụng useMemo để tối ưu việc tìm kiếm
+  const provinceName = useMemo(() => 
+    provinces.find((p) => p.code === province)?.name || "", 
+    [provinces, province]
+  );
+  const districtName = useMemo(() => 
+    districts.find((d) => d.code === district)?.name || "", 
+    [districts, district]
+  );
+  const wardName = useMemo(() => 
+    wards.find((w) => w.code === ward)?.name || "", 
+    [wards, ward]
+  );
+
   useEffect(() => {
-    const p = provinces.find((p) => p.code === province)?.name || "";
-    const d = districts.find((d) => d.code === district)?.name || "";
-    const w = wards.find((w) => w.code === ward)?.name || "";
-    const full = [street, w, d, p].filter(Boolean).join(", ");
+    const full = [street, wardName, districtName, provinceName].filter(Boolean).join(", ");
     
-    // Chỉ gọi onChange khi giá trị thực sự thay đổi
-    if (full !== lastSentValue.current) {
+    // Chỉ gọi onChange khi giá trị thực sự thay đổi và không rỗng
+    if (full !== lastSentValue.current && full.trim() !== '') {
       lastSentValue.current = full;
       onChangeRef.current(full);
     }
-  }, [province, district, ward, street, provinces, districts, wards]); // Thêm dependencies
+  }, [province, district, ward, street, provinceName, districtName, wardName]); // Thêm tên đã được tối ưu
 
   return (
     <div className="space-y-4">
@@ -282,7 +293,15 @@ export default function AddressSelector({ value, onChange }: {
         placeholder="Số nhà, tên đường (VD: 123 Lý Thường Kiệt, Block A2)"
         className="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400"
         value={street}
-        onChange={(e) => setStreet(e.target.value)}
+        onChange={(e) => {
+          e.preventDefault();
+          setStreet(e.target.value);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+          }
+        }}
       />
     </div>
   );
