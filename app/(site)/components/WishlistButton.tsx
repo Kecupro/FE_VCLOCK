@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useWishlist } from "./WishlistContext";
 
 interface WishlistButtonProps {
     productId: string;
@@ -10,6 +11,7 @@ interface WishlistButtonProps {
 export default function WishlistButton({ productId, initialIsWishlisted }: WishlistButtonProps) {
     const [isWishlisted, setIsWishlisted] = useState(initialIsWishlisted);
     const [isLoading, setIsLoading] = useState(false);
+    const { addToWishlist, removeFromWishlist } = useWishlist();
 
     const handleWishlist = async () => {
         const token = localStorage.getItem("token");
@@ -20,14 +22,14 @@ export default function WishlistButton({ productId, initialIsWishlisted }: Wishl
 
         setIsLoading(true);
         try {
-            const response = await fetch(`https://bevclock-production.up.railway.app/user/wishlist/${productId}`, {
-                method: isWishlisted ? "DELETE" : "POST",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            });
+            let success = false;
+            if (isWishlisted) {
+                success = await removeFromWishlist(productId);
+            } else {
+                success = await addToWishlist(productId);
+            }
 
-            if (response.ok) {
+            if (success) {
                 setIsWishlisted(!isWishlisted);
                 toast.success(isWishlisted ? "Đã xóa khỏi danh sách yêu thích!" : "Đã thêm vào danh sách yêu thích!");
             } else {

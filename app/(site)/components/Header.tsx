@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useAuth } from "../context/AuthContext";
 import AuthModal from "./AuthModal";
 import { useCart } from "./CartContext";
+import { useWishlist } from "./WishlistContext";
 
 
 // Thêm interface cho search suggestion
@@ -187,6 +188,7 @@ const Header = () => {
   }, []);
 
   const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
 
   return (
     <header className="header">
@@ -335,9 +337,20 @@ const Header = () => {
           />
         </Link>
 
-        <Link href="/cart" className="text-white p-2 -mr-2"> 
-          <i className="fa-solid fa-bag-shopping text-2xl"></i>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/account?tab=favorites" className="text-white p-2"> 
+            <i className="fa-solid fa-heart text-2xl relative">
+              {wishlistCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 min-w-[16px] flex items-center justify-center">
+                  {wishlistCount}
+                </span>
+              )}
+            </i>
+          </Link>
+          <Link href="/cart" className="text-white p-2"> 
+            <i className="fa-solid fa-bag-shopping text-2xl"></i>
+          </Link>
+        </div>
       </div>
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 flex">
@@ -557,14 +570,25 @@ const Header = () => {
             </div>
           )}
         </div>
-        <div className="header-cart">
+        <div className="header-cart flex items-center gap-4">
+          <Link href="/account?tab=favorites" className="flex items-center font-semibold relative">
+            <i className="fa-solid fa-heart text-2xl relative">
+              {wishlistCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 min-w-[16px] flex items-center justify-center">
+                  {wishlistCount}
+                </span>
+              )}
+            </i>
+          </Link>
           <Link href="/cart" className="flex items-center font-semibold relative">
-            <i className="fa-solid fa-bag-shopping ml-2 text-2xl">
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
-                {cartCount}
-              </span>
-          </i>
-        </Link>
+            <i className="fa-solid fa-bag-shopping text-2xl relative">
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 min-w-[16px] flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </i>
+          </Link>
         </div>
 
       </nav>

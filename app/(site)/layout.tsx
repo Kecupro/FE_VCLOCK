@@ -13,6 +13,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import Preloader from "./components/Preloader";
 import ChatBox from "./components/chatbox";
 import { CartProvider } from "./components/CartContext";
+import { WishlistProvider } from "./components/WishlistContext";
 
 
 const montserrat = Montserrat({
@@ -61,6 +62,7 @@ export default function RootLayout({
       >
         <AuthProvider>
         <CartProvider>
+        <WishlistProvider>
         <Preloader />
           <Header />
           {/* <Toaster
@@ -90,6 +92,7 @@ export default function RootLayout({
             pauseOnHover
             theme="light"
           />
+          </WishlistProvider>
           </CartProvider>
         </AuthProvider>
       </body>

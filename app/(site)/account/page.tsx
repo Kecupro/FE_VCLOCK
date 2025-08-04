@@ -1,11 +1,12 @@
 "use client";
 import { useRef, useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { IAddress, IProduct } from "../cautrucdata";
 import OrderCard from "./OrderCard ";
 import VoucherCard from "../components/VoucherCard";
 import AddressSelector from "../components/AddressSelector";
 import { useAuth } from "../context/AuthContext";
+import { useWishlist } from "../components/WishlistContext";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import { getAvatarSrc } from "../../utils/avatarUtils";
@@ -34,6 +35,7 @@ const tabItems: TabItem[] = [
 
 export default function AccountPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, refreshUser, logout } = useAuth();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,6 +49,14 @@ export default function AccountPage() {
   });
   const [tab, setTab] = useState<"info" | "orders" | "favorites" | "addresses" | "voucher">("info");
   
+  // Kiểm tra query parameter để set tab mặc định
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'favorites') {
+      setTab('favorites');
+    }
+  }, [searchParams]);
+  
   const [avatar, setAvatar] = useState("/images/avatar-default.png"); 
   const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
   const [avatarError, setAvatarError] = useState(false);
@@ -56,6 +66,7 @@ export default function AccountPage() {
   const [addresses, setAddresses] = useState<IAddress[]>([]);
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [isLoadingWishlist, setIsLoadingWishlist] = useState(false);
+  const { refreshWishlistCount } = useWishlist();
   // Edit profile states
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -358,7 +369,8 @@ address: address.address
 
       if (response.ok) {
         setWishlistItems(wishlistItems.filter(item => item.product_id !== productId));
-        alert('Đã xóa sản phẩm khỏi danh sách yêu thích!');
+        refreshWishlistCount(); // Refresh wishlist count trong header
+        toast.success('Đã xóa sản phẩm khỏi danh sách yêu thích!');
       }
     } catch (error) {
       console.error("Error removing from wishlist:", error);
