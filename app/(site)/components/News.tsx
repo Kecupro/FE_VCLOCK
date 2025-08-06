@@ -22,17 +22,9 @@ export default function News() {
   const fetchNews = async () => {
     try {
 
-      const response = await axios.get<{ news: INews[]; currentPage: number; totalPages: number; totalNews: number }>('http://localhost:3000/api/news');
-      		console.log('📰 Phản hồi tin tức:', response.data);
-      
-      if (response.data && response.data.news) {
-        setNewsList(response.data.news);
-        		console.log('✅ Tin tức đã tải:', response.data.news.length, 'mục');
-      } else {
-        console.error('❌ Cấu trúc phản hồi không hợp lệ:', response.data);
-        setError('Dữ liệu không đúng định dạng');
-      }
-    } catch (error: unknown) {
+      const response = await axios.get<{ news: INews[]; currentPage: number; totalPages: number; totalNews: number }>('http://localhost:3000/api/news?page=1&limit=6');
+      setNewsList(response.data.news);
+      } catch (error: unknown) {
               console.error('❌ Lỗi tải tin tức:', error);
       const errorMessage = error instanceof Error ? error.message : 'Không thể tải tin tức';
       const axiosError = error as { response?: { data?: { error?: string } } };
@@ -106,7 +98,6 @@ export default function News() {
                   alt={news.title}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   onError={(e) => {
-                    		console.log('❌ Hình ảnh tải thất bại:', news.image);
                     e.currentTarget.src = '/images/news/default-news.jpg';
                   }}
                 />

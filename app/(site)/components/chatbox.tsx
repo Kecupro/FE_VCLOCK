@@ -138,7 +138,6 @@ const conversationIdRef = useRef<string>("guest-conversation");
 
   useEffect(() => {
     if (isOpen && userInfo) {
-      		console.log("📡 ID cuộc trò chuyện:", conversationIdRef.current);
       fetchMessages();
     }
   }, [isOpen, userInfo]);

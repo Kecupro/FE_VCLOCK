@@ -116,7 +116,7 @@ export default function SPLienQuan({id} : {id:string}) {
                                     <div className="mt-auto flex flex-col">
                                         {sp.sale_price > 0 ? (
                                             <>
-                                                <span className="text-[14px] font-bold text-gray-500 absolute top-2 left-2 bg-red-600 text-white px-1 py-2 rounded-sm z-10">
+                                                <span className="text-[14px] w-10 text-center font-bold text-gray-500 absolute top-2 left-2 bg-red-600 text-white px-1 py-2 rounded-sm z-10">
                                                     {Math.round(((sp.price - sp.sale_price) / sp.price) * 100)}%
                                                 </span>
                                                 <div className="flex flex-wrap items-center gap-1">

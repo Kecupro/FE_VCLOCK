@@ -84,13 +84,17 @@ const SearchPage = () => {
 
   useEffect(() => {
     if (!loading && products.length === 0) {
-      fetch(`http://localhost:3000/api/products/top-rated?limit=3`)
+      fetch(`http://localhost:3000/api/products/top-rated?limit=4`)
         .then(res => res.json())
         .then(data => setSuggestedProducts(data || []));
     } else {
       setSuggestedProducts([]);
     }
   }, [loading, products]);
+
+  // Lọc trùng sản phẩm theo _id trước khi render
+  const uniqueProducts = Array.from(new Map(products.map(item => [item._id, item])).values());
+  const uniqueSuggestedProducts = Array.from(new Map(suggestedProducts.map(item => [item._id, item])).values());
 
   if (!query) {
     return (
@@ -124,7 +128,7 @@ const SearchPage = () => {
           ) : products.length > 0 ? (
             <div className={`w-full flex justify-center`}>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-5xl">
-                {products.map((product) => {
+                {uniqueProducts.map((product) => {
                   const percent = product.price && product.sale_price && product.sale_price > 0
                     ? Math.round(((product.price - product.sale_price) / product.price) * 100)
                     : 0;
@@ -162,7 +166,7 @@ const SearchPage = () => {
                       <div className="mt-auto flex flex-col">
                         {product.sale_price && product.sale_price > 0 ? (
                           <>
-                            <span className="text-[14px] font-bold text-gray-500 absolute top-2 left-2 bg-red-600 text-white px-1 py-2 rounded-sm z-10">
+                            <span className="text-[14px] w-10 text-center font-bold text-gray-500 absolute top-2 left-2 bg-red-600 text-white px-1 py-2 rounded-sm z-10">
                               {percent}%
                             </span>
                             <div className="flex flex-wrap items-center gap-1">
@@ -211,7 +215,7 @@ const SearchPage = () => {
                   <h4 className="text-base font-semibold text-gray-800 mb-4">Có thể bạn quan tâm</h4>
                   <div className={`w-full flex justify-center`}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-5xl">
-                      {suggestedProducts.map((product) => {
+                      {uniqueSuggestedProducts.map((product) => {
                         const percent = product.price && product.sale_price && product.sale_price > 0
                           ? Math.round(((product.price - product.sale_price) / product.price) * 100)
                           : 0;

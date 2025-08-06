@@ -52,7 +52,6 @@ export default function Show1SP(props: { sp: IProduct }) {
                         }
                         setWishlistStatus(statusMap);
                     } else {
-                        						console.log("Người dùng chưa đăng nhập cho wishlist");
                         setWishlistStatus({});
                     }
                 } catch (err) {

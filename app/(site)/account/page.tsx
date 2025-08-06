@@ -151,7 +151,6 @@ function AccountPageContent() {
       });
       if (response.ok) {
         const data = await response.json();
-        		console.log('Dữ liệu wishlist:', data); // Debug log
         setWishlistItems(data);
       }
     } catch (error) {
@@ -189,8 +188,6 @@ function AccountPageContent() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    		console.log('Đang lưu hồ sơ với tên đầy đủ:', editForm.fullName);
-
     const formData = new FormData();
     formData.append('fullname', editForm.fullName);
     if (selectedAvatarFile) {
@@ -207,7 +204,6 @@ function AccountPageContent() {
         body: formData,
       });
 const result = await response.json();
-      		console.log('Phản hồi từ máy chủ:', result);
       if (response.ok) {
         // Cập nhật AuthContext để header cũng được cập nhật
         await refreshUser();
@@ -396,19 +392,20 @@ address: address.address
     if (!token) return;
     try {
       setIsLoadingWishlist(true);
-      // Giả sử backend có endpoint xóa toàn bộ wishlist: DELETE /user/wishlist/all
       const response = await fetch('http://localhost:3000/user/wishlist/all', {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
+      const result = await response.json();
+      
       if (response.ok) {
         setWishlistItems([]);
         refreshWishlistCount();
         toast.success('Đã xóa toàn bộ sản phẩm khỏi danh sách yêu thích!');
       } else {
-        toast.error('Có lỗi xảy ra khi xóa toàn bộ wishlist.');
+        toast.error(result.message || 'Có lỗi xảy ra khi xóa toàn bộ wishlist.');
       }
     } catch (error) {
       console.error("Lỗi xóa toàn bộ wishlist:", error);
@@ -451,7 +448,6 @@ return (
                     height={60}
                     className="w-full h-full object-cover"
                     onError={() => {
-                      		console.log('Trang tài khoản: Lỗi tải avatar, sử dụng mặc định');
                       setAvatarError(true);
                     }}
                     unoptimized={avatar?.startsWith('http')}
@@ -822,7 +818,7 @@ type="submit"
                   <div className="flex justify-end mb-4">
                     <button
                       onClick={handleClearWishlist}
-                      className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center space-x-2"
+                      className="bg-red-600 text-sm text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center space-x-2"
                       disabled={isLoadingWishlist}
                     >
                       <i className="fa-solid fa-trash"></i>

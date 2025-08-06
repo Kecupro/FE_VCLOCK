@@ -111,10 +111,9 @@ export default function CheckoutPage() {
 				const data = await response.json();
 	
 				// Đảo ngược thứ tự mảng
-				const reversedData = data.reverse();
+				const reversedData = [...data].reverse();
 	
 				setAddresses(reversedData);
-				console.log("Dữ liệu địa chỉ (mới nhất trước):", reversedData);
 			}
 		} catch (error) {
 			        console.error("Lỗi tải địa chỉ:", error);
@@ -286,9 +285,6 @@ export default function CheckoutPage() {
 		const selectedCartItems = cart.filter(item => selectedIds.includes(item._id));
 		const selectedPaymentObj = paymentMethods.find(p => p.code === selectedPayment);
 
-		console.log("Phương thức thanh toán đã chọn:", selectedPayment);
-		console.log("Đối tượng thanh toán đã chọn:", selectedPaymentObj);
-
 		const orderCode = Math.floor(100000 + Math.random() * 900000);
 	  	
 		const orderData = {
@@ -312,11 +308,6 @@ export default function CheckoutPage() {
 		  
 		  if (selectedPayment === "BANK_TRANSFER") {
 			// 👉 BANK_TRANSFER → chỉ tạo payment link, KHÔNG tạo đơn hàng ngay
-			console.log("Đang tạo payment link cho BANK_TRANSFER...");
-			console.log("Dữ liệu đơn hàng:", orderData);
-			console.log("Mã đơn hàng:", orderCode);
-			console.log("Số tiền:", finalTotal);
-			
 			const response = await fetch("http://localhost:3000/create-payment-link", {
 			  method: "POST",
 			  headers: { 
@@ -331,15 +322,11 @@ export default function CheckoutPage() {
 			  }),
 			});
 			
-			console.log("Trạng thái phản hồi:", response.status);
 			const resData = await response.json();
-			console.log("Dữ liệu phản hồi:", resData);
 
 			if (resData.checkoutUrl) {
-			  console.log("Chuyển hướng đến:", resData.checkoutUrl);
 			  window.location.href = resData.checkoutUrl;
 			} else {
-			  console.error("Không có checkoutUrl trong response:", resData);
 			  toast.error("Không thể lấy link thanh toán. Vui lòng thử lại.");
 			}
 	  
@@ -378,7 +365,6 @@ export default function CheckoutPage() {
 			// 1. Kiểm tra sản phẩm được chọn
 			const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
 			const selectedCartItems = cart.filter(item => selectedIds.includes(item._id));
-			console.log("Sản phẩm đã chọn:", selectedCartItems);
 			if (selectedCartItems.length === 0) {
 				toast.error("Vui lòng chọn ít nhất 1 sản phẩm để đặt hàng.");
 				setIsLoading(false);

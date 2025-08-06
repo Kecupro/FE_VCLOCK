@@ -105,7 +105,6 @@ export default function OrderCard({ user_id }: OrderCardProps) {
     });
 
     const result = await res.json();
-    console.log("Kết quả:", result);
 
     if (!res.ok) {
       throw new Error(result.error || "Có lỗi xảy ra khi trả hàng");

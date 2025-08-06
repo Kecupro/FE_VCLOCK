@@ -53,7 +53,6 @@ export default function ProductSale() {
                         }
                         setWishlistStatus(statusMap);
                     } else {
-                        						console.log("Người dùng chưa đăng nhập cho wishlist");
                         setWishlistStatus({});
                     }
                 } catch (err) {
