@@ -25,18 +25,31 @@ const VoucherList: React.FC<Props> = ({ user_id }) => {
     const fetchVouchers = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) return;
+        if (!token) {
+          setVouchers([]);
+          setLoading(false);
+          return;
+        }
 
-        const res = await fetch("https://bevclock-production.up.railway.app/voucher-user", {
+        const res = await fetch("http://localhost:3000/voucher-user", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        const data = await res.json();
-        setVouchers(data);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            setVouchers(data);
+          } else {
+            setVouchers([]);
+          }
+        } else {
+          setVouchers([]);
+        }
       } catch (err) {
         console.error("Lỗi khi fetch voucher:", err);
+        setVouchers([]);
       } finally {
         setLoading(false);
       }

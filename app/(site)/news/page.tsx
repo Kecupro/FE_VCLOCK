@@ -59,10 +59,10 @@ export default function News() {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('https://bevclock-production.up.railway.app/api/category-news');
+      const response = await axios.get('http://localhost:3000/api/category-news');
       setCategories(response.data as ICateNews[]);
     } catch (err) {
-      console.error('Error fetching categories:', err);
+              console.error('Lỗi tải danh mục tin tức:', err);
     }
   };
 
@@ -70,10 +70,10 @@ export default function News() {
     try {
       setIsTransitioning(true);
       
-      let url = `https://bevclock-production.up.railway.app/api/news?page=${currentPage}&limit=6`;
+      let url = `http://localhost:3000/api/news?page=${currentPage}&limit=6`;
       
       if (selectedCategory !== 'all') {
-        url = `https://bevclock-production.up.railway.app/api/news/category/${selectedCategory}?page=${currentPage}&limit=6`;
+        url = `http://localhost:3000/api/news/category/${selectedCategory}?page=${currentPage}&limit=6`;
       }
       
       const response = await axios.get(url);
@@ -85,7 +85,7 @@ export default function News() {
       setError(null);
     } catch (err) {
       setError('Không thể tải danh sách tin tức');
-      console.error('Error fetching news:', err);
+              console.error('Lỗi tải tin tức:', err);
     } finally {
       setLoading(false);
       setIsTransitioning(false);
@@ -97,11 +97,9 @@ export default function News() {
   };
 
   const handleCategoryChange = (categoryId: string) => {
-    // Optimistic update - cập nhật UI ngay lập tức
+    if (categoryId === selectedCategory) return; // Không làm gì nếu đã chọn
     setSelectedCategory(categoryId);
     setCurrentPage(1);
-    
-    // Thêm hiệu ứng fade out/in
     setIsTransitioning(true);
   };
 

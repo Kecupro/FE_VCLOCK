@@ -3,6 +3,7 @@ import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import AddToCart from "../components/AddToCart";
+import BuyNow from "../components/BuyNow";
 import WishlistButton from "../components/WishlistButton";
 import { IProduct } from "../cautrucdata";
 import { IBrand } from "../cautrucdata";
@@ -72,7 +73,7 @@ function ShopPageContent() {
 
   // Fetch categories
   useEffect(() => {
-    fetch(`https://bevclock-production.up.railway.app/api/category`)
+    fetch(`http://localhost:3000/api/category`)
       .then((res) => res.json())
       .then((data: { name: string }[]) => {
         if (Array.isArray(data) && data.length > 0) {
@@ -83,7 +84,7 @@ function ShopPageContent() {
 
   // Fetch brands
   useEffect(() => {
-    fetch(`https://bevclock-production.up.railway.app/api/brand`)
+    fetch(`http://localhost:3000/api/brand`)
       .then((res) => res.json())
       .then((data: IBrand[]) => setBrands(data));
   }, []);
@@ -96,8 +97,16 @@ function ShopPageContent() {
     }
   }, [searchParams]);
 
+  // Đọc category parameter từ URL
   useEffect(() => {
-    fetch('https://bevclock-production.up.railway.app/api/product/price-range')
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      setSelectedCategory(decodeURIComponent(categoryParam));
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    fetch('http://localhost:3000/api/product/price-range')
       .then(res => res.json())
       .then(data => {
         if (typeof data.minPrice === 'number' && typeof data.maxPrice === 'number') {
@@ -150,7 +159,7 @@ function ShopPageContent() {
       params.append('sort', sort);
     }
 
-    const url = `https://bevclock-production.up.railway.app/api/sp_filter?${params.toString()}`;
+    const url = `http://localhost:3000/api/sp_filter?${params.toString()}`;
 
     fetch(url)
       .then((res) => res.json())
@@ -167,14 +176,27 @@ function ShopPageContent() {
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
     if (token) {
-      fetch(`https://bevclock-production.up.railway.app/user/wishlist`, {
+      fetch(`http://localhost:3000/user/wishlist`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-        .then(res => res.json())
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          } else {
+            throw new Error('Failed to fetch wishlist');
+          }
+        })
         .then((data: WishlistItem[]) => {
-          const map: { [key: string]: boolean } = {};
-          data.forEach((item) => { map[item.product_id] = true; });
-          setWishlistMap(map);
+          if (Array.isArray(data)) {
+            const map: { [key: string]: boolean } = {};
+            data.forEach((item) => { map[item.product_id] = true; });
+            setWishlistMap(map);
+          } else {
+            setWishlistMap({});
+          }
+        })
+        .catch(() => {
+          setWishlistMap({});
         });
     } else {
       setWishlistMap({});
@@ -182,7 +204,7 @@ function ShopPageContent() {
   }, []);
 
   useEffect(() => {
-    fetch(`https://bevclock-production.up.railway.app/api/products/top-rated?limit=4`)
+    fetch(`http://localhost:3000/api/products/top-rated?limit=4`)
       .then(res => res.json())
       .then(data => setBestSellers(data));
   }, []);
@@ -456,7 +478,7 @@ function ShopPageContent() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {loading && (
               <div className="col-span-full text-center text-gray-500 py-10">
                 Đang tải dữ liệu sản phẩm...
@@ -470,9 +492,9 @@ function ShopPageContent() {
             {!loading && products.map((sp) => (
               <div
                 key={sp._id}
-                className="relative flex flex-col bg-white rounded shadow hover:shadow-lg transition p-4 group h-full"
+                className="relative flex flex-col bg-white rounded shadow hover:shadow-lg transition p-3 group h-full min-h-[380px]"
               >
-                <Link href={`/product/${sp._id}`} className="flex-shrink-0 flex items-center justify-center h-48 mb-3 overflow-hidden">
+                <Link href={`/product/${sp._id}`} className="flex-shrink-0 flex items-center justify-center h-40 mb-2 overflow-hidden">
                   <img
                     src={`/images/product/${sp.main_image?.image}`}
                     alt={sp.main_image?.alt || sp.name}
@@ -485,17 +507,17 @@ function ShopPageContent() {
                       {sp.name}
                     </h6>
                   </div>
-                  <p className="text-[12px] text-gray-600 mb-2 truncate">
+                  <p className="text-[12px] text-gray-600 mb-1 truncate">
                     {sp.brand.name ?? "Không rõ thương hiệu"}
                   </p>
                 </div>
-                <div className="mt-auto flex flex-col gap-1">
+                <div className="mt-auto flex flex-col gap-2">
                   {sp.sale_price && sp.sale_price > 0 ? (
                     <>
                       <span className="text-[14px] w-10 text-center font-bold text-gray-500 absolute top-2 left-2 bg-red-600 text-white px-1 py-2 rounded-sm z-10">
                         -{sp.price && sp.sale_price ? Math.round(((sp.price - sp.sale_price) / sp.price) * 100) : 0}%
                       </span>
-                      <div className="flex flex-col items-start gap-0.5">
+                      <div className="flex flex-col items-start gap-1">
                         <span className="text-gray-400 font-normal line-through text-xs">
                           {formatMoney(sp.price)}
                         </span>
@@ -511,8 +533,9 @@ function ShopPageContent() {
                       </span>
                     </div>
                   )}
-                  <div className="mt-2">
+                  <div className="mt-2 flex gap-2">
                     <AddToCart sp={sp} />
+                    <BuyNow sp={sp} />
                   </div>
                 </div>
                 <div className="absolute top-2 right-2 z-10">

@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     // Sửa URL để tránh vòng lặp vô hạn - gọi trực tiếp đến server backend
-    const response = await fetch('https://bevclock-production.up.railway.app/contact', {
+    const response = await fetch('http://localhost:3000/contact', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

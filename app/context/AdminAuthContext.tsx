@@ -40,20 +40,20 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
-    console.log('AdminAuthContext: Token found:', !!token);
-    console.log('AdminAuthContext: User data found:', !!userData);
+    		console.log('AdminAuthContext: Đã tìm thấy token:', !!token);
+		console.log('AdminAuthContext: Đã tìm thấy dữ liệu người dùng:', !!userData);
     
     if (token) {
       try {
         const decoded = jwtDecode<JWTUserPayload>(token);
-        console.log('AdminAuthContext: Decoded user:', decoded);
-        console.log('AdminAuthContext: User role:', decoded.role, 'Type:', typeof decoded.role);
+        		console.log('AdminAuthContext: Người dùng đã giải mã:', decoded);
+		console.log('AdminAuthContext: Vai trò người dùng:', decoded.role, 'Kiểu:', typeof decoded.role);
         
         // Check if token is expired
         const currentTime = Date.now() / 1000;
         const exp = decoded.exp;
         if (exp && exp < currentTime) {
-          console.log('AdminAuthContext: Token expired');
+          		console.log('AdminAuthContext: Token đã hết hạn');
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           setUser(null);
@@ -61,16 +61,16 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           // Kiểm tra role - chỉ cho phép role 1 và 2 truy cập admin
           const userRole = Number(decoded.role);
-          console.log('AdminAuthContext: Checking role:', userRole);
+          		console.log('AdminAuthContext: Đang kiểm tra vai trò:', userRole);
           
           if (userRole === 1 || userRole === 2) {
-            console.log('AdminAuthContext: Role authorized');
+            		console.log('AdminAuthContext: Vai trò được ủy quyền');
             
             // Lấy thông tin user đầy đủ từ localStorage
             if (userData) {
               try {
                 const fullUserData = JSON.parse(userData);
-                console.log('AdminAuthContext: Full user data:', fullUserData);
+                		console.log('AdminAuthContext: Dữ liệu người dùng đầy đủ:', fullUserData);
                 
                 // Kết hợp thông tin từ JWT và localStorage
                 const completeUser: AdminUser = {
@@ -85,7 +85,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
                 setUser(completeUser);
                 setIsAuthorized(true);
               } catch (parseError) {
-                console.error('AdminAuthContext: Error parsing user data:', parseError);
+                		console.error('AdminAuthContext: Lỗi phân tích dữ liệu người dùng:', parseError);
                 // Fallback to JWT data only
                 const fallbackUser: AdminUser = {
                   _id: decoded.userId,
@@ -112,7 +112,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
               setIsAuthorized(true);
             }
           } else {
-            console.log('AdminAuthContext: User role not authorized for admin access:', userRole);
+            		console.log('AdminAuthContext: Vai trò người dùng không được ủy quyền truy cập admin:', userRole);
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             setUser(null);
@@ -120,14 +120,14 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
       } catch (error) {
-        console.error('AdminAuthContext: Token decode error:', error);
+        		console.error('AdminAuthContext: Lỗi giải mã token:', error);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setUser(null);
         setIsAuthorized(false);
       }
     } else {
-      console.log('AdminAuthContext: No token found');
+      		console.log('AdminAuthContext: Không tìm thấy token');
     }
     setIsLoading(false);
   }, []);
@@ -157,7 +157,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
           setUser(completeUser);
           setIsAuthorized(true);
         } catch (parseError) {
-          console.error('Login: Error parsing user data:', parseError);
+          		console.error('Đăng nhập: Lỗi phân tích dữ liệu người dùng:', parseError);
           // Fallback to JWT data only
           const fallbackUser: AdminUser = {
             _id: decoded.userId,
@@ -184,7 +184,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
         setIsAuthorized(true);
       }
     } catch (error) {
-      console.error('Login error:', error);
+      		console.error('Lỗi đăng nhập:', error);
     }
   };
 

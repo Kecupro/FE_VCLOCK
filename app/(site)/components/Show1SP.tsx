@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { IProduct, IBrand } from "../cautrucdata";
 import AddToCart from "./AddToCart";
+import BuyNow from "./BuyNow";
 import WishlistButton from "./WishlistButton";
 import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
@@ -23,7 +24,7 @@ export default function Show1SP(props: { sp: IProduct }) {
     
     // Fetch danh sách thương hiệu
     useEffect(() => {
-        fetch("https://bevclock-production.up.railway.app/api/brand")
+        fetch("http://localhost:3000/api/brand")
             .then((res) => res.json())
             .then((data) => setBrands(data))
             .catch((err) => console.error("Lỗi fetch brand:", err));
@@ -32,27 +33,36 @@ export default function Show1SP(props: { sp: IProduct }) {
     // Fetch wishlist status for all products
         useEffect(() => {
             const fetchWishlist = async () => {
-                const token = localStorage.getItem("token");
-                if (token) {
-                    try {
-                        const res = await fetch("https://bevclock-production.up.railway.app/user/wishlist", {
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
+            const token = localStorage.getItem("token");
+            if (token) {
+                try {
+                    const res = await fetch("http://localhost:3000/user/wishlist", {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (res.ok) {
                         const data: WishlistItem[] = await res.json();
                         const statusMap: {[key: string]: boolean} = {};
-                        data.forEach((item) => {
-                            statusMap[item.product_id] = true;
-                        });
+                        if (Array.isArray(data)) {
+                            data.forEach((item) => {
+                                statusMap[item.product_id] = true;
+                            });
+                        }
                         setWishlistStatus(statusMap);
-                    } catch (err) {
-                        console.error("Lỗi fetch wishlist:", err);
+                    } else {
+                        						console.log("Người dùng chưa đăng nhập cho wishlist");
+                        setWishlistStatus({});
                     }
-                } else {
+                } catch (err) {
+                    console.error("Lỗi fetch wishlist:", err);
                     setWishlistStatus({});
                 }
-            };
+            } else {
+                setWishlistStatus({});
+            }
+        };
     
             fetchWishlist();
         }, [user]); // Re-fetch when user state changes
@@ -107,8 +117,9 @@ export default function Show1SP(props: { sp: IProduct }) {
                                             </span>
                                         </div>
                                     )}
-                                    <div className="mt-2">
+                                    <div className="mt-2 flex gap-2">
                                         <AddToCart sp={sp} />
+                                        <BuyNow sp={sp} />
                                     </div>
                                 </div>
 

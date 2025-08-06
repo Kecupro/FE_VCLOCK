@@ -50,7 +50,7 @@ function CheckoutSuccessContent() {
             Xem đơn hàng
           </Link>
           <Link
-            href="/"
+            href="/shop"
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded-xl hover:bg-gray-300 transition"
           >
             Tiếp tục mua sắm

@@ -1,5 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
-import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { useEffect, useState, useRef } from "react";
 
 export interface Province {
   code: string;
@@ -48,7 +47,7 @@ export default function AddressSelector({ value, onChange }: {
   const districtRef = useRef<HTMLDivElement>(null);
   const wardRef = useRef<HTMLDivElement>(null);
 
-  // Sử dụng useRef để lưu trữ onChange function và tránh vòng lặp vô hạn
+  // Sử dụng ref để lưu trữ onChange function và tránh vòng lặp vô hạn
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
@@ -85,14 +84,14 @@ export default function AddressSelector({ value, onChange }: {
   }, []);
 
   useEffect(() => {
-    fetch("https://bevclock-production.up.railway.app/api/provinces")
+    fetch("http://localhost:3000/api/provinces")
       .then(res => res.json())
       .then(setProvinces);
   }, []);
 
   useEffect(() => {
     if (province) {
-      fetch(`https://bevclock-production.up.railway.app/api/districts/${province}`)
+      fetch(`http://localhost:3000/api/districts/${province}`)
         .then(res => res.json())
         .then(setDistricts);
       // Reset district và ward khi province thay đổi
@@ -109,7 +108,7 @@ export default function AddressSelector({ value, onChange }: {
 
   useEffect(() => {
     if (district) {
-      fetch(`https://bevclock-production.up.railway.app/api/wards/${district}`)
+      fetch(`http://localhost:3000/api/wards/${district}`)
         .then(res => res.json())
         .then(setWards);
       // Reset ward khi district thay đổi
@@ -198,7 +197,9 @@ export default function AddressSelector({ value, onChange }: {
           {selected ? selected.name : placeholder}
         </span>
         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-          <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+          <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
         </span>
       </button>
       
@@ -230,29 +231,24 @@ export default function AddressSelector({ value, onChange }: {
     </div>
   );
 
-  // Sử dụng useMemo để tối ưu việc tìm kiếm
-  const provinceName = useMemo(() => 
-    provinces.find((p) => p.code === province)?.name || "", 
-    [provinces, province]
-  );
-  const districtName = useMemo(() => 
-    districts.find((d) => d.code === district)?.name || "", 
-    [districts, district]
-  );
-  const wardName = useMemo(() => 
-    wards.find((w) => w.code === ward)?.name || "", 
-    [wards, ward]
-  );
+  // Tìm tên tỉnh, huyện, xã
+  const provinceName = provinces.find((p) => p.code === province)?.name || "";
+  const districtName = districts.find((d) => d.code === district)?.name || "";
+  const wardName = wards.find((w) => w.code === ward)?.name || "";
 
+  // Gọi onChange khi có thay đổi - sử dụng setTimeout để tránh vòng lặp
   useEffect(() => {
     const full = [street, wardName, districtName, provinceName].filter(Boolean).join(", ");
     
     // Chỉ gọi onChange khi giá trị thực sự thay đổi và không rỗng
     if (full !== lastSentValue.current && full.trim() !== '') {
       lastSentValue.current = full;
-      onChangeRef.current(full);
+      // Sử dụng setTimeout để tránh vòng lặp vô hạn
+      setTimeout(() => {
+        onChangeRef.current(full);
+      }, 0);
     }
-  }, [street, wardName, districtName, provinceName]); // Chỉ phụ thuộc vào các giá trị đã được memo
+  }, [street, wardName, districtName, provinceName]);
 
   return (
     <div className="space-y-4">

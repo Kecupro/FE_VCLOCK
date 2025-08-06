@@ -41,7 +41,7 @@ const EditCatePro = () => {
 
     const fetchData = async () => {
       try {
-        const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/categoryProduct/${id}`);
+        const res = await fetch(`http://localhost:3000/api/admin/categoryProduct/${id}`);
         const data = await res.json();
 
         const category = data.categoryPro;
@@ -117,7 +117,7 @@ const EditCatePro = () => {
     }
 
     try {
-      const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/categoryProduct/sua/${id}`, {
+      const res = await fetch(`http://localhost:3000/api/admin/categoryProduct/sua/${id}`, {
         method: 'PUT',
         body: formData,
       });

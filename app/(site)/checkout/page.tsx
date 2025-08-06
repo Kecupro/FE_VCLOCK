@@ -60,23 +60,33 @@ export default function CheckoutPage() {
 		const fetchVouchers = async () => {
 		  try {
 			const token = localStorage.getItem("token");
-			if (!token) return;
+			if (!token) {
+				setVouchers([]);
+				return;
+			}
 	
-			const res = await fetch("https://bevclock-production.up.railway.app/voucher-user", {
+			const res = await fetch("http://localhost:3000/voucher-user", {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				  },
 			});
 	
-			const data: IVoucher[] = await res.json();
-
-			const unusedVouchers = data.filter(
-				(v) => !v.used && new Date(v.end_date) > new Date()
-			);
-
-			setVouchers(unusedVouchers);
+			if (res.ok) {
+				const data: IVoucher[] = await res.json();
+				if (Array.isArray(data)) {
+					const unusedVouchers = data.filter(
+						(v) => !v.used && new Date(v.end_date) > new Date()
+					);
+					setVouchers(unusedVouchers);
+				} else {
+					setVouchers([]);
+				}
+			} else {
+				setVouchers([]);
+			}
 		  } catch (err) {
 			console.error("Lỗi khi fetch voucher:", err);
+			setVouchers([]);
 		  }
 		};
 		fetchVouchers();
@@ -84,15 +94,17 @@ export default function CheckoutPage() {
 
 	// lấy địa chỉ giao hàng của người dùng
 	useEffect(() => {
-		fetchAddresses();
-	  }, [token]);
+		if (token) {
+			fetchAddresses();
+		}
+	}, [token]);
 
 	  const fetchAddresses = async () => {
 		const token = localStorage.getItem("token");
 		if (!token) return;
 	
 		try {
-			const response = await fetch('https://bevclock-production.up.railway.app/user/addresses', {
+			const response = await fetch('http://localhost:3000/user/addresses', {
 				headers,
 			});
 			if (response.ok) {
@@ -105,7 +117,7 @@ export default function CheckoutPage() {
 				console.log("Dữ liệu địa chỉ (mới nhất trước):", reversedData);
 			}
 		} catch (error) {
-			console.error("Error fetching addresses:", error);
+			        console.error("Lỗi tải địa chỉ:", error);
 		}
 	};
 	
@@ -185,10 +197,10 @@ export default function CheckoutPage() {
 		  const parsedCart = JSON.parse(storedCart);
 		  const selectedIds: string[] = storedSelected ? JSON.parse(storedSelected) : [];
 	  	
-		  // Nếu có selectedIds thì lọc, không thì lấy toàn bộ
+		  // Nếu có selectedIds thì chỉ lấy những sản phẩm được chọn
 		  const filteredCart =
 			selectedIds.length > 0
-			  ? parsedCart.filter((item: ICart) => selectedIds.includes(String(item._id)))
+			  ? parsedCart.filter((item: ICart) => selectedIds.includes(item._id))
 			  : parsedCart;
 	  	
 		  setCart(filteredCart);
@@ -200,10 +212,8 @@ export default function CheckoutPage() {
 	//   hiện thị form thanh toán
 	const [form, setForm] = useState({
 		name: "",
-		country: "Việt Nam",
 		address: "",
 		phone: "",
-		email: "",
 		note: "",
 		coupon: "",
 	});
@@ -220,7 +230,7 @@ export default function CheckoutPage() {
 	useEffect(() => {
 		const fetchPaymentMethods = async () => {
 			try {
-				const response = await fetch("https://bevclock-production.up.railway.app/api/payment-method");
+				const response = await fetch("http://localhost:3000/api/payment-method");
 				if (!response.ok) {
 					throw new Error("Failed to fetch payment methods");
 				}
@@ -237,7 +247,7 @@ export default function CheckoutPage() {
 				
 				setSelectedPayment("COD"); // mặc định là COD
 			} catch (error) {
-				console.error("Error fetching payment methods:", error);
+				        console.error("Lỗi tải phương thức thanh toán:", error);
 				setPaymentMethods([]);
 			}
 		};
@@ -252,7 +262,7 @@ export default function CheckoutPage() {
     const fullCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
     // Xóa sản phẩm đã mua khỏi giỏ hàng
-    const updatedCart = fullCart.filter((item: ICart) => !selectedIds.includes(String(item._id)));
+    const updatedCart = fullCart.filter((item: ICart) => !selectedIds.includes(item._id));
 
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     localStorage.removeItem("selectedItems");
@@ -260,10 +270,8 @@ export default function CheckoutPage() {
 
     setForm({
         name: "",
-        country: "Việt Nam",
         address: "",
         phone: "",
-        email: "",
         note: "",
         coupon: "",
     });
@@ -278,8 +286,8 @@ export default function CheckoutPage() {
 		const selectedCartItems = cart.filter(item => selectedIds.includes(item._id));
 		const selectedPaymentObj = paymentMethods.find(p => p.code === selectedPayment);
 
-		console.log("Selected payment method:", selectedPayment);
-		console.log("Selected payment object:", selectedPaymentObj);
+		console.log("Phương thức thanh toán đã chọn:", selectedPayment);
+		console.log("Đối tượng thanh toán đã chọn:", selectedPaymentObj);
 
 		const orderCode = Math.floor(100000 + Math.random() * 900000);
 	  	
@@ -290,9 +298,9 @@ export default function CheckoutPage() {
 		  voucher_id: selectedVoucher?._id || null,
 		  discount_amount: selectedVoucher ? originalTotal - finalTotal : 0,
 		  payment_method_id: selectedPaymentObj?._id,
-		  ...(showNewAddressForm
-			? { new_address: newAddress }
-			: { address_id: addressId || selectedAddressId || null }),
+		  ...(addressId || selectedAddressId 
+			? { address_id: addressId || selectedAddressId }
+			: { new_address: form }), // Cho khách hàng chưa đăng nhập
 		};
 	  
 		try {
@@ -305,11 +313,11 @@ export default function CheckoutPage() {
 		  if (selectedPayment === "BANK_TRANSFER") {
 			// 👉 BANK_TRANSFER → chỉ tạo payment link, KHÔNG tạo đơn hàng ngay
 			console.log("Đang tạo payment link cho BANK_TRANSFER...");
-			console.log("orderData:", orderData);
-			console.log("orderCode:", orderCode);
-			console.log("amount:", finalTotal);
+			console.log("Dữ liệu đơn hàng:", orderData);
+			console.log("Mã đơn hàng:", orderCode);
+			console.log("Số tiền:", finalTotal);
 			
-			const response = await fetch("https://bevclock-production.up.railway.app/create-payment-link", {
+			const response = await fetch("http://localhost:3000/create-payment-link", {
 			  method: "POST",
 			  headers: { 
 				"Content-Type": "application/json",
@@ -323,9 +331,9 @@ export default function CheckoutPage() {
 			  }),
 			});
 			
-			console.log("Response status:", response.status);
+			console.log("Trạng thái phản hồi:", response.status);
 			const resData = await response.json();
-			console.log("Response data:", resData);
+			console.log("Dữ liệu phản hồi:", resData);
 
 			if (resData.checkoutUrl) {
 			  console.log("Chuyển hướng đến:", resData.checkoutUrl);
@@ -337,7 +345,7 @@ export default function CheckoutPage() {
 	  
 		  } else {
 			// 👉 COD hoặc các phương thức khác → tạo đơn hàng ngay
-			const res = await fetch("https://bevclock-production.up.railway.app/api/checkout", {
+			const res = await fetch("http://localhost:3000/api/checkout", {
 			  method: "POST",
 			  headers,
 			  body: JSON.stringify({orderCode, orderData}),  
@@ -370,7 +378,7 @@ export default function CheckoutPage() {
 			// 1. Kiểm tra sản phẩm được chọn
 			const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
 			const selectedCartItems = cart.filter(item => selectedIds.includes(item._id));
-			console.log("selectedCartItems:", selectedCartItems);
+			console.log("Sản phẩm đã chọn:", selectedCartItems);
 			if (selectedCartItems.length === 0) {
 				toast.error("Vui lòng chọn ít nhất 1 sản phẩm để đặt hàng.");
 				setIsLoading(false);
@@ -379,14 +387,13 @@ export default function CheckoutPage() {
 	
 			// 2. Người chưa đăng nhập
 			if (!user) {
-				const { name, address, phone, email, country } = form;
-				if (!name || !address || !phone || !email || !country) {
+				const { name, address, phone } = form;
+				if (!name || !address || !phone) {
 					toast.error("Vui lòng điền đầy đủ thông tin người nhận.");
 					return;
 				}
 				if (name.length < 2 || !/^[\p{L}\d\s,.'-]+$/u.test(name)) return toast.error("Tên người nhận không hợp lệ.");
 				if (!/^\d{10,11}$/.test(phone)) return toast.error("Số điện thoại không hợp lệ.");
-				if (!/\S+@\S+\.\S+/.test(email)) return toast.error("Email không hợp lệ.");
 				if (address.length < 5 || !/^[\p{L}\d\s,.-]+$/u.test(address)) return toast.error("Địa chỉ không hợp lệ.");
 	
 				await submitOrder();
@@ -415,7 +422,7 @@ export default function CheckoutPage() {
 				if (address.length < 5 || !/^[\p{L}\d\s,.-]+$/u.test(address)) return toast.error("Địa chỉ không hợp lệ.");
 	
 				try {
-					const res = await fetch("https://bevclock-production.up.railway.app/checkout/addresses", {
+					const res = await fetch("http://localhost:3000/checkout/addresses", {
 						method: "POST",
 						headers,
 						body: JSON.stringify(newAddress),
@@ -426,7 +433,8 @@ export default function CheckoutPage() {
 						setAddresses(prev => [...prev, data.address]);
 						setSelectedAddressId(data.address._id);
 						setShowNewAddressForm(false);
-						await submitOrder(data.address._id); // Đợi xong mới tiếp tục
+						// Sử dụng address_id thay vì new_address để tránh duplicate
+						await submitOrder(data.address._id);
 					} else {
 						toast.error(data.message || "Lỗi khi thêm địa chỉ.");
 					}
@@ -508,22 +516,23 @@ export default function CheckoutPage() {
 							<div className="md:col-span-2">
 								<label className="block text-sm mb-1 font-medium">Địa chỉ *</label>
 								<AddressSelector
-								value={newAddress.address}
-								onChange={(addr) => setNewAddress({ ...newAddress, address: addr })}
+								value={form.address}
+								onChange={(addr) => setForm(prev => ({ ...prev, address: addr }))}
 								/>
 							</div>
 
 							<div className="md:col-span-2">
-								<label className="block text-sm mb-1 font-medium">Địa chỉ email *</label>
-								<input
-								name="email"
-								type="email"
-								placeholder="Email"
-								value={form.email}
-								onChange={handleChange}
-								className="w-full p-3 border border-gray-300 rounded"
+								<label className="block text-sm mb-1 font-medium">Ghi chú đơn hàng (tuỳ chọn)</label>
+								<textarea
+									name="note"
+									placeholder="Ghi chú về đơn hàng"
+									value={form.note}
+									onChange={handleChange}
+									className="w-full p-3 border border-gray-300 rounded"
+									rows={3}
 								/>
 							</div>
+
 							</div>
 						) : (
 							<div className="mb-4 p-4 bg-gray-50 rounded border border-gray-200">
@@ -813,7 +822,7 @@ export default function CheckoutPage() {
 								</Dialog.Portal>
 							</Dialog.Root>
 						</div>
-												
+						
 						<div>
 							<label className="block text-sm mb-1 font-medium">Ghi chú đơn hàng (tuỳ chọn)</label>
 							<textarea

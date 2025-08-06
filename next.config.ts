@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
       'localhost',
       'bevclock-production.up.railway.app',
       'encrypted-tbn0.gstatic.com',
+      'placehold.co',
     ],
 
     remotePatterns: [
@@ -85,6 +86,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        port: '',
+        pathname: '/**',
+      },
     ],
     
     // Thêm cấu hình để xử lý ảnh local
@@ -92,7 +99,7 @@ const nextConfig: NextConfig = {
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     // Cấu hình để xử lý lỗi ảnh
-    unoptimized: false,
+    unoptimized: true,
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],

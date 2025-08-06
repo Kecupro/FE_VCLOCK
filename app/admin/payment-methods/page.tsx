@@ -39,7 +39,7 @@ const PaymentMethodPage = () => {
     const fetchPaymentMethods = async () => {
       try {
         const res = await fetch(
-          `https://bevclock-production.up.railway.app/api/admin/payment-method?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&sort=${sortOption}`
+          `http://localhost:3000/api/admin/payment-method?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&sort=${sortOption}`
         );
         const data = await res.json();
         
@@ -83,7 +83,7 @@ const PaymentMethodPage = () => {
       if (!deletingId) return;
   
       try {
-        const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/payment-method/xoa/${deletingId}`, {
+        const res = await fetch(`http://localhost:3000/api/admin/payment-method/xoa/${deletingId}`, {
           method: 'DELETE',
         });
         const data = await res.json();

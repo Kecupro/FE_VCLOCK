@@ -13,7 +13,7 @@ export default function FacebookSuccess() {
     if (token) {
       localStorage.setItem("token", token);
   
-      fetch("https://bevclock-production.up.railway.app/user/profile", {
+      fetch("http://localhost:3000/user/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -31,7 +31,7 @@ export default function FacebookSuccess() {
           router.push("/"); 
         })
         .catch((error) => {
-          console.error("Error fetching user profile:", error);
+          console.error("Lỗi tải thông tin người dùng:", error);
           router.push("/login");
         });
     } else {

@@ -5,14 +5,13 @@ import { Send, X, MessageCircle } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { API_ENDPOINTS } from "../../config/api";
 
 // Tạo socket connection một lần duy nhất
 let socket: Socket | null = null;
 
 const getSocket = (): Socket => {
   if (!socket) {
-    socket = io(API_ENDPOINTS.SOCKET_URL, {
+    socket = io('http://localhost:3000', {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
@@ -124,7 +123,7 @@ const conversationIdRef = useRef<string>("guest-conversation");
     const token = localStorage.getItem("token");
     try {
       const res = await axios.get<Message[]>(
-        API_ENDPOINTS.MESSAGES(conversationIdRef.current),
+        `http://localhost:3000/api/messages/${conversationIdRef.current}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -139,7 +138,7 @@ const conversationIdRef = useRef<string>("guest-conversation");
 
   useEffect(() => {
     if (isOpen && userInfo) {
-      console.log("📡 conversationIdRef:", conversationIdRef.current);
+      		console.log("📡 ID cuộc trò chuyện:", conversationIdRef.current);
       fetchMessages();
     }
   }, [isOpen, userInfo]);

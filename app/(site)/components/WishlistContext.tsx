@@ -1,11 +1,19 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+
+interface WishlistItem {
+  _id: string;
+  product_id: string;
+  user_id: string;
+  created_at: string;
+}
 
 interface WishlistContextType {
   wishlistCount: number;
   refreshWishlistCount: () => void;
   addToWishlist: (productId: string) => Promise<boolean>;
   removeFromWishlist: (productId: string) => Promise<boolean>;
+  getWishlistStatus: () => Promise<{[key: string]: boolean}>;
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
@@ -25,7 +33,7 @@ interface WishlistProviderProps {
 export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) => {
   const [wishlistCount, setWishlistCount] = useState(0);
 
-  const fetchWishlistCount = async () => {
+  const fetchWishlistCount = useCallback(async () => {
     const token = localStorage.getItem('token');
     if (!token) {
       setWishlistCount(0);
@@ -33,7 +41,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     }
 
     try {
-      const response = await fetch('https://bevclock-production.up.railway.app/user/wishlist', {
+      const response = await fetch('http://localhost:3000/user/wishlist', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -46,13 +54,43 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
         setWishlistCount(0);
       }
     } catch (error) {
-      console.error('Error fetching wishlist count:', error);
+              console.error('Lỗi tải số lượng wishlist:', error);
       setWishlistCount(0);
     }
-  };
+  }, []);
 
   const refreshWishlistCount = () => {
     fetchWishlistCount();
+  };
+
+  const getWishlistStatus = async (): Promise<{[key: string]: boolean}> => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      return {};
+    }
+
+    try {
+      const response = await fetch('http://localhost:3000/user/wishlist', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const statusMap: {[key: string]: boolean} = {};
+        if (Array.isArray(data)) {
+          data.forEach((item: WishlistItem) => {
+            statusMap[item.product_id] = true;
+          });
+        }
+        return statusMap;
+      }
+      return {};
+    } catch (error) {
+              console.error('Lỗi tải trạng thái wishlist:', error);
+      return {};
+    }
   };
 
   const addToWishlist = async (productId: string): Promise<boolean> => {
@@ -62,7 +100,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     }
 
     try {
-      const response = await fetch(`https://bevclock-production.up.railway.app/user/wishlist/${productId}`, {
+      const response = await fetch(`http://localhost:3000/user/wishlist/${productId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -75,7 +113,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
       }
       return false;
     } catch (error) {
-      console.error('Error adding to wishlist:', error);
+              console.error('Lỗi thêm vào wishlist:', error);
       return false;
     }
   };
@@ -87,7 +125,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     }
 
     try {
-      const response = await fetch(`https://bevclock-production.up.railway.app/user/wishlist/${productId}`, {
+      const response = await fetch(`http://localhost:3000/user/wishlist/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -100,7 +138,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
       }
       return false;
     } catch (error) {
-      console.error('Error removing from wishlist:', error);
+              console.error('Lỗi xóa khỏi wishlist:', error);
       return false;
     }
   };
@@ -119,13 +157,14 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  }, [fetchWishlistCount]);
 
   const value: WishlistContextType = {
     wishlistCount,
     refreshWishlistCount,
     addToWishlist,
-    removeFromWishlist
+    removeFromWishlist,
+    getWishlistStatus
   };
 
   return (

@@ -57,13 +57,13 @@ const BrandPage = () => {
         });
 
         const res = await fetch(
-          `https://bevclock-production.up.railway.app/api/admin/brand?${params}`
+          `http://localhost:3000/api/admin/brand?${params}`
         );
         const data = await res.json();
         setBrands(data.list);
         setTotalBrands(data.total);
       } catch (error) {
-        console.error("Lỗi khi fetch brand:", error);
+        console.error("Lỗi khi tải thương hiệu:", error);
         toast.error("Có lỗi xảy ra khi tải danh sách thương hiệu!");
       } finally {
         setIsLoading(false);
@@ -89,13 +89,13 @@ const BrandPage = () => {
       });
 
       const res = await fetch(
-        `https://bevclock-production.up.railway.app/api/admin/brand?${params}`
+        `http://localhost:3000/api/admin/brand?${params}`
       );
       const data = await res.json();
       setBrands(data.list);
       setTotalBrands(data.total);
     } catch (error) {
-      console.error("Lỗi khi refresh brand list:", error);
+              console.error("Lỗi khi làm mới danh sách thương hiệu:", error);
       toast.error("Có lỗi xảy ra khi làm mới danh sách thương hiệu!");
     } finally {
       setIsLoading(false);
@@ -132,7 +132,7 @@ const BrandPage = () => {
 
     try {
       const deleteResponse = await fetch(
-        `https://bevclock-production.up.railway.app/api/admin/brand/xoa/${brandToDelete._id}`,
+        `http://localhost:3000/api/admin/brand/xoa/${brandToDelete._id}`,
         {
           method: "DELETE",
           headers: {
@@ -155,7 +155,7 @@ const BrandPage = () => {
         toast.error(`Lỗi: ${errorMessage}`);
       }
     } catch (error) {
-      console.error("Lỗi khi xóa brand:", error);
+              console.error("Lỗi khi xóa thương hiệu:", error);
       toast.error("Không thể kết nối đến server. Vui lòng thử lại!");
     } finally {
       setShowDeleteModal(false);

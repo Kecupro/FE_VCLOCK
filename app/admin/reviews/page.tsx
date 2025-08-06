@@ -34,7 +34,7 @@ const RatingPage = () => {
         sortOrder: sortOrder
       });
 
-      const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/review?${params}`);
+      const res = await fetch(`http://localhost:3000/api/admin/review?${params}`);
       const data = await res.json();
       setReviews(data.list);
       setTotalReviews(data.total);

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { FaTicketAlt } from "react-icons/fa";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
@@ -35,27 +35,35 @@ const VoucherBoxList = () => {
 
   const refreshVoucherStates = async () => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      setSavedVoucherStates([]);
+      return;
+    }
     
     try {
-      const res = await axios.get("https://bevclock-production.up.railway.app/voucher-user", {
+      const res = await axios.get("http://localhost:3000/voucher-user", {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      const arr = (res.data as (IVoucher & { used?: boolean })[]).map(v => ({ 
-        id: v._id, 
-        used: !!v.used 
-      }));
-      setSavedVoucherStates(arr);
+      if (res.status === 200 && Array.isArray(res.data)) {
+        const arr = (res.data as (IVoucher & { used?: boolean })[]).map(v => ({ 
+          id: v._id, 
+          used: !!v.used 
+        }));
+        setSavedVoucherStates(arr);
+      } else {
+        setSavedVoucherStates([]);
+      }
     } catch (error) {
       console.error("Lỗi refresh voucher states:", error);
+      setSavedVoucherStates([]);
     }
   };
 
   useEffect(() => {
     const fetchVouchers = async () => {
       try {
-        const res = await axios.get("https://bevclock-production.up.railway.app/api/admin/voucher?limit=15");
+        const res = await axios.get("http://localhost:3000/api/admin/voucher?limit=15");
         setVouchers((res.data as { list: IVoucher[] }).list || []);
       } catch {
         setVouchers([]);
@@ -67,7 +75,10 @@ const VoucherBoxList = () => {
   }, []);
 
   useEffect(() => {
-    refreshVoucherStates();
+    const token = localStorage.getItem("token");
+    if (token) {
+      refreshVoucherStates();
+    }
   }, []);
 
   const handleSaveVoucher = async (voucherId: string) => {
@@ -80,7 +91,7 @@ const VoucherBoxList = () => {
     setSavingVoucher(voucherId);
     try {
       const response = await axios.post(
-        "https://bevclock-production.up.railway.app/api/voucher-user/save",
+        "http://localhost:3000/api/voucher-user/save",
         { voucher_id: voucherId },
         {
           headers: {
@@ -114,10 +125,7 @@ const VoucherBoxList = () => {
   if (!vouchers.length) return null;
 
   return (
-    <>
-      <ToastContainer position="top-right" autoClose={2000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
-      
-      <div className="w-full bg-gray-50 py-8">
+    <div className="w-full bg-gray-50 py-8">
         <h3 className="text-center font-bold text-2xl mb-3">
           VOUCHER KHUYẾN MÃI
         </h3>
@@ -218,7 +226,6 @@ const VoucherBoxList = () => {
         </Swiper>
         </div>
       </div>
-    </>
   );
 };
 

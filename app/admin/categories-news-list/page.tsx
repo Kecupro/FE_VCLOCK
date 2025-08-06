@@ -38,7 +38,7 @@ const CatenewsPage = () => {
     const fetchCatenews = async () => {
       try {
         const res = await fetch(
-          `https://bevclock-production.up.railway.app/api/admin/categoryNews?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&statusFilter=${statusFilter}&sort=${sortOption}`
+          `http://localhost:3000/api/admin/categoryNews?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&statusFilter=${statusFilter}&sort=${sortOption}`
         );
         const data = await res.json();
         setCateNews(data.list || []);
@@ -79,7 +79,7 @@ const CatenewsPage = () => {
     if (!deletingId) return;
 
     try {
-      const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/categoryNews/xoa/${deletingId}`, {
+      const res = await fetch(`http://localhost:3000/api/admin/categoryNews/xoa/${deletingId}`, {
         method: "DELETE",
       });
       const data = await res.json();

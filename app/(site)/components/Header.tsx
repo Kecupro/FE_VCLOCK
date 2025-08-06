@@ -17,7 +17,6 @@ interface SearchSuggestion {
 
 const Height = 40; 
 
-import { API_ENDPOINTS } from '../../config/api';
 import { getAvatarSrc } from '../../utils/avatarUtils';
 import { clearAuthData } from '../../utils/authUtils';
 
@@ -59,7 +58,6 @@ function AvatarImage({ avatar, alt, size = 32, className = "" }: { avatar?: stri
 
 const Header = () => {
   const { user, setUser, refreshUser, logout } = useAuth();
-  const [scrolled, setScrolled] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -90,7 +88,7 @@ const Header = () => {
 
 
         } catch (e) {
-          console.error("Error parsing user data from localStorage:", e);
+          console.error("Lỗi phân tích dữ liệu người dùng từ localStorage:", e);
           clearAuthData();
           setUser(null);
         }
@@ -129,7 +127,7 @@ const Header = () => {
       try {
         setSearchHistory(JSON.parse(history));
       } catch (error) {
-        console.error('Error parsing search history:', error);
+        console.error('Lỗi phân tích lịch sử tìm kiếm:', error);
         setSearchHistory([]);
       }
     }
@@ -142,11 +140,11 @@ const Header = () => {
     }
 
     try {
-      const response = await fetch(API_ENDPOINTS.SEARCH_SUGGESTIONS(query));
+      const response = await fetch(`http://localhost:3000/api/search/suggestions?q=${encodeURIComponent(query)}`);
       const data = await response.json();
       setSearchSuggestions(data.suggestions || []);
     } catch (error) {
-      console.error('Error fetching suggestions:', error);
+              console.error('Lỗi tải gợi ý tìm kiếm:', error);
       setSearchSuggestions([]);
     }
   };
@@ -179,13 +177,13 @@ const Header = () => {
     return () => clearTimeout(timeoutId);
   }, [searchValue]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > Height);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     setScrolled(window.scrollY > Height);
+  //   };
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, []);
 
   const { cartCount } = useCart();
   const { wishlistCount } = useWishlist();
@@ -193,7 +191,7 @@ const Header = () => {
   return (
     <header className="header">
       <div
-        className={`w-full z-50 header-info hidden sm:flex justify-between items-center py-3 px-4 sm:px-6 md:px-8 lg:px-[10%] bg-black text-white transition-all duration-300 ${scrolled ? "relative" : "fixed top-0 left-0"}`}
+        className={`w-full z-50 header-info hidden sm:flex justify-between items-center py-3 px-4 sm:px-6 md:px-8 lg:px-[10%] bg-black text-white transition-all duration-300 fixed top-0 left-0`}
         style={{ height: Height }}
       >
         <div className="header-info-contact flex gap-4 text-sm flex">
@@ -414,7 +412,7 @@ const Header = () => {
 
       <nav
         className={`fixed left-0 w-full px-[10%] py-0 bg-black/50 backdrop-blur-sm z-40 text-white flex justify-between items-center transition-all duration-300 hidden md:flex`}
-        style={{ top: scrolled ? 0 : Height }}
+        style={{ top: Height }}
       >
         <div className="navbar relative">
           <Link href="/" className="hover:text-red-400 transition font-semibold">

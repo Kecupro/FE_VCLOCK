@@ -26,7 +26,7 @@ export default function ContactPage() {
     setSubmitStatus('idle');
 
     try {
-      const response = await fetch('https://bevclock-production.up.railway.app/api/contact', {
+      const response = await fetch('http://localhost:3000/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export default function ContactPage() {
         setSubmitMessage(data.message || 'Có lỗi xảy ra khi gửi tin nhắn.');
       }
     } catch (error) {
-      console.error('Contact form error:', error);
+              console.error('Lỗi form liên hệ:', error);
       setSubmitStatus('error');
       setSubmitMessage('Có lỗi xảy ra khi kết nối đến server.');
     } finally {

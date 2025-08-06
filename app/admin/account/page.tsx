@@ -125,7 +125,7 @@ const AdminProfile = () => {
         const parsedUser = JSON.parse(cachedUser);
         return parsedUser._id || parsedUser.id || parsedUser.userId || null;
       } catch (error) {
-        console.error("Lỗi phân tích người dùng đã lưu:", error);
+        console.error("Lỗi phân tích dữ liệu người dùng đã lưu:", error);
       }
     }
     return null;
@@ -148,7 +148,7 @@ const AdminProfile = () => {
         const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         const response = await fetch(
-          `https://bevclock-production.up.railway.app/api/admin/user/${id}`,
+          `http://localhost:3000/api/admin/user/${id}`,
           {
             method: "GET",
             headers: {
@@ -177,7 +177,7 @@ const AdminProfile = () => {
             const errorData = await response.json();
             if (errorData.error) errorMessage = errorData.error;
           } catch (e) {
-            console.error("Lỗi phân tích lỗi phản hồi:", e);
+            console.error("Lỗi phân tích thông báo lỗi:", e);
           }
           throw new Error(errorMessage);
         }
@@ -236,7 +236,7 @@ const AdminProfile = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      const response = await fetch("https://bevclock-production.up.railway.app/check-role", {
+      const response = await fetch("http://localhost:3000/check-role", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -260,7 +260,7 @@ const AdminProfile = () => {
           const errorData = await response.json();
           if (errorData.message) errorMessage = errorData.message;
         } catch (error) {
-          console.error("Lỗi phân tích lỗi phản hồi:", error);
+          console.error("Lỗi phân tích thông báo lỗi:", error);
         }
 
         throw new Error(errorMessage);
@@ -318,7 +318,7 @@ const AdminProfile = () => {
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       const response = await fetch(
-        `https://bevclock-production.up.railway.app/api/admin/account/edit/${updatedData._id}`,
+        `http://localhost:3000/api/admin/account/edit/${updatedData._id}`,
         {
           method: "PUT",
           headers: {

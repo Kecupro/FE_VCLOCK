@@ -95,13 +95,6 @@ function AccountPageContent() {
     }
   }, [user, router, isEditingProfile]);
 
-  // Khởi tạo editForm khi user có sẵn
-  useEffect(() => {
-    if (user && !isEditingProfile) {
-      setEditForm({ fullName: user.fullName || '' });
-    }
-  }, [user, isEditingProfile]);
-
   // Tối ưu hóa avatar với useMemo
   const memoizedAvatar = useMemo(() => {
     return getAvatarSrc(user?.avatar);
@@ -119,21 +112,12 @@ function AccountPageContent() {
     setAvatarError(false);
   }, [avatar]);
 
-
-
-  // Fetch addresses when tab changes to addresses
-  useEffect(() => {
-    if (tab === 'addresses') {
-      fetchAddresses();
-    }
-  }, [tab]);
-
-  const fetchAddresses = async () => {
+  const fetchAddresses = useCallback(async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
     try {
-      const response = await fetch('https://bevclock-production.up.railway.app/user/addresses', {
+      const response = await fetch('http://localhost:3000/user/addresses', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -143,39 +127,46 @@ function AccountPageContent() {
         setAddresses(data);
       }
     } catch (error) {
-      console.error("Error fetching addresses:", error);
+              console.error("Lỗi tải địa chỉ:", error);
     }
-  };
+  }, []);
 
-  // Fetch wishlist items when tab changes to favorites
+  // Fetch addresses when tab changes to addresses
   useEffect(() => {
-    if (tab === 'favorites') {
-      fetchWishlistItems();
+    if (tab === 'addresses') {
+      fetchAddresses();
     }
-  }, [tab]);
+  }, [tab, fetchAddresses]);
 
-  const fetchWishlistItems = async () => {
+  const fetchWishlistItems = useCallback(async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
     try {
       setIsLoadingWishlist(true);
-      const response = await fetch('https://bevclock-production.up.railway.app/user/wishlist', {
+      const response = await fetch('http://localhost:3000/user/wishlist', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
       if (response.ok) {
         const data = await response.json();
-        console.log('Wishlist data:', data); // Debug log
+        		console.log('Dữ liệu wishlist:', data); // Debug log
         setWishlistItems(data);
       }
     } catch (error) {
-      console.error("Error fetching wishlist:", error);
+              console.error("Lỗi tải wishlist:", error);
     } finally {
       setIsLoadingWishlist(false);
     }
-  };
+  }, []);
+
+  // Fetch wishlist items when tab changes to favorites
+  useEffect(() => {
+    if (tab === 'favorites') {
+      fetchWishlistItems();
+    }
+  }, [tab, fetchWishlistItems]);
 
   const handleLogout = () => {
     if (window.confirm('Bạn có chắc chắn muốn đăng xuất?')) {
@@ -198,7 +189,7 @@ function AccountPageContent() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    console.log('Saving profile with fullName:', editForm.fullName);
+    		console.log('Đang lưu hồ sơ với tên đầy đủ:', editForm.fullName);
 
     const formData = new FormData();
     formData.append('fullname', editForm.fullName);
@@ -208,7 +199,7 @@ function AccountPageContent() {
 
     try {
       setIsLoading(true);
-      const response = await fetch('https://bevclock-production.up.railway.app/user/profile/update', {
+      const response = await fetch('http://localhost:3000/user/profile/update', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -216,7 +207,7 @@ function AccountPageContent() {
         body: formData,
       });
 const result = await response.json();
-      console.log('Server response:', result);
+      		console.log('Phản hồi từ máy chủ:', result);
       if (response.ok) {
         // Cập nhật AuthContext để header cũng được cập nhật
         await refreshUser();
@@ -241,7 +232,7 @@ const result = await response.json();
         toast.error(result.message || "Có lỗi xảy ra khi cập nhật thông tin!");
       }
     } catch (error) {
-      console.error("Profile update error:", error);
+              console.error("Lỗi cập nhật hồ sơ:", error);
       toast.error("Có lỗi xảy ra khi cập nhật thông tin!");
     } finally {
       setIsLoading(false);
@@ -269,7 +260,7 @@ const result = await response.json();
     if (!token) return;
 
     try {
-      const response = await fetch('https://bevclock-production.up.railway.app/user/addresses', {
+      const response = await fetch('http://localhost:3000/user/addresses', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -285,7 +276,7 @@ const result = await response.json();
         setIsAddingAddress(false);
       }
     } catch (error) {
-      console.error("Error adding address:", error);
+              console.error("Lỗi thêm địa chỉ:", error);
     }
   };
 
@@ -296,7 +287,7 @@ const result = await response.json();
     if (!token) return;
 
     try {
-      const response = await fetch(`https://bevclock-production.up.railway.app/user/addresses/${addressId}`, {
+      const response = await fetch(`http://localhost:3000/user/addresses/${addressId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -307,7 +298,7 @@ const result = await response.json();
         setAddresses(addresses.filter(addr => addr._id !== addressId));
       }
     } catch (error) {
-      console.error("Error deleting address:", error);
+              console.error("Lỗi xóa địa chỉ:", error);
     }
   };
 
@@ -327,7 +318,7 @@ address: address.address
     if (!token || !editingAddressId) return;
 
     try {
-      const response = await fetch(`https://bevclock-production.up.railway.app/user/addresses/${editingAddressId}`, {
+      const response = await fetch(`http://localhost:3000/user/addresses/${editingAddressId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -350,7 +341,7 @@ address: address.address
         setEditingAddressId(null);
       }
     } catch (error) {
-      console.error("Error updating address:", error);
+              console.error("Lỗi cập nhật địa chỉ:", error);
     }
   };
 
@@ -360,7 +351,7 @@ address: address.address
     if (!token) return;
 
     try {
-      const response = await fetch(`https://bevclock-production.up.railway.app/user/wishlist/${productId}`, {
+      const response = await fetch(`http://localhost:3000/user/wishlist/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -373,14 +364,14 @@ address: address.address
         toast.success('Đã xóa sản phẩm khỏi danh sách yêu thích!');
       }
     } catch (error) {
-      console.error("Error removing from wishlist:", error);
+              console.error("Lỗi xóa khỏi wishlist:", error);
       alert('Có lỗi xảy ra khi xóa sản phẩm khỏi danh sách yêu thích.');
     }
   };
 //them 
   const handleSetDefaultAddress = async (id: string) => {
     try {
-      await fetch(`https://bevclock-production.up.railway.app/api/user/addresses/${id}/set-default`, {
+      await fetch(`http://localhost:3000/api/user/addresses/${id}/set-default`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem("token")}`,
@@ -395,6 +386,35 @@ address: address.address
         error.response?.data?.message || "Không thể đặt mặc định. Vui lòng thử lại.";
       console.error("Lỗi set default address:", err);
       toast.error(errorMessage);
+    }
+  };
+
+  // Thêm hàm xóa toàn bộ wishlist
+  const handleClearWishlist = async () => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa tất cả sản phẩm khỏi danh sách yêu thích?")) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    try {
+      setIsLoadingWishlist(true);
+      // Giả sử backend có endpoint xóa toàn bộ wishlist: DELETE /user/wishlist/all
+      const response = await fetch('http://localhost:3000/user/wishlist/all', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        setWishlistItems([]);
+        refreshWishlistCount();
+        toast.success('Đã xóa toàn bộ sản phẩm khỏi danh sách yêu thích!');
+      } else {
+        toast.error('Có lỗi xảy ra khi xóa toàn bộ wishlist.');
+      }
+    } catch (error) {
+      console.error("Lỗi xóa toàn bộ wishlist:", error);
+      toast.error('Có lỗi xảy ra khi xóa toàn bộ wishlist.');
+    } finally {
+      setIsLoadingWishlist(false);
     }
   };
 
@@ -431,7 +451,7 @@ return (
                     height={60}
                     className="w-full h-full object-cover"
                     onError={() => {
-                      console.log('Account page: Avatar load error, using default');
+                      		console.log('Trang tài khoản: Lỗi tải avatar, sử dụng mặc định');
                       setAvatarError(true);
                     }}
                     unoptimized={avatar?.startsWith('http')}
@@ -797,6 +817,19 @@ type="submit"
             {tab === "favorites" && (
               <div>
                 <h2 className="text-xl font-bold text-gray-800 mb-6">Sản phẩm yêu thích</h2>
+                {/* Nút xóa tất cả wishlist */}
+                {wishlistItems.length > 0 && (
+                  <div className="flex justify-end mb-4">
+                    <button
+                      onClick={handleClearWishlist}
+                      className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center space-x-2"
+                      disabled={isLoadingWishlist}
+                    >
+                      <i className="fa-solid fa-trash"></i>
+                      <span>{isLoadingWishlist ? 'Đang xóa...' : 'Xóa tất cả'}</span>
+                    </button>
+                  </div>
+                )}
                 {isLoadingWishlist ? (
                   <div className="flex justify-center items-center py-12">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>

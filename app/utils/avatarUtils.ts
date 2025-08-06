@@ -2,7 +2,6 @@
  * Utility function để xử lý đường dẫn avatar
  * Hỗ trợ: Google/Facebook avatar, local uploads, default avatar
  */
-import { API_ENDPOINTS } from '../config/api';
 
 export const getAvatarSrc = (avatar: string | null | undefined): string => {
   if (!avatar || avatar.trim() === "") {
@@ -20,6 +19,6 @@ export const getAvatarSrc = (avatar: string | null | undefined): string => {
   }
   
   // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-  const baseUrl = API_ENDPOINTS.AVATAR_URL(avatar);
+  const baseUrl = `http://localhost:3000/uploads/avatars/${avatar}`;
   return baseUrl;
 }; 

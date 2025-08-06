@@ -7,6 +7,7 @@ import "swiper/css/navigation";
 import { useEffect, useState } from "react";
 import { IProduct } from "../cautrucdata";
 import AddToCart from "./AddToCart";
+import BuyNow from "./BuyNow";
 import WishlistButton from "./WishlistButton";
 import { useAuth } from "../context/AuthContext";
 
@@ -24,7 +25,7 @@ export default function ProductSale() {
     const { user } = useAuth();
 
     useEffect(() => {
-        fetch("https://bevclock-production.up.railway.app/api/sp_giam_gia")
+        fetch("http://localhost:3000/api/sp_giam_gia")
             .then((res) => res.json())
             .then((data) => setProducts(data))
             .catch((err) => console.error("Lỗi fetch sp:", err));
@@ -36,19 +37,28 @@ export default function ProductSale() {
             const token = localStorage.getItem("token");
             if (token) {
                 try {
-                    const res = await fetch("https://bevclock-production.up.railway.app/user/wishlist", {
+                    const res = await fetch("http://localhost:3000/user/wishlist", {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
                     });
-                    const data: WishlistItem[] = await res.json();
-                    const statusMap: {[key: string]: boolean} = {};
-                    data.forEach((item) => {
-                        statusMap[item.product_id] = true;
-                    });
-                    setWishlistStatus(statusMap);
+                    
+                    if (res.ok) {
+                        const data: WishlistItem[] = await res.json();
+                        const statusMap: {[key: string]: boolean} = {};
+                        if (Array.isArray(data)) {
+                            data.forEach((item) => {
+                                statusMap[item.product_id] = true;
+                            });
+                        }
+                        setWishlistStatus(statusMap);
+                    } else {
+                        						console.log("Người dùng chưa đăng nhập cho wishlist");
+                        setWishlistStatus({});
+                    }
                 } catch (err) {
                     console.error("Lỗi fetch wishlist:", err);
+                    setWishlistStatus({});
                 }
             } else {
                 setWishlistStatus({});
@@ -124,8 +134,9 @@ export default function ProductSale() {
                                                 </span>
                                             </div>
                                         )}
-                                        <div className="mt-2">
+                                        <div className="mt-2 flex gap-2">
                                             <AddToCart sp={sp} />
+                                            <BuyNow sp={sp} />
                                         </div>
                                     </div>
 

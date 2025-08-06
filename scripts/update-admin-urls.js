@@ -3,7 +3,7 @@ const path = require('path');
 
 // URL cũ và mới
 const OLD_URL = 'http://localhost:3000';
-const NEW_URL = 'https://bevclock-production.up.railway.app';
+const NEW_URL = 'http://localhost:3000';
 
 // Thư mục admin
 const ADMIN_DIR = path.join(__dirname, '../app/admin');

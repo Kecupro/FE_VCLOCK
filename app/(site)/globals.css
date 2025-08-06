@@ -2,7 +2,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground:rgb(49, 8, 8);
 }
 
 @theme inline {
@@ -70,22 +70,11 @@ summary,
   cursor: pointer !important;
 }
 
-.swiper-button-next,
-.swiper-button-prev {
-  color: #dc2626 !important;
-  background: white !important;
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 50% !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
-}
 
-.swiper-button-next:after,
-.swiper-button-prev:after {
-  font-size: 16px !important;
-  font-weight: bold !important;
+.top-rated-swiper .swiper-button-next,
+.top-rated-swiper .swiper-button-prev {
+  color: #dc2626 !important; /* Màu đỏ mặc định */
 }
-
 .swiper-pagination-bullet {
   background: #dc2626 !important;
 }

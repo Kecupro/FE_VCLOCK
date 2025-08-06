@@ -115,7 +115,7 @@ const UsersPage = () => {
           return;
         }
 
-        const response = await fetch('https://bevclock-production.up.railway.app/check-role', {
+        const response = await fetch('http://localhost:3000/check-role', {
           method: 'GET',
           headers: createAuthHeaders(),
         });
@@ -204,7 +204,7 @@ const UsersPage = () => {
         params.append('status', statusFilter);
       }
 
-      const apiUrl = `https://bevclock-production.up.railway.app/api/admin/user?${params.toString()}`;
+      const apiUrl = `http://localhost:3000/api/admin/user?${params.toString()}`;
       
       const response = await fetch(apiUrl, {
         method: 'GET',
@@ -388,7 +388,7 @@ const UsersPage = () => {
       }
 
       const deleteResponse = await fetch(
-        `https://bevclock-production.up.railway.app/api/admin/user/delete/${userToDelete._id}`,
+        `http://localhost:3000/api/admin/user/delete/${userToDelete._id}`,
         {
           method: "DELETE",
           headers: createAuthHeaders(),
@@ -608,7 +608,7 @@ const UsersPage = () => {
                                   (e.target as HTMLImageElement).src = "/images/avatar-default.png";
                                 }}
                                 onLoad={() => {
-                                  console.log(`Avatar loaded successfully for user ${user.username}:`, user.avatar);
+                                  		console.log(`Avatar đã tải thành công cho người dùng ${user.username}:`, user.avatar);
                                 }}
                               />
                             </div>

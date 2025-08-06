@@ -31,7 +31,7 @@ const EditVoucher = () => {
     if (!id) return;
     const fetchData = async () => {
       try {
-        const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/voucher/${id}`);
+        const res = await fetch(`http://localhost:3000/api/admin/voucher/${id}`);
         const data = await res.json();
         const v = data.voucher;
         setVoucherName(v.voucher_name);
@@ -90,7 +90,7 @@ const EditVoucher = () => {
     };
 
     try {
-      const res = await fetch(`https://bevclock-production.up.railway.app/api/admin/voucher/sua/${id}`, {
+      const res = await fetch(`http://localhost:3000/api/admin/voucher/sua/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

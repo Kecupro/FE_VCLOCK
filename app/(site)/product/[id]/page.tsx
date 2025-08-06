@@ -6,6 +6,7 @@ import SPLienQuan from "../SPLienQuan";
 import HienBinhLuanSP from "../HienBinhLuanSP";
 import StarRating from "../../components/StarRating";
 import Image from "next/image";
+import BuyNow from "../../components/BuyNow";
 import AddToCart from "../../components/AddToCart";
 import { useParams } from 'next/navigation';
 
@@ -30,7 +31,7 @@ export default function ProductDetail() {
   useEffect(() => {
     if (!id) return;
   
-    fetch(`https://bevclock-production.up.railway.app/api/reviews/stats/${id}`)
+    fetch(`http://localhost:3000/api/reviews/stats/${id}`)
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error("Lỗi fetch stats:", err));
@@ -46,7 +47,7 @@ export default function ProductDetail() {
 
     async function fetchProduct() {
       try {
-        const res = await fetch(`https://bevclock-production.up.railway.app/api/product/${id}`);
+        const res = await fetch(`http://localhost:3000/api/product/${id}`);
         if (!res.ok) throw new Error("Lấy sản phẩm thất bại");
         const data = await res.json(); 
 
@@ -101,7 +102,7 @@ export default function ProductDetail() {
           <Image
             src={product.images[currentImg].image}
             alt={product.images[currentImg].alt || product.name}
-            className="w-full h-116 object-cover rounded-xl cursor-zoom-in"
+            className="w-full h-116 object-cover rounded-xl cursor-zoom-in shadow-md"
             width={800}
             height={464}
             onClick={() => setShowZoom(true)}
@@ -110,13 +111,13 @@ export default function ProductDetail() {
           />
           {showZoom && (
             <div
-              className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+              className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 "
               onClick={() => setShowZoom(false)}
             >
               <Image
                 src={product.images[currentImg].image}
                 alt={product.images[currentImg].alt || product.name}
-                className="max-w-[90vw] max-h-[90vh] rounded-xl shadow-2xl cursor-zoom-out"
+                className="max-w-[90vw] max-h-[90vh] rounded-xl shadow-2xl cursor-zoom-out "
                 width={800}
                 height={464}
                 onClick={() => setShowZoom(false)}
@@ -151,8 +152,8 @@ export default function ProductDetail() {
                 <Image
                   src={img.image}
                   alt={img.alt || `Ảnh phụ ${idx + 1}`}
-                  className={`h-full w-auto object-contain mx-auto transition-transform duration-200 hover:scale-105
-                    ${currentImg === idx ? "opacity-100" : "opacity-60"}
+                  className={`h-full w-full object-contain mx-auto transition-transform duration-200 hover:scale-105 border-2 border-gray-200 shadow-md rounded-xl
+                    ${currentImg === idx ? "opacity-100" : "opacity-50"}
                   `}
                   width={120}
                   height={96}
@@ -190,8 +191,11 @@ export default function ProductDetail() {
           <p className="mb-2 text-gray-700 font-medium">{product.brand.name ?? "Không rõ thương hiệu"}</p>
           <div className="mb-6">
             {/* <h2 className="font-semibold mb-2 text-base text-black">Bộ sản phẩm gồm:</h2> */}
+            <div className="flex gap-4 mb-4">
+              <AddToCart sp={product} />
+              <BuyNow sp={product} />
+            </div>
             <ul className="list-disc list-inside text-gray-700 text-sm space-y-1 w-100">
-              <AddToCart sp={product}/>
               {/* {product.included.map((item, idx) => (
                 <li key={idx}>{item}</li>
               ))} */}

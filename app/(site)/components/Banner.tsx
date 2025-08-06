@@ -8,7 +8,7 @@ const slides = [
     desc: "Khám phá bộ sưu tập đồng hồ sang trọng, đẳng cấp quốc tế.",
   },
   {
-    image: "images/banner3.jpg",
+    image: "/images/banner3.jpg",
     title: "Bảo hành chính hãng",
     desc: "Cam kết bảo hành 5 năm cho mọi sản phẩm tại cửa hàng.",
   },

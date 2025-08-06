@@ -147,7 +147,7 @@ const EditUser = () => {
           return;
         }
 
-        const response = await fetch("https://bevclock-production.up.railway.app/check-role", {
+        const response = await fetch("http://localhost:3000/check-role", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -160,7 +160,7 @@ const EditUser = () => {
           router.push("/login");
         }
       } catch (error) {
-        console.error("Error fetching current user:", error);
+        console.error("Lỗi tải thông tin người dùng hiện tại:", error);
         router.push("/login");
       }
     };
@@ -177,7 +177,7 @@ const EditUser = () => {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-          `https://bevclock-production.up.railway.app/api/admin/user/${userId}`,
+          `http://localhost:3000/api/admin/user/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -224,7 +224,7 @@ const EditUser = () => {
           toast.error(errorData.error || "Không thể tải thông tin người dùng");
         }
       } catch (error) {
-        console.error("Error fetching user:", error);
+        console.error("Lỗi tải thông tin người dùng:", error);
         toast.error("Lỗi khi tải thông tin người dùng");
       } finally {
         setFetchLoading(false);
@@ -257,7 +257,7 @@ const EditUser = () => {
     }
     
     // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    const avatarUrl = `https://bevclock-production.up.railway.app/uploads/avatars/${imagePath}`;
+    const avatarUrl = `http://localhost:3000/uploads/avatars/${imagePath}`;
     return avatarUrl; // Bỏ timestamp để tránh reload liên tục
   };
 
@@ -477,7 +477,7 @@ const EditUser = () => {
       );
 
       const userResponse = await fetch(
-        `https://bevclock-production.up.railway.app/api/admin/user/edit/${userId}`,
+        `http://localhost:3000/api/admin/user/edit/${userId}`,
         {
           method: "PUT",
           headers: {
@@ -523,7 +523,7 @@ const EditUser = () => {
           }
 
           if (hasAddressData) {
-            const endpoint = `https://bevclock-production.up.railway.app/api/admin/user/addresses/${selectedAddressId}`;
+            const endpoint = `http://localhost:3000/api/admin/user/addresses/${selectedAddressId}`;
 
             const addressResponse = await fetch(endpoint, {
               method: "PUT",
@@ -536,12 +536,12 @@ const EditUser = () => {
 
             if (!addressResponse.ok) {
               const addressError = await addressResponse.json();
-              console.error("Address API Error:", addressError);
+              console.error("Lỗi API địa chỉ:", addressError);
               toast.error("Không thể cập nhật địa chỉ");
             }
           }
         } catch (error) {
-          console.error("Error updating address:", error);
+          console.error("Lỗi cập nhật địa chỉ:", error);
           toast.error("Lỗi khi cập nhật địa chỉ");
         }
       }
@@ -551,7 +551,7 @@ const EditUser = () => {
         router.push("/admin/users");
       }, 1500);
     } catch (error) {
-      console.error("Error updating user:", error);
+              console.error("Lỗi cập nhật người dùng:", error);
       toast.error(
         error instanceof Error
           ? error.message

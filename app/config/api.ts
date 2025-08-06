@@ -1,5 +1,5 @@
 // Cấu hình API URLs
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bevclock-production.up.railway.app';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export const API_ENDPOINTS = {
   // Auth endpoints

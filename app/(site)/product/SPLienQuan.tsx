@@ -6,6 +6,7 @@ import "swiper/css/navigation";
 import Link from "next/link";
 import { IProduct } from "../cautrucdata";
 import AddToCart from "../components/AddToCart";
+import BuyNow from "../components/BuyNow";
 import { useEffect, useState  } from "react";
 import WishlistButton from "../components/WishlistButton";
 import { useAuth } from "../context/AuthContext";
@@ -25,7 +26,7 @@ export default function SPLienQuan({id} : {id:string}) {
 
     // Fetch danh sách sản phẩm liên quan
     useEffect(() => {
-        fetch(`https://bevclock-production.up.railway.app/api/sp_lien_quan/${id}`)
+        fetch(`http://localhost:3000/api/sp_lien_quan/${id}`)
             .then((res) => res.json())
             .then((data) => setProducts(data))
             .catch((err) => console.error("Lỗi fetch sp:", err));
@@ -37,19 +38,28 @@ export default function SPLienQuan({id} : {id:string}) {
                 const token = localStorage.getItem("token");
                 if (token) {
                     try {
-                        const res = await fetch("https://bevclock-production.up.railway.app/user/wishlist", {
+                        const res = await fetch("http://localhost:3000/user/wishlist", {
                             headers: {
                                 'Authorization': `Bearer ${token}`
                             }
                         });
-                        const data: WishlistItem[] = await res.json();
-                        const statusMap: {[key: string]: boolean} = {};
-                        data.forEach((item) => {
-                            statusMap[item.product_id] = true;
-                        });
-                        setWishlistStatus(statusMap);
+                        if (res.ok) {
+                            const data: WishlistItem[] = await res.json();
+                            if (Array.isArray(data)) {
+                                const statusMap: {[key: string]: boolean} = {};
+                                data.forEach((item) => {
+                                    statusMap[item.product_id] = true;
+                                });
+                                setWishlistStatus(statusMap);
+                            } else {
+                                setWishlistStatus({});
+                            }
+                        } else {
+                            setWishlistStatus({});
+                        }
                     } catch (err) {
                         console.error("Lỗi fetch wishlist:", err);
+                        setWishlistStatus({});
                     }
                 } else {
                     setWishlistStatus({});
@@ -97,9 +107,6 @@ export default function SPLienQuan({id} : {id:string}) {
                                             <Link href={`/product/${slug}`} className="font-semibold text-base text-gray-800 flex-grow mr-2 line-clamp-2">
                                                 {sp.name}
                                             </Link>
-                                            <div className="flex-shrink-0 text-gray-500 text-[12px] flex items-center">
-                                                <i className="fa-solid fa-star text-orange-400 mr-1"></i>4.0
-                                            </div>
                                         </div>
                                         <p className="text-[12px] text-gray-600 mb-2 truncate">
                                             {sp.brand?.name ?? "Không rõ thương hiệu"}
@@ -128,8 +135,9 @@ export default function SPLienQuan({id} : {id:string}) {
                                                 </span>
                                             </div>
                                         )}
-                                        <div className="mt-2">
+                                        <div className="mt-2 flex gap-2">
                                             <AddToCart sp={sp} />
+                                            <BuyNow sp={sp} />
                                         </div>
                                     </div>
 

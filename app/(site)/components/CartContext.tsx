@@ -14,6 +14,8 @@ interface CartContextType {
   toggleSelectAll: () => void;
   clearCart: () => void;
   addToCart: (item: ICart) => void;
+  setSelectedItems: (items: string[]) => void;
+  refreshCartFromStorage: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -25,10 +27,24 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
-    if (storedCart) setCart(JSON.parse(storedCart));
+    if (storedCart) {
+      try {
+        setCart(JSON.parse(storedCart));
+      } catch (error) {
+        console.error('Lỗi phân tích giỏ hàng từ localStorage:', error);
+        setCart([]);
+      }
+    }
 
     const storedSelected = localStorage.getItem("selectedItems");
-    if (storedSelected) setSelectedItems(JSON.parse(storedSelected));
+    if (storedSelected) {
+      try {
+        setSelectedItems(JSON.parse(storedSelected));
+      } catch (error) {
+        console.error('Lỗi phân tích selectedItems từ localStorage:', error);
+        setSelectedItems([]);
+      }
+    }
   }, []);
 
   const calculateTotal = useCallback(() => {
@@ -99,6 +115,28 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     toast.success("Đã thêm sản phẩm vào giỏ hàng!");
   };
 
+  const refreshCartFromStorage = () => {
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) {
+      try {
+        setCart(JSON.parse(storedCart));
+      } catch (error) {
+        console.error('Lỗi phân tích giỏ hàng từ localStorage:', error);
+        setCart([]);
+      }
+    }
+
+    const storedSelected = localStorage.getItem("selectedItems");
+    if (storedSelected) {
+      try {
+        setSelectedItems(JSON.parse(storedSelected));
+      } catch (error) {
+        console.error('Lỗi phân tích selectedItems từ localStorage:', error);
+        setSelectedItems([]);
+      }
+    }
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -112,6 +150,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         toggleSelectAll,
         clearCart,
         addToCart,
+        setSelectedItems,
+        refreshCartFromStorage,
       }}
     >
       {children}

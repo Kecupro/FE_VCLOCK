@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
-import { API_ENDPOINTS } from "../../config/api";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -63,7 +62,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
     setLoading(true);
     try {
-      const response = await fetch(API_ENDPOINTS.LOGIN, {
+      const response = await fetch('http://localhost:3000/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +98,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         const errorMsg = 'Đã có lỗi xảy ra';
         setError(errorMsg);
         toast.error(errorMsg);
-      console.error('Login error:', error);
+              console.error('Lỗi đăng nhập:', error);
     } finally {
       setLoading(false);
     }
@@ -147,7 +146,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
     setLoading(true);
     try {
-      const response = await fetch(API_ENDPOINTS.REGISTER, {
+      const response = await fetch('http://localhost:3000/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -177,7 +176,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         const errorMsg = 'Đã có lỗi xảy ra';
         setError(errorMsg);
         toast.error(errorMsg);
-      console.error('Register error:', error);
+              console.error('Lỗi đăng ký:', error);
     } finally {
       setLoading(false);
     }
@@ -194,7 +193,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
     setLoading(true);
     try {
-      const response = await fetch(API_ENDPOINTS.VERIFY_EMAIL, {
+      const response = await fetch('http://localhost:3000/verify-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp }),
@@ -218,7 +217,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       const errorMsg = 'Đã có lỗi xảy ra khi xác thực OTP.';
       setError(errorMsg);
       toast.error(errorMsg);
-      console.error('Verify OTP error:', error);
+              console.error('Lỗi xác thực OTP:', error);
     } finally {
       setLoading(false);
     }
@@ -233,7 +232,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     }
     setLoading(true);
     try {
-      const response = await fetch(API_ENDPOINTS.REQUEST_PASSWORD_RESET, {
+      const response = await fetch('http://localhost:3000/request-password-reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -263,7 +262,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     }
     setLoading(true);
     try {
-      const response = await fetch(API_ENDPOINTS.RESET_PASSWORD, {
+      const response = await fetch('http://localhost:3000/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp, newPassword: password }),
@@ -386,7 +385,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   type="button"
                   className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition text-sm"
                   onClick={() => {
-                    window.location.href = API_ENDPOINTS.GOOGLE_AUTH;
+                    window.location.href = 'http://localhost:3000/auth/google';
                   }}
                 >
                   <i className="fa-brands fa-google text-red-600"></i>
@@ -396,7 +395,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   type="button"
                   className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition text-sm"
                   onClick={() => {
-                    window.location.href = API_ENDPOINTS.FACEBOOK_AUTH;
+                    window.location.href = 'http://localhost:3000/auth/facebook';
                   }}
                 >
                   <i className="fa-brands fa-facebook-f text-blue-600"></i>

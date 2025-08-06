@@ -1,9 +1,17 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 
 const AdPopup = () => {
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const shown = localStorage.getItem("adPopupShown");
+    if (!shown) {
+      setShow(true);
+      localStorage.setItem("adPopupShown", "true");
+    }
+  }, []);
 
   if (!show) return null;
 

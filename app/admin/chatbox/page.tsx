@@ -10,7 +10,7 @@ import styles from '../assets/css/AdminChat.module.css';
 import { useAppContext } from "../../context/AppContext"
 import Image from "next/image";
 
-const socket = io("https://bevclock-production.up.railway.app");
+const socket = io("http://localhost:3000");
 
 interface Message {
   _id?: string;
@@ -65,7 +65,7 @@ export default function AdminChat() {
   const adminAvatar = "https://secure.gravatar.com/avatar/2ad86d4128742b555b487c8a62a33e9e?s=96&d=mm&r=g";
 
   useEffect(() => {
-    fetch("https://bevclock-production.up.railway.app/api/conversations")
+    fetch("http://localhost:3000/api/conversations")
       .then(res => res.json())
       .then(data => {
         setConversations(data);
@@ -91,7 +91,7 @@ export default function AdminChat() {
   }, [activeConversation]);
 
   const loadMessages = (conversationId: string) => {
-    fetch(`https://bevclock-production.up.railway.app/api/messages/${conversationId}`)
+    fetch(`http://localhost:3000/api/messages/${conversationId}`)
       .then(res => res.json())
       .then(data => {
         setMessages(data);
@@ -207,7 +207,7 @@ export default function AdminChat() {
     if (!window.confirm("Bạn có chắc chắn muốn xoá cuộc hội thoại này?")) return;
   
     try {
-      const res = await fetch(`https://bevclock-production.up.railway.app/api/conversations/${conversationId}`, {
+      const res = await fetch(`http://localhost:3000/api/conversations/${conversationId}`, {
         method: "DELETE",
       });
   
@@ -225,7 +225,7 @@ export default function AdminChat() {
         toast.error(data.error || "Xoá thất bại");
       }
     } catch (error) {
-      console.error("Lỗi xoá conversation:", error);
+              console.error("Lỗi xóa cuộc trò chuyện:", error);
       toast.error("Đã xảy ra lỗi khi xoá");
     }
   };

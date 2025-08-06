@@ -7,6 +7,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import AddToCart from "./AddToCart";
+import BuyNow from "./BuyNow";
 import { IProduct } from "../cautrucdata";
 
 interface TopRatedProduct {
@@ -33,7 +34,7 @@ export default function Feedback() {
   useEffect(() => {
     const fetchTopRatedProducts = async () => {
       try {
-        const response = await fetch('https://bevclock-production.up.railway.app/api/products/top-rated?limit=6');
+        const response = await fetch('http://localhost:3000/api/products/top-rated?limit=6');
         const data = await response.json();
         setProducts(data);
       } catch (error) {
@@ -208,8 +209,9 @@ export default function Feedback() {
                     </div>
 
                     {/* Add to Cart Button */}
-                    <div className="w-full mb-3">
+                    <div className="w-full mb-3 flex gap-2">
                       <AddToCart sp={createProductForCart(product)} />
+                      <BuyNow sp={createProductForCart(product)} />
                     </div>
 
                     {/* View Details Link */}

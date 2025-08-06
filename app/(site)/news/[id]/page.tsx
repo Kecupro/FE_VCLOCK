@@ -60,10 +60,10 @@ export default function NewsDetail() {
 
   const fetchNewsDetail = async () => {
     try {
-      const response = await axios.get(`https://bevclock-production.up.railway.app/api/news/${params.id}`);
+      const response = await axios.get(`http://localhost:3000/api/news/${params.id}`);
       setNews(response.data as INews);
     } catch (error) {
-      console.error('Error fetching news detail:', error);
+              console.error('Lỗi tải chi tiết tin tức:', error);
     } finally {
       setLoading(false);
     }
@@ -74,7 +74,7 @@ export default function NewsDetail() {
     
     try {
       hasIncrementedView.current = true;
-      const response = await axios.post(`https://bevclock-production.up.railway.app/api/news/${params.id}/increment-view`);
+      const response = await axios.post(`http://localhost:3000/api/news/${params.id}/increment-view`);
       
       // Type assertion để xử lý response.data
       const responseData = response.data as { success?: boolean; message?: string; views?: number };
@@ -89,7 +89,7 @@ export default function NewsDetail() {
         }
       }
     } catch (error) {
-      console.error('Error incrementing view:', error);
+              console.error('Lỗi tăng lượt xem:', error);
       hasIncrementedView.current = false; // Reset if failed
     }
   };

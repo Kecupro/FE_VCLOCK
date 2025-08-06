@@ -23,7 +23,7 @@ export default function ReviewForm({
     setMessage('');
 
     try {
-      const res = await fetch('https://bevclock-production.up.railway.app/api/reviews', {
+      const res = await fetch('http://localhost:3000/api/reviews', {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",

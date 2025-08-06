@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IUser } from "../cautrucdata";
-import { API_ENDPOINTS } from "../../config/api";
 import { clearAuthData } from "../../utils/authUtils";
 interface AuthContextType {
   user: IUser | null;
@@ -28,7 +27,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = localStorage.getItem("token");
     
     if (token) {
-      const res = await fetch(API_ENDPOINTS.USER_PROFILE, {
+      const res = await fetch('http://localhost:3000/user/profile', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {

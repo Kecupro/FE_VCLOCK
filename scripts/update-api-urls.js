@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 
 // Cấu hình
 const OLD_BASE_URL = 'http://localhost:3000';
-const NEW_BASE_URL = 'https://bevclock-production.up.railway.app'; // URL Railway thực tế
+const NEW_BASE_URL = 'http://localhost:3000'; // URL localhost
 
 // Danh sách các file cần cập nhật (trừ những file đã cập nhật thủ công)
 const filesToUpdate = [

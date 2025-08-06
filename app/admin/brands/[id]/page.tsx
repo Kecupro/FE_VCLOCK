@@ -39,7 +39,7 @@ const BrandDetailPage: React.FC = () => {
         }
         
         const res = await fetch(
-          `https://bevclock-production.up.railway.app/api/admin/brand/${brandId}`,
+          `http://localhost:3000/api/admin/brand/${brandId}`,
           {
             method: 'GET',
             headers: {
@@ -112,7 +112,7 @@ const BrandDetailPage: React.FC = () => {
     try {
       const brandId = Array.isArray(params.id) ? params.id[0] : params.id;
       const deleteResponse = await fetch(
-        `https://bevclock-production.up.railway.app/api/admin/brand/xoa/${brandId}`,
+        `http://localhost:3000/api/admin/brand/xoa/${brandId}`,
         {
           method: "DELETE",
           headers: {

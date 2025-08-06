@@ -54,7 +54,7 @@ const AddUser = () => {
           return;
         }
 
-        const response = await fetch("https://bevclock-production.up.railway.app/check-role", {
+        const response = await fetch("http://localhost:3000/check-role", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -165,9 +165,9 @@ const AddUser = () => {
         fullName: formData.fullName.trim(),
       };
 
-      console.log("Sending create data:", createData);
+      		console.log("Đang gửi dữ liệu tạo:", createData);
 
-      const response = await fetch("https://bevclock-production.up.railway.app/api/admin/user/add", {
+      const response = await fetch("http://localhost:3000/api/admin/user/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -182,7 +182,7 @@ const AddUser = () => {
       }
 
       const result = await response.json();
-      console.log("Create user response:", result);
+      		console.log("Phản hồi tạo người dùng:", result);
 
       toast.success("Tạo người dùng thành công!");
       
@@ -199,7 +199,7 @@ const AddUser = () => {
         router.push("/admin/users");
       }, 1500);
     } catch (error) {
-      console.error("Error creating user:", error);
+              console.error("Lỗi tạo người dùng:", error);
       toast.error(
         error instanceof Error
           ? error.message

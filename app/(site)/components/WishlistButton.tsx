@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useWishlist } from "./WishlistContext";
 
@@ -11,7 +11,26 @@ interface WishlistButtonProps {
 export default function WishlistButton({ productId, initialIsWishlisted }: WishlistButtonProps) {
     const [isWishlisted, setIsWishlisted] = useState(initialIsWishlisted);
     const [isLoading, setIsLoading] = useState(false);
-    const { addToWishlist, removeFromWishlist } = useWishlist();
+    const { addToWishlist, removeFromWishlist, getWishlistStatus } = useWishlist();
+
+    // Update wishlist status when initialIsWishlisted changes
+    useEffect(() => {
+        setIsWishlisted(initialIsWishlisted);
+    }, [initialIsWishlisted]);
+
+    // Refresh wishlist status when component mounts
+    useEffect(() => {
+        const refreshStatus = async () => {
+            const token = localStorage.getItem("token");
+            if (token) {
+                const statusMap = await getWishlistStatus();
+                setIsWishlisted(statusMap[productId] || false);
+            } else {
+                setIsWishlisted(false);
+            }
+        };
+        refreshStatus();
+    }, [productId, getWishlistStatus]);
 
     const handleWishlist = async () => {
         const token = localStorage.getItem("token");
@@ -30,7 +49,9 @@ export default function WishlistButton({ productId, initialIsWishlisted }: Wishl
             }
 
             if (success) {
-                setIsWishlisted(!isWishlisted);
+                // Refresh wishlist status after successful operation
+                const statusMap = await getWishlistStatus();
+                setIsWishlisted(statusMap[productId] || false);
                 toast.success(isWishlisted ? "Đã xóa khỏi danh sách yêu thích!" : "Đã thêm vào danh sách yêu thích!");
             } else {
                 toast.error("Có lỗi xảy ra, vui lòng thử lại!");
