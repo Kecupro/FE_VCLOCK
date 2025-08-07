@@ -147,7 +147,7 @@ export default function NewsDetail() {
                 </span>
                 <span>
                   <i className="far fa-folder mr-2"></i>
-                  {news.category?.name || 'Tin tức'}
+                  {(news.categorynews_id?.name || news.category?.name) || 'Tin tức'}
                 </span>
               </div>
               <div className="prose max-w-none">

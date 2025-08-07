@@ -250,7 +250,7 @@ export default function News() {
                         />
                         <div className="absolute top-2 left-2 bg-black border border-white text-white text-xs px-2 py-1 rounded">
                           <i className="fas fa-tag mr-1"></i>
-                          {news.category?.name || 'Tin tức'}
+                          {(news.categorynews_id?.name || news.category?.name) || 'Tin tức'}
                         </div>  
                       </div>
                       <div className="p-4 flex-1 flex flex-col">

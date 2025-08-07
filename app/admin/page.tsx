@@ -41,7 +41,7 @@ export default function AdminDashboardPage() {
       setTotalUsers(totalResUsers.data.total || 0);
 
       const totalResOrders = await axios.get<OrderApiResponse>('http://localhost:3000/api/admin/order', {});
-      setTotalOrders(totalResOrders.data.total || 0);
+      setTotalOrders(totalResOrders.data.totalCount || 0);
 
       const totalResNews = await axios.get<OrderApiResponse>('http://localhost:3000/api/admin/news', {});
       setTotalNews(totalResNews.data.total || 0);
@@ -58,7 +58,7 @@ export default function AdminDashboardPage() {
       const top3Selling = sortedBySold.slice(0, 3).map(p => ({
         _id: p._id,
         name: p.name,
-        main_image: p.main_image || { image: '', alt: '' },
+        main_image: p.main_image,
         quantity: p.quantity,
         sold: p.sold || 0,
         created_at: p.created_at,
@@ -70,7 +70,7 @@ export default function AdminDashboardPage() {
       const top3Recent = sortedByDate.slice(0, 3).map(p => ({
         _id: p._id,
         name: p.name,
-        main_image: p.main_image || { image: '', alt: '' },
+        main_image: p.main_image,
         quantity: p.quantity,
         sold: p.sold || 0,
         created_at: p.created_at,
@@ -90,7 +90,7 @@ export default function AdminDashboardPage() {
       const totalResVouchers = await axios.get<OrderApiResponse>('http://localhost:3000/api/admin/voucher', {});
       setTotalVouchers(totalResVouchers.data.total || 0);
     } catch (err) {
-              console.error('Lỗi khi tải dữ liệu dashboard:', err);
+      console.error('Lỗi khi fetch dữ liệu dashboard:', err);
     }
   };
 
@@ -111,10 +111,9 @@ export default function AdminDashboardPage() {
       }));
 
       allOrders.forEach((order) => {
-        if (!order.created_at) return;
         const createdAt = new Date(order.created_at);
-        const isDelivered = order.order_status == 'delivered';
-        const isPaid = order.payment_status == 'paid';
+        const isDelivered = order.order_status == 'hoanThanh';
+        const isPaid = order.payment_status == 'thanhToan';
 
         if (createdAt.getFullYear() == selectedYear && isDelivered && isPaid) {
           const month = createdAt.getMonth();
@@ -125,17 +124,17 @@ export default function AdminDashboardPage() {
       setMonthlyRevenue(revenueByMonth);
       setOrders(
         allOrders.map((o) => ({
-          customerName: typeof o.user_id === 'object' ? o.user_id.username : '...',
+          customerName: o.user_id?.username || '...',
           orderId: o._id,
           paymentMethod: o.payment_method_id?.name || '...',
           totalAmount: (o.total_amount || 0).toLocaleString(),
           status: o.order_status,
           paymentStatus: o.payment_status,
-          created_at: o.created_at ? o.created_at.toString() : '',
+          created_at: o.created_at
         }))
       );
     } catch (err) {
-              console.error('Lỗi khi tải đơn hàng:', err);
+      console.error('Lỗi khi fetch đơn hàng:', err);
     }
   };
 
@@ -426,29 +425,28 @@ export default function AdminDashboardPage() {
                   <p className="mb-0">Trạng thái đơn hàng:
                     <span
                       className={`order-status-badge ${
-                        order.status == 'pending' ? 'status-choXuLy' :
-                        order.status == 'processing' ? 'status-dangXuLy' :
-                        order.status == 'shipping' ? 'status-dangGiaoHang' :
-                        order.status == 'delivered' ? 'status-daGiaoHang' :
-                        order.status == 'cancelled' ? 'status-daHuy' :
-                        order.status == 'returned' ? 'status-hoanTra' :
-                        ''
+                        order.status == 'choXuLy' ? 'status-choXuLy' :
+                        order.status == 'dangXuLy' ? 'status-dangXuLy' :
+                        order.status == 'dangGiaoHang' ? 'status-dangGiaoHang' :
+                        order.status == 'daGiaoHang' ? 'status-daGiaoHang' :
+                        order.status == 'hoanTra' ? 'status-hoanTra' :
+                        order.status == 'hoanThanh' ? 'status-hoanThanh' :
+                        'status-daHuy'
                       }`}
                     >
-                      {order.status ? statusMap[order.status] || order.status : 'Không rõ'}
+                      {statusMap[order.status] || order.status}
                     </span>
                   </p>
                   <p className="mb-0">Phương thức thanh toán: <span className="text-muted">{order.paymentMethod}</span></p>
                   <p className="mb-0">Trạng thái thanh toán:
                     <span className="text-muted">
                       <span className={`payment-status-badge ${
-                        order.paymentStatus == 'unpaid' ? 'status-chuaThanhToan' :
-                        order.paymentStatus == 'paid' ? 'status-thanhToan' :
-                        order.paymentStatus == 'refunding' ? 'status-choHoanTien' :
-                        order.paymentStatus == 'refunded' ? 'status-hoanTien' :
-                        ''
+                        order.paymentStatus == 'chuaThanhToan' ? 'status-chuaThanhToan' :
+                        order.paymentStatus == 'thanhToan' ? 'status-thanhToan' :
+                        order.paymentStatus == 'choHoanTien' ? 'status-choHoanTien' :
+                        'status-hoanTien'
                       }`}>
-                        {order.paymentStatus ? paymentStatusMap[order.paymentStatus] || order.paymentStatus : 'Không rõ'}
+                        {paymentStatusMap[order.paymentStatus] || order.paymentStatus}
                       </span>
 
                     </span>

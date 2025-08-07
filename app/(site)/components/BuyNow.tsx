@@ -1,5 +1,5 @@
 "use client";
-import { ICart, IProduct } from "../cautrucdata";
+import { ICart, IProduct, IHinh } from "../cautrucdata";
 import { useCart } from "./CartContext";
 import { useRouter } from "next/navigation";
 
@@ -8,15 +8,55 @@ export default function BuyNow({ sp }: { sp: IProduct }) {
   const router = useRouter();
 
   const handleBuyNow = () => {
+    // Xử lý main_image để đảm bảo cấu trúc đúng
+    let mainImage: IHinh = {
+      _id: "",
+      is_main: true,
+      image: "",
+      alt: "",
+      created_at: "",
+      updated_at: ""
+    };
+    
+    if (sp.main_image) {
+      if (typeof sp.main_image === 'string') {
+        mainImage = {
+          _id: sp._id,
+          is_main: true,
+          image: sp.main_image,
+          alt: sp.name,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+      } else {
+        mainImage = sp.main_image;
+      }
+    } else if (sp.images && sp.images.length > 0) {
+      // Fallback: lấy ảnh đầu tiên từ images array
+      const firstImage = sp.images[0];
+      if (typeof firstImage === 'string') {
+        mainImage = {
+          _id: sp._id,
+          is_main: true,
+          image: firstImage,
+          alt: sp.name,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+      } else {
+        mainImage = firstImage;
+      }
+    }
+
     const item: ICart = {
       _id: sp._id,
-      product_id: sp._id,
+      product_id: sp,
       so_luong: 1,
       price: sp.price,
       sale_price: sp.sale_price,
       name: sp.name,
-      main_image: sp.main_image ?? { image: "", alt: "" },
-      brand: sp.brand,
+      main_image: mainImage,
+      brand: sp.brand_id,
       quantity: sp.quantity,
     };
 

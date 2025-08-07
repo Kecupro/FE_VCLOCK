@@ -14,6 +14,13 @@ html.dark-mode .title {
   color: var(--text-color-dark) !important;
 }
 
+.userIcon {
+    color: white;
+    background-color: grey;
+    border-radius: 50%;
+    padding: 5px;
+}
+
 .card {
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);

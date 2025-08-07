@@ -31,8 +31,8 @@ const VouchersPage = () => {
   }, [isDarkMode]);
 
   useEffect(() => {
-      setCurrentPage(1);
-    }, [searchTerm, statusFilter, sortOption, showModal]);
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, sortOption, showModal]);
 
   useEffect(() => {
     const fetchVouchers = async () => {
@@ -41,8 +41,14 @@ const VouchersPage = () => {
           `http://localhost:3000/api/admin/voucher?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&statusFilter=${statusFilter}&sort=${sortOption}`
         );
         const data = await res.json();
-        setVouchers(data.list || []);
-        setTotal(data.total || 0);
+        let filteredList = data.list || [];
+
+        if (statusFilter !== 'all') {
+          filteredList = filteredList.filter((voucher: IVoucher) => getStatus(voucher) === statusFilter);
+        }
+
+        setVouchers(filteredList);
+        setTotal(filteredList.length);
       } catch {
         toast.error("Lỗi khi tải dữ liệu voucher!");
       }
@@ -53,13 +59,13 @@ const VouchersPage = () => {
   const deletingCategory = vouchers.find((cat) => cat._id == deletingId);
 
   const getStatus = (voucher: IVoucher): string => {
-  const now = new Date();
-  const start = new Date(voucher.start_date);
-  const end = new Date(voucher.end_date);
+    const now = new Date();
+    const start = new Date(voucher.start_date);
+    const end = new Date(voucher.end_date);
 
-  if (now < start) return "Sắp bắt đầu";
-  if (now > end) return "Hết hạn";
-  return "Còn hạn";
+    if (now < start) return "Sắp bắt đầu";
+    if (now > end) return "Hết hạn";
+    return "Còn hạn";
   };
 
   const formatDiscount = (voucher: IVoucher) =>
@@ -109,7 +115,7 @@ const VouchersPage = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>Mã Khuyến Mãi</h1>
-        <Link href="vouchers/addVoucher">
+        <Link href="addVoucher">
           <button className={styles.addButton}>
             <Plus size={16} /> Thêm mới
           </button>
@@ -195,7 +201,7 @@ const VouchersPage = () => {
                         : "---"}
                     </td>
                     <td className={styles.tableCell}>
-                      
+
                       {voucher.end_date
                         ? new Date(voucher.end_date).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })
                         : "---"}
@@ -207,19 +213,19 @@ const VouchersPage = () => {
                           status == "Còn hạn"
                             ? styles.statusInStock
                             : status == "Hết hạn"
-                            ? styles.statusOutOfStock
-                            : styles.statusUpcoming;
-                      
+                              ? styles.statusOutOfStock
+                              : styles.statusUpcoming;
+
                         return <span className={`${styles.statusBadge} ${statusClass}`}>{status}</span>;
                       })()}
                     </td>
 
                     <td className={styles.tableCell}>
                       <div className={styles.actions}>
-                        <Link href={`vouchers/${voucher._id}`}>
+                        <Link href={`${voucher._id}`}>
                           <button className={styles.actionButton}><Eye size={16} /></button>
                         </Link>
-                        <Link href={`vouchers/editVoucher?id=${voucher._id}`}>
+                        <Link href={`editVoucher?id=${voucher._id}`}>
                           <button className={styles.actionButton}><Edit size={16} /></button>
                         </Link>
                         <button className={styles.actionButton} onClick={() => handleDeleteClick(voucher._id)}>

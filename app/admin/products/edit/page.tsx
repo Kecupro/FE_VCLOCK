@@ -106,7 +106,7 @@ const EditProduct = () => {
       setStatus(p.status == 1 ? 'Dừng hoạt động' : 'Hoạt động');
     } catch (err) {
       toast.error('Lỗi khi gọi API!');
-              console.error('Lỗi:', err);
+      console.error(err);
     }
   };
 

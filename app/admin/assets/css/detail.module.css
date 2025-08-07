@@ -798,3 +798,11 @@ html.dark-mode .createButton:hover {
   color: #1e3a8a;
 }
 /* ! 28/06/2025 End Thái status */
+
+.productName {
+  color: var(--text-color-light);
+}
+
+html.dark-mode .productName {
+  color: var(--text-color-dark);
+}

@@ -12,13 +12,12 @@ import { IBrand } from '@/app/(site)/cautrucdata';
 
 const AddBrand = () => {
   const [formData, setFormData] = useState<IBrand>({
-  _id: 0,
+  _id: '',
   name: '',
   image: '',
   alt: '',
   description: '',
   brand_status: 0,
-  productCount: 0,
   created_at: '',
   updated_at: ''
   });
@@ -214,7 +213,7 @@ const AddBrand = () => {
         });
       }
     } catch (error) {
-              console.error('Lỗi tạo thương hiệu:', error);
+      console.error('Error creating brand:', error);
       const errorMessage = 'Có lỗi xảy ra khi kết nối đến server';
       setErrors({ general: errorMessage });
       

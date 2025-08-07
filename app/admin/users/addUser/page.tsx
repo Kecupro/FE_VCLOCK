@@ -1,21 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAppContext } from '../../../context/AppContext';
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import styles from "../../assets/css/add.module.css";
-
-interface IUser {
-  _id: string;
-  username: string;
-  email: string;
-  role: 0 | 1 | 2;
-  account_status: 0 | 1;
-  fullName: string;
-  avatar: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import { IUser } from '@/app/(site)/cautrucdata';
 
 const AddUser = () => {
   const router = useRouter();
@@ -24,6 +13,14 @@ const AddUser = () => {
   const [fetchLoading, setFetchLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<IUser | null>(null);
   const [selectedRole, setSelectedRole] = useState<string>("");
+  const [showPassword, setShowPassword] = useState(false);
+  const { isDarkMode } = useAppContext();
+
+  useEffect(() => {
+    const html = document.documentElement;
+    if (isDarkMode) html.classList.add(styles['dark-mode']);
+    else html.classList.remove(styles['dark-mode']);
+  }, [isDarkMode]);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -95,50 +92,85 @@ const AddUser = () => {
     }));
   };
 
-  const validateForm = () => {
-    if (!formData.username.trim()) {
-      toast.error("Tên đăng nhập không được để trống");
-      return false;
-    }
+  const validatePasswordComplexity = (password: string): string | null => {
+  if (password.length < 6) {
+    return "Mật khẩu phải có ít nhất 6 ký tự";
+  }
 
-    if (formData.username.trim().length < 3) {
-      toast.error("Tên đăng nhập phải có ít nhất 3 ký tự");
-      return false;
-    }
+  if (password.length > 128) {
+    return "Mật khẩu không được quá 128 ký tự";
+  }
 
-    if (!formData.email.trim()) {
-      toast.error("Email không được để trống");
-      return false;
-    }
+  const hasLetter = /[a-zA-Z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecialChar = /[^a-zA-Z0-9]/.test(password);
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email.trim())) {
-      toast.error("Email không hợp lệ");
-      return false;
-    }
+  if (!hasLetter || !hasNumber || !hasSpecialChar) {
+    return "Mật khẩu cần ít nhất một chữ cái, một số và một ký tự đặc biệt";
+  }
 
-    if (!formData.password.trim()) {
-      toast.error("Mật khẩu không được để trống");
-      return false;
-    }
-
-    if (formData.password.trim().length < 6) {
-      toast.error("Mật khẩu phải có ít nhất 6 ký tự");
-      return false;
-    }
-
-    if (!formData.fullName.trim()) {
-      toast.error("Tên đầy đủ không được để trống");
-      return false;
-    }
-
-    if (!selectedRole) {
-      toast.error("Vui lòng chọn vai trò");
-      return false;
-    }
-
-    return true;
+  const isValidPasswordCharacter = (char: string): boolean => {
+    const validChars = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]$/;
+    return validChars.test(char);
   };
+
+  for (let i = 0; i < password.length; i++) {
+    if (!isValidPasswordCharacter(password[i])) {
+      return `Mật khẩu chứa ký tự không hợp lệ: "${password[i]}". Chỉ cho phép chữ cái, số và các ký tự đặc biệt thông thường.`;
+    }
+  }
+
+  return null;
+  };
+
+  const validateForm = () => {
+  const { username, email, password, fullName } = formData;
+
+  if (!selectedRole) {
+    toast.error("Vui lòng chọn vai trò");
+    return false;
+  }
+
+  if (!username.trim()) {
+    toast.error("Tên đăng nhập không được để trống");
+    return false;
+  }
+
+  if (username.trim().length < 3) {
+    toast.error("Tên đăng nhập phải có ít nhất 3 ký tự");
+    return false;
+  }
+
+  if (!fullName.trim()) {
+    toast.error("Tên đầy đủ không được để trống");
+    return false;
+  }
+
+  if (!email.trim()) {
+    toast.error("Email không được để trống");
+    return false;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.trim())) {
+    toast.error("Email không hợp lệ");
+    return false;
+  }
+
+  if (!password.trim()) {
+    toast.error("Mật khẩu không được để trống");
+    return false;
+  }
+
+  const passwordError = validatePasswordComplexity(password.trim());
+  if (passwordError) {
+    toast.error(passwordError);
+    return false;
+  }
+
+  return true;
+};
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,7 +197,7 @@ const AddUser = () => {
         fullName: formData.fullName.trim(),
       };
 
-      		console.log("Đang gửi dữ liệu tạo:", createData);
+      console.log("Sending create data:", createData);
 
       const response = await fetch("http://localhost:3000/api/admin/user/add", {
         method: "POST",
@@ -182,7 +214,7 @@ const AddUser = () => {
       }
 
       const result = await response.json();
-      		console.log("Phản hồi tạo người dùng:", result);
+      console.log("Create user response:", result);
 
       toast.success("Tạo người dùng thành công!");
       
@@ -199,7 +231,7 @@ const AddUser = () => {
         router.push("/admin/users");
       }, 1500);
     } catch (error) {
-              console.error("Lỗi tạo người dùng:", error);
+      console.error("Error creating user:", error);
       toast.error(
         error instanceof Error
           ? error.message
@@ -218,7 +250,7 @@ const AddUser = () => {
     router.push("/admin/users");
   };
 
-  const canCreateAdmin = currentUser && Number(currentUser.role) === 2;
+  const canCreateAdmin = currentUser && Number(currentUser.role) == 2;
 
   if (fetchLoading) {
     return (
@@ -257,23 +289,20 @@ const AddUser = () => {
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.formGroup}>
-          <label className={styles.label}>Vai trò *</label>
+          <label className={styles.label}>Vai trò <span style={{color: "red"}}>*</span></label>
           <select
             className={styles.select}
             value={selectedRole}
             onChange={handleRoleChange}
-            required
+            
           >
             <option value="">--- Chọn vai trò ---</option>
             <option value="moderator">Quản trị viên</option>
           </select>
-          <p style={{ fontSize: "12px", color: "#666", margin: "5px 0 0 0" }}>
-            Chỉ có thể tạo quản trị viên hoặc người dùng (không thể tạo quản trị viên cấp cao)
-          </p>
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Tên đăng nhập *</label>
+          <label className={styles.label}>Tên đăng nhập <span style={{color: "red"}}>*</span></label>
           <input
             type="text"
             name="username"
@@ -281,12 +310,12 @@ const AddUser = () => {
             placeholder="Nhập tên đăng nhập..."
             value={formData.username}
             onChange={handleInputChange}
-            required
+            autoComplete="off"
           />
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Tên đầy đủ *</label>
+          <label className={styles.label}>Tên đầy đủ <span style={{color: "red"}}>*</span></label>
           <input
             type="text"
             name="fullName"
@@ -294,12 +323,12 @@ const AddUser = () => {
             placeholder="Nhập tên đầy đủ..."
             value={formData.fullName}
             onChange={handleInputChange}
-            required
+            
           />
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Email *</label>
+          <label className={styles.label}>Email <span style={{color: "red"}}>*</span></label>
           <input
             type="email"
             name="email"
@@ -307,75 +336,50 @@ const AddUser = () => {
             placeholder="Nhập email..."
             value={formData.email}
             onChange={handleInputChange}
-            required
+            
           />
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Mật khẩu *</label>
-          <input
-            type="password"
+          <label className={styles.label}>Mật khẩu <span style={{color: "red"}}>*</span></label>
+          <div className="position-relative">
+            <input
+            type={showPassword ? "text" : "password"}
             name="password"
             className={styles.input}
             placeholder="Nhập mật khẩu..."
             value={formData.password}
             onChange={handleInputChange}
-            minLength={6}
-            required
+            
           />
-          <p style={{ fontSize: "12px", color: "#666", margin: "5px 0 0 0" }}>
-            Mật khẩu phải có ít nhất 6 ký tự
-          </p>
-        </div>
-
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Trạng thái tài khoản *</label>
-          <select
-            className={styles.select}
-            name="account_status"
-            value={formData.account_status}
-            onChange={handleInputChange}
-          >
-            <option value={0}>Bị khóa</option>
-            <option value={1}>Hoạt động</option>
-          </select>
-          <p style={{ fontSize: "12px", color: "#666", margin: "5px 0 0 0" }}>
-            Tài khoản mặc định sẽ bị khóa sau khi tạo
-          </p>
-        </div>
-
-        <div className={styles.formGroup}>
-          <div
+          <button
+            type="button"
+            className="top-50 btn btn-sm position-absolute end-0 translate-middle-y"
             style={{
-              backgroundColor: "#f8f9fa",
-              border: "1px solid #dee2e6",
-              borderRadius: "4px",
-              padding: "15px",
-              margin: "15px 0",
+              border: "none",
+              background: "transparent",
+              zIndex: 10,
             }}
+            onClick={() => setShowPassword(!showPassword)}
           >
-            <h4
-              style={{
-                margin: "0 0 10px 0",
-                color: "#495057",
-                fontSize: "14px",
-              }}
-            >
-              📋 Thông tin quan trọng:
-            </h4>
-            <ul
-              style={{
-                margin: "0",
-                paddingLeft: "20px",
-                color: "#666",
-                fontSize: "13px",
-              }}
-            >
-              <li>Chỉ có thể tạo tài khoản quản trị viên (role = 1)</li>
-              <li>Không thể tạo quản trị viên cấp cao (role = 2)</li>
+            {showPassword ? (
+              <span style={{ fontSize: "14px" }}>👁️</span>
+            ) : (
+              <span style={{ fontSize: "14px" }}>🙈</span>
+            )}
+          </button>
+          </div>
+        </div>
+
+        <div className={styles.formGroup}>
+          <div className={styles.infoBox}>
+            <h4 className={styles.infoTitle}>📋 Thông tin quan trọng:</h4>
+            <ul className={styles.infoList}>
+              <li>Chỉ có thể tạo tài khoản quản trị viên, không thể tạo quản trị viên cấp cao</li>
               <li>Tài khoản mặc định sẽ bị khóa, cần kích hoạt thủ công</li>
               <li>Username và email phải duy nhất trong hệ thống</li>
               <li>Tên đầy đủ là bắt buộc</li>
+              <li>Mật khẩu phải có ít nhất 6 kí tự</li>
             </ul>
           </div>
         </div>

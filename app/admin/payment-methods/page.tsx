@@ -197,8 +197,8 @@ const PaymentMethodPage = () => {
                       {method.is_active ? 'Đang hoạt động' : 'Không hoạt động'}
                     </span>
                   </td>
-                  <td>{method.created_at ? new Date(method.created_at).toLocaleDateString('vi-VN', { day: "2-digit", month: "2-digit", year: "numeric" }) : 'N/A'}</td>
-                  <td>{method.updated_at ? new Date(method.updated_at).toLocaleDateString('vi-VN', { day: "2-digit", month: "2-digit", year: "numeric" }) : 'N/A'}</td>
+                  <td>{new Date(method.created_at).toLocaleDateString('vi-VN', { day: "2-digit", month: "2-digit", year: "numeric" })}</td>
+                  <td>{new Date(method.updated_at).toLocaleDateString('vi-VN', { day: "2-digit", month: "2-digit", year: "numeric" })}</td>
 
                   <td className={styles.tableCell}>
                     <div className={styles.actions}>
@@ -209,7 +209,7 @@ const PaymentMethodPage = () => {
                       </Link>
                       <button
                         className={styles.actionButton}
-                        onClick={() => method._id && handleDeleteClick(method._id)}
+                        onClick={() => handleDeleteClick(method._id)}
                       >
                         <Trash2 size={16} />
                       </button>

@@ -1,32 +1,12 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback  } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, User } from 'lucide-react';
 import { useAppContext } from '../../../context/AppContext';
 import styles from '../../assets/css/detail.module.css';
-
-interface IAddress {
-  _id: string;
-  user_id: string;
-  receiver_name: string;
-  phone: number;
-  address: string;
-  created_at?: Date;
-  updated_at: Date;
-}
-
-interface IUser {
-  _id: string;
-  username: string;
-  fullName: string;
-  email: string;
-  role: number;
-  account_status: number;
-  avatar: string | null;
-  created_at: string;
-  updated_at: string;
-  addresses?: IAddress[];
-}
+import Image from 'next/image';
+import { IUser } from '@/app/(site)/cautrucdata';
+// IAddress
 
 const UserDetailPage = () => {
   const router = useRouter();
@@ -40,196 +20,134 @@ const UserDetailPage = () => {
   const [currentUserRole, setCurrentUserRole] = useState<number>(0);
   const [hasPermission, setHasPermission] = useState<boolean>(false);
   const [imageError, setImageError] = useState<boolean>(false);
-  const [imageLoading, setImageLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const html = document.documentElement;
-    if (isDarkMode) {
-      html.classList.add('dark-mode');
-    } else {
-      html.classList.remove('dark-mode');
-    }
+    html.classList.toggle(styles["dark-mode"], isDarkMode);
   }, [isDarkMode]);
 
-  useEffect(() => {
-    if (id) {
-      checkUserRole();
+  const fetchUserDetail = useCallback(async () => {
+  try {
+    setError(null);
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Token không tồn tại');
+
+    const response = await fetch(`http://localhost:3000/api/admin/user/${id}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    const data = await response.json();
+    if (data) {
+      const userData = {
+        ...data,
+        role: Number(data.role),
+        account_status: Number(data.account_status),
+        fullName: data.fullName || 'Chưa cập nhật'
+      };
+      setUser(userData);
+    } else {
+      setError('Không thể tải thông tin người dùng');
     }
+  } catch {
+    setError('Lỗi kết nối, vui lòng thử lại');
+  }
   }, [id]);
 
-  const checkUserRole = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Token không tồn tại');
-      }
+  const checkUserRole = useCallback(async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Token không tồn tại');
 
-      const response = await fetch('http://localhost:3000/check-role', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    const response = await fetch('http://localhost:3000/check-role', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
-      
-      const data = await response.json();
-      
-      if (data.success && data.user) {
-        const userRole = Number(data.user.role);
-        setCurrentUserRole(userRole);
-        
-        if (userRole >= 1) {
-          setHasPermission(true);
-          await fetchUserDetail();
-        } else {
-          setHasPermission(false);
-          setError('Bạn không có quyền xem thông tin này');
-        }
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    const data = await response.json();
+    if (data.success && data.user) {
+      const userRole = Number(data.user.role);
+      setCurrentUserRole(userRole);
+
+      if (userRole >= 1) {
+        setHasPermission(true);
+        await fetchUserDetail();
       } else {
-        setError('Lỗi xác thực quyền truy cập');
+        setHasPermission(false);
+        setError('Bạn không có quyền xem thông tin này');
       }
-    } catch (error) {
-      console.error('Lỗi khi kiểm tra role:', error);
-      setError('Lỗi kết nối, vui lòng thử lại');
-    } finally {
-      setLoading(false);
+    } else {
+      setError('Lỗi xác thực quyền truy cập');
     }
-  };
+  } catch {
+    setError('Lỗi kết nối, vui lòng thử lại');
+  } finally {
+    setLoading(false);
+  }
+  }, [fetchUserDetail]);
 
-  const fetchUserDetail = async () => {
-    try {
-      setError(null);
-      
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Token không tồn tại');
-      }
+   useEffect(() => {
+    checkUserRole();
+  }, [checkUserRole]);
 
-      const response = await fetch(`http://localhost:3000/api/admin/user/${id}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
+  const getAvatarUrl = (avatar: string | null | undefined): string | null => {
+    if (!avatar) return null;
 
-      if (data) {
-        const userData = {
-          ...data,
-          role: Number(data.role),
-          account_status: Number(data.account_status),
-          fullName: data.fullName || 'Chưa cập nhật' 
-        };
-        setUser(userData);
-      } else {
-        setError('Không thể tải thông tin người dùng');
-      }
-    } catch (error) {
-      console.error('Lỗi khi tải chi tiết người dùng:', error);
-      setError('Lỗi kết nối, vui lòng thử lại');
-    }
-  };
-
-  const getAvatarUrl = (avatar: string | null) => {
-    if (!avatar || avatar.trim() === "") {
-      return "/images/avatar-default.png";
-    }
-    
-    // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
-    if (avatar.startsWith('http')) {
-      return avatar; // Bỏ timestamp để tránh reload liên tục
-    }
-    
-    // Nếu là đường dẫn tương đối bắt đầu bằng /
-    if (avatar.startsWith('/')) {
+    if (avatar.startsWith('http://') || avatar.startsWith('https://')) {
       return avatar;
     }
-    
-    // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    const avatarUrl = `http://localhost:3000/uploads/avatars/${avatar}`;
-    return avatarUrl; // Bỏ timestamp để tránh reload liên tục
-  };
 
-  const handleImageError = () => {
-    setImageError(true);
-    setImageLoading(false);
-  };
-
-  const handleImageLoad = () => {
-    setImageError(false);
-    setImageLoading(false);
+    return `/images/avatar/${avatar}`;
   };
 
   const AvatarDisplay = ({ user }: { user: IUser }) => {
-    const avatarUrl = getAvatarUrl(user.avatar);
-    
-    if (!avatarUrl || imageError) {
-      return (
-        <div
-          style={{
-            width: '110px',
-            height: '100px',
-            borderRadius: '100px',
-            backgroundColor: '#f3f4f6',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '2px solid #e5e7eb'
-          }}
-        >
-          <User size={40} color="#9ca3af" />
-        </div>
-      );
-    }
+  const avatarUrl = getAvatarUrl(user.avatar);
 
+  if (!avatarUrl || imageError) {
     return (
-      <div style={{ position: 'relative' }}>
-        {imageLoading && (
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '110px',
-              height: '100px',
-              borderRadius: '100px',
-              backgroundColor: '#f3f4f6',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '2px solid #e5e7eb'
-            }}
-          >
-            <div className={styles.loadingSpinner}></div>
-          </div>
-        )}
-        <img
-          src={avatarUrl}
-          alt={`Avatar của ${user.fullName}`}
-          style={{
-            width: '110px',
-            height: '100px',
-            borderRadius: '100px',
-            objectFit: 'cover',
-            border: '2px solid #e5e7eb',
-            display: imageLoading ? 'none' : 'block'
-          }}
-          onError={handleImageError}
-          onLoad={handleImageLoad}
-        />
+      <div
+        style={{
+          width: '110px',
+          height: '110px',
+          borderRadius: '100px',
+          backgroundColor: '#f3f4f6',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '2px solid #e5e7eb'
+        }}
+      >
+        <User size={40} color="#9ca3af" />
       </div>
     );
+  }
+
+  return (
+    <Image
+      src={avatarUrl}
+      alt={`Avatar của ${user.fullName}`}
+      width={110}
+      height={110}
+      style={{
+        borderRadius: '50%',
+        objectFit: 'cover',
+        border: '2px solid #e5e7eb',
+      }}
+      onError={() => setImageError(true)}
+    />
+  );
   };
+
 
   const formatDate = (dateString: string) => {
     try {
@@ -252,7 +170,7 @@ const UserDetailPage = () => {
   const getRoleText = (role: number) => {
     const roleNum = Number(role);
     switch (roleNum) {
-      case 0: return 'Khách hàng';
+      case 0: return 'Người dùng';
       case 1: return 'Quản trị viên';
       case 2: return 'Quản trị viên cấp cao';
       default: return `Không xác định (${roleNum})`;
@@ -261,12 +179,12 @@ const UserDetailPage = () => {
 
   const getStatusText = (status: number) => {
     const statusNum = Number(status);
-    return statusNum === 1 ? 'Đang hoạt động' : 'Bị khóa';
+    return statusNum == 1 ? 'Đang hoạt động' : 'Bị khóa';
   };
 
   const getStatusColor = (status: number) => {
     const statusNum = Number(status);
-    return statusNum === 1 ? '#22c55e' : '#ef4444';
+    return statusNum == 1 ? '#22c55e' : '#ef4444';
   };
 
   if (loading) {
@@ -336,18 +254,18 @@ const UserDetailPage = () => {
         <div className={styles.detailSection}>
           <div className={styles.productImage} style={{ marginBottom: '50px'}}>
             <AvatarDisplay user={user} />
-            <div className={styles.productInfo} style={{ marginTop: '10px', marginLeft: '100px'}}>
+            <div className={styles.productInfo} style={{margin: '10px 0 0 0'}}>
               <h2 className={styles.productName}>{user.fullName}
                 <span 
-                  className={user.account_status === 1 ? styles.statusActive : styles.statusInactive}
+                  className={user.account_status == 1 ? styles.statusActive : styles.statusInactive}
                   style={{ 
                     padding: '4px 8px', 
                     borderRadius: '4px', 
-                    marginLeft: '8px',
                     fontSize: '12px',
                     fontWeight: '600',
+                    marginLeft: '10px',
                     color: getStatusColor(user.account_status),
-                    backgroundColor: user.account_status === 1 ? '#dcfce7' : '#fee2e2'
+                    backgroundColor: user.account_status == 1 ? '#dcfce7' : '#fee2e2'
                   }}
                 >
                   {getStatusText(user.account_status)}
@@ -433,7 +351,7 @@ const UserDetailPage = () => {
           </div>
         )}
 
-        {(!user.addresses || user.addresses.length === 0) && (
+        {(!user.addresses || user.addresses.length == 0) && (
           <div className={styles.detailSection}>
             <h3 className={styles.sectionTitle}>Địa chỉ</h3>
             <div className={styles.contentBox}>

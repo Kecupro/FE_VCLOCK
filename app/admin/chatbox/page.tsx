@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { FiSearch, FiVideo, FiTrash2, FiUser, FiCamera, FiSend } from "react-icons/fi";
-import { Trash2 } from 'lucide-react';
 import { io } from "socket.io-client";
 import { toast } from "react-toastify";
 import { useRef } from 'react';
@@ -185,16 +184,6 @@ export default function AdminChat() {
     };
   }, []);
 
-  interface DeleteMessagePayload {
-    messageId: string;
-    conversationId: string;
-  }
-
-  const deleteMessage = (messageId: string, conversationId: string): void => {
-    const payload: DeleteMessagePayload = { messageId, conversationId };
-    socket.emit('deleteMessage', payload);
-  };
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -224,8 +213,7 @@ export default function AdminChat() {
       } else {
         toast.error(data.error || "Xoá thất bại");
       }
-    } catch (error) {
-              console.error("Lỗi xóa cuộc trò chuyện:", error);
+    } catch {
       toast.error("Đã xảy ra lỗi khi xoá");
     }
   };
@@ -370,18 +358,6 @@ export default function AdminChat() {
                     {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
-
-                {isAdmin && (
-                  <button
-                    onClick={() => {
-                      if (msg._id && msg.conversationId) deleteMessage(msg._id, msg.conversationId);
-                    }}
-                    className={styles.deleteButton}
-                    title="Xoá tin nhắn"
-                  >
-                    <Trash2 size={16} className="text-red-500" />
-                  </button>
-                )}
               </div>
             );
           })}

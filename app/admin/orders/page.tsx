@@ -43,18 +43,16 @@ const OrdersPage = () => {
   if (!selectedOrder || !modalAction) return;
 
   if (modalAction == 'cancel') {
-    await updateOrderStatus(selectedOrder._id, 'cancelled');
+    await updateOrderStatus(selectedOrder._id, 'daHuy');
 
-    if (selectedOrder.payment_status == 'paid') {
-      await updatePaymentStatus(selectedOrder._id, 'refunding');
+    if (selectedOrder.payment_status == 'thanhToan') {
+      await updatePaymentStatus(selectedOrder._id, 'choHoanTien');
     } else {
-      await updatePaymentStatus(selectedOrder._id, 'unpaid');
+      await updatePaymentStatus(selectedOrder._id, 'chuaThanhToan');
     }
   } else if (modalAction == 'nextStatus') {
-    if (selectedOrder.order_status) {
-      const next = getNextStatus(selectedOrder.order_status);
-      if (next) await updateOrderStatus(selectedOrder._id, next);
-    }
+    const next = getNextStatus(selectedOrder.order_status);
+    if (next) await updateOrderStatus(selectedOrder._id, next);
   }
 
   setModalVisible(false);
@@ -64,12 +62,13 @@ const OrdersPage = () => {
 
   const getNextStatus = (current: string) => {
     const orderFlow = [
-        "pending",
-        "processing",
-        "shipping",
-        "delivered",
-        "cancelled",
-        "returned"
+        "choXuLy",
+        "dangXuLy",
+        "dangGiaoHang",
+        "daGiaoHang",
+        "daHuy",
+        "hoanTra",
+        "hoanThanh"
       ];
     const currentIndex = orderFlow.indexOf(current);
     if (currentIndex >= 0 && currentIndex < orderFlow.length - 1) {
@@ -83,12 +82,13 @@ const OrdersPage = () => {
   const { isDarkMode } = useAppContext();
 
   const statusMap = {
-    pending: 'Chờ xử lý',
-    processing: 'Đang xử lý',
-    shipping: 'Đang giao hàng',
-    delivered: 'Đã giao hàng',
-    cancelled: 'Đã hủy',
-    returned: 'Hoàn trả',
+    choXuLy: 'Chờ xử lý',
+    dangXuLy: 'Đang xử lý',
+    dangGiaoHang: 'Đang giao hàng',
+    daGiaoHang: 'Đã giao hàng',
+    daHuy: 'Đã hủy',
+    hoanTra: 'Hoàn trả',
+    hoanThanh: 'Hoàn thành',
   };
 
   const paymentStatuses = [
@@ -99,27 +99,24 @@ const OrdersPage = () => {
   ];
 
   const paymentStatusMap: Record<string, string> = {
-    unpaid: 'Chưa thanh toán',
-    paid: 'Đã thanh toán',
-    refunding: 'Chờ hoàn tiền',
-    refunded: 'Đã hoàn tiền',
-    failed: 'Thanh toán thất bại',
+    chuaThanhToan: 'Chưa thanh toán',
+    thanhToan: 'Đã thanh toán',
+    choHoanTien: 'Chờ hoàn tiền',
+    hoanTien: 'Đã hoàn tiền',
   };
 
   const paymentBadgeClass: Record<string, string> = {
-    unpaid: styles.statuschuaThanhToan,
-    paid: styles.statusthanhToan,
-    refunding: styles.statuschoHoanTien,
-    refunded: styles.statushoanTien,
-    failed: styles.statusUnknown,
+    chuaThanhToan: styles.statuschuaThanhToan,
+    thanhToan: styles.statusthanhToan,
+    choHoanTien: styles.statuschoHoanTien,
+    hoanTien: styles.statushoanTien,
   };
 
   const paymentStatusIcons: Record<string, React.ReactNode> = {
-    unpaid: <Clock size={18} />,
-    paid: <CheckCircle size={18} />,
-    refunding: <RefreshCw size={18}/>,
-    refunded: <DollarSign size={18} />,
-    failed: <XCircle size={18} />,
+    chuaThanhToan: <Clock size={18} />,
+    thanhToan: <CheckCircle size={18} />,
+    choHoanTien: <RefreshCw size={18}/>,
+    hoanTien: <DollarSign size={18} />,
   };
 
   const reverseStatusMap = Object.fromEntries(
@@ -355,28 +352,28 @@ const OrdersPage = () => {
             <tbody>
               {orders.map((order, index) => {
                 const user = order.user_id;
-                const username = typeof user === 'object' ? user?.username || 'Không rõ' : 'Không rõ';
+                const username = user?.username || 'Không rõ';
                 const item = order.details?.[0];
                 const product = item?.product_id;
                 const productName = product?.name || 'Không rõ';
                 const productImage = product?.main_image;
                 const imagePath = productImage?.image ? `/images/product/${productImage.image}` : null;
-                const orderStatusText = order.order_status ? statusMap[order.order_status] || 'Không rõ' : 'Không rõ';
+                const orderStatusText = statusMap[order.order_status] || 'Không rõ';
                 const orderStatusLabel = orderStatusText as keyof typeof statusConfigs;
-                const lockedStatuses = ['delivered', 'returned', 'cancelled'];
-                const isLocked = order.order_status ? lockedStatuses.includes(order.order_status) : false;
+                const lockedStatuses = ['daGiaoHang', 'hoanTra', 'hoanThanh', 'daHuy'];
+                const isLocked = lockedStatuses.includes(order.order_status);
                 const isBankTransfer = order.payment_method_id?.name == 'Chuyển khoản Ngân hàng';
                 const canRefund =
                   isBankTransfer &&
-                  order.order_status == 'returned' &&
-                  order.payment_status == 'refunding';
+                  order.order_status == 'hoanTra' &&
+                  order.payment_status == 'choHoanTien';
                 const isCOD = order.payment_method_id?.name == 'Thanh toán khi nhận hàng (COD)';
                 const canMarkPaid =
                   isCOD &&
-                  order.order_status == 'delivered' &&
-                  order.payment_status == 'unpaid' ||
-                  order?.order_status == 'cancelled' && 
-                  order.payment_status == 'refunding'; 
+                  order.order_status == 'daGiaoHang' &&
+                  order.payment_status == 'chuaThanhToan' ||
+                  order?.order_status == 'daHuy' && 
+                  order.payment_status == 'choHoanTien';; 
 
                 return (
                   <tr key={order._id}>
@@ -387,9 +384,9 @@ const OrdersPage = () => {
                     <td>{order.total_amount?.toLocaleString('vi-VN')}đ</td>
                     <td>{order.created_at ? new Date(order.created_at).toLocaleDateString('vi-VN') : 'Không rõ'}</td>
                     <td style={{ transform: "translateX(0px)" }}>
-                      <span className={`${styles.statusFlex} ${order.payment_status ? paymentBadgeClass[order.payment_status] || '' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        {order.payment_status ? paymentStatusIcons[order.payment_status] : null}
-                        {order.payment_status ? paymentStatusMap[order.payment_status] || order.payment_status : 'Không rõ'}
+                      <span className={`${styles.statusFlex} ${paymentBadgeClass[order.payment_status] || ''}`} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        {paymentStatusIcons[order.payment_status]}
+                        {paymentStatusMap[order.payment_status] || order.payment_status}
                       </span>
                     </td>
 
@@ -421,9 +418,9 @@ const OrdersPage = () => {
 
                         {canRefund && (
                           <button
-                            className={`${styles.badgeButton} ${order.payment_status == 'refunded' ? styles.disabledButton : styles.refundButton}`}
-                            disabled={order.payment_status == 'refunded'}
-                            onClick={() => updatePaymentStatus(order._id, 'refunded')}
+                            className={`${styles.badgeButton} ${order.payment_status == 'hoanTien' ? styles.disabledButton : styles.refundButton}`}
+                            disabled={order.payment_status == 'hoanTien'}
+                            onClick={() => updatePaymentStatus(order._id, 'hoanTien')}
                           >
                             Hoàn tiền
                           </button>
@@ -432,7 +429,7 @@ const OrdersPage = () => {
                         {canMarkPaid && (
                           <button
                             className={`${styles.badgeButton} ${styles.nextButton}`}
-                            onClick={() => updatePaymentStatus(order._id, 'paid')}
+                            onClick={() => updatePaymentStatus(order._id, 'thanhToan')}
                           >
                             Cập nhật thanh toán
                           </button>

@@ -22,13 +22,42 @@ interface WishlistItem {
 export default function ProductSale() {
     const [products, setProducts] = useState<IProduct[]>([]);
     const [wishlistStatus, setWishlistStatus] = useState<{[key: string]: boolean}>({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const { user } = useAuth();
 
     useEffect(() => {
+        setLoading(true);
+        setError(null);
+        
         fetch("http://localhost:3000/api/sp_giam_gia")
-            .then((res) => res.json())
-            .then((data) => setProducts(data))
-            .catch((err) => console.error("Lỗi fetch sp:", err));
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then((data) => {
+                // Ensure data is an array
+                if (Array.isArray(data)) {
+                    setProducts(data);
+                } else if (data && Array.isArray(data.products)) {
+                    setProducts(data.products);
+                } else if (data && Array.isArray(data.data)) {
+                    setProducts(data.data);
+                } else {
+                    console.warn("API returned unexpected data format:", data);
+                    setProducts([]);
+                }
+            })
+            .catch((err) => {
+                console.error("Lỗi fetch sp:", err);
+                setError(err.message);
+                setProducts([]);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     }, []);
 
     // Fetch wishlist status for all products
@@ -66,6 +95,48 @@ export default function ProductSale() {
 
         fetchWishlist();
     }, [user]); // Re-fetch when user state changes
+
+    if (loading) {
+        return (
+            <div className="w-full bg-gray-50 py-8">
+                <h3 className="text-center font-bold text-2xl mb-3">
+                    SẢN PHẨM GIẢM GIÁ
+                </h3>
+                <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center items-center h-32">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="w-full bg-gray-50 py-8">
+                <h3 className="text-center font-bold text-2xl mb-3">
+                    SẢN PHẨM GIẢM GIÁ
+                </h3>
+                <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-red-600">
+                    Không thể tải sản phẩm giảm giá
+                </div>
+            </div>
+        );
+    }
+
+    if (!products || products.length === 0) {
+        return (
+            <div className="w-full bg-gray-50 py-8">
+                <h3 className="text-center font-bold text-2xl mb-3">
+                    SẢN PHẨM GIẢM GIÁ
+                </h3>
+                <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500">
+                    Không có sản phẩm giảm giá nào
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full bg-gray-50 py-8">
@@ -107,7 +178,7 @@ export default function ProductSale() {
                                             </Link>
                                         </div>
                                         <p className="text-[12px] text-gray-600 mb-2 truncate">
-                                            {sp.brand?.name ?? "Không rõ thương hiệu"}
+                                            {(sp.brand_id?.name || sp.brand?.name) ?? "Không rõ thương hiệu"}
                                         </p>
                                     </div>
 

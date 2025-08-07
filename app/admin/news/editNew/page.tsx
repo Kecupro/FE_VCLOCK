@@ -68,9 +68,9 @@ const EditNews = () => {
         setFormData({
           title: news.title || '',
           description: news.content || '',
-                category: typeof news.category == 'object'
-        ? news.category._id
-        : news.category || '',
+          category: typeof news.categorynews_id == 'object'
+            ? news.categorynews_id._id
+            : news.categorynews_id || '',
           status: news.news_status == 0 ? 'Công khai' : 'Bản nháp',
           publishDate: news.created_at?.substring(0, 10) || '',
           updateDate: news.updated_at?.substring(0, 10) || '',
@@ -131,7 +131,7 @@ const EditNews = () => {
     const body = new FormData();
     body.append('title', formData.title);
     body.append('content', formData.description);
-          body.append('category', formData.category);
+    body.append('categorynews_id', formData.category);
     body.append('news_status', formData.status == 'Công khai' ? '0' : '1');
 
     if (selectedFile?.file) {

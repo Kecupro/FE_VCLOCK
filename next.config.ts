@@ -111,9 +111,9 @@ const nextConfig: NextConfig = {
   },
   
   // Tắt static generation cho một số trang
-  async generateStaticParams() {
-    return [];
-  },
+  // async generateStaticParams() {
+  //   return [];
+  // },
 };
 
 export default nextConfig;

@@ -160,7 +160,7 @@ const SearchPage = () => {
                           </h6>
                         </div>
                         <p className="text-[12px] text-gray-600 mb-2 truncate">
-                          {product.brand?.name ?? "Không rõ thương hiệu"}
+                          {(product.brand_id?.name || product.brand?.name) ?? "Không rõ thương hiệu"}
                         </p>
                       </div>
                       <div className="mt-auto flex flex-col">
@@ -247,7 +247,7 @@ const SearchPage = () => {
                                 </h6>
                               </div>
                               <p className="text-[12px] text-gray-600 mb-2 truncate">
-                                {product.brand?.name ?? "Không rõ thương hiệu"}
+                                {(product.brand_id?.name || product.brand?.name) ?? "Không rõ thương hiệu"}
                               </p>
                             </div>
                             <div className="mt-auto flex flex-col">

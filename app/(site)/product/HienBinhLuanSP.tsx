@@ -52,14 +52,14 @@ export default function HienBinhLuanSP({
             }}
           >
             <img
-              src={`/images/product/${bl.user.avatar}`}
-              alt={bl.user.username}
+              src={`/images/product/${bl.user_id.avatar}`}
+              alt={bl.user_id.username}
               className="w-full h-full object-cover"
             />
           </div>
           <div className="flex-1 w-full">
             <div className="flex items-center gap-2 mb-1 w-full">
-              <span className="font-semibold">{bl.user.username}</span>
+              <span className="font-semibold">{bl.user_id.username}</span>
               <StarRating rating={bl.rating} className="ml-2" />
               <span className="text-gray-400 text-xs ml-2">
                 {bl.created_at ? new Date(bl.created_at).toLocaleString("vi-VN") : ""}

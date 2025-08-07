@@ -55,7 +55,7 @@ const RatingPage = () => {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [searchTerm]);
+  }, [searchTerm, fetchReviews]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -231,10 +231,10 @@ const RatingPage = () => {
                     {(currentPage - 1) * limit + index + 1}
                   </td>
                   <td className={styles.tableCell} style={{ maxWidth: "200px", wordBreak: "break-word" }}>
-                    {typeof review.order_detail_id === 'object' ? (review.order_detail_id as { product_id?: { name?: string } })?.product_id?.name || 'N/A' : 'N/A'}
+                    {review.order_detail_id?.product_id?.name || 'N/A'}
                   </td>
                   <td className={styles.tableCell}>
-                    {review.user?.username || 'Ẩn danh'}
+                    {review.user_id?.username || 'Ẩn danh'}
                   </td>
                   <td className={styles.tableCell}>
                     <div className={styles.ratingCell}>

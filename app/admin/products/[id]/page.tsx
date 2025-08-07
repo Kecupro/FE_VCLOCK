@@ -35,7 +35,7 @@ const ProductDetailPage: React.FC = () => {
         const res = await fetch(`http://localhost:3000/api/admin/product/${productId}`);
         const data = await res.json();
 
-        		console.log("Dữ liệu sản phẩm:", data);
+        console.log("Product data:", data);
 
         const prod: IProduct = data.product || data;
         setProduct(prod);

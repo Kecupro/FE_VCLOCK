@@ -63,7 +63,7 @@ const BrandPage = () => {
         setBrands(data.list);
         setTotalBrands(data.total);
       } catch (error) {
-        console.error("Lỗi khi tải thương hiệu:", error);
+        console.error("Lỗi khi fetch brand:", error);
         toast.error("Có lỗi xảy ra khi tải danh sách thương hiệu!");
       } finally {
         setIsLoading(false);
@@ -95,7 +95,7 @@ const BrandPage = () => {
       setBrands(data.list);
       setTotalBrands(data.total);
     } catch (error) {
-              console.error("Lỗi khi làm mới danh sách thương hiệu:", error);
+      console.error("Lỗi khi refresh brand list:", error);
       toast.error("Có lỗi xảy ra khi làm mới danh sách thương hiệu!");
     } finally {
       setIsLoading(false);
@@ -155,7 +155,7 @@ const BrandPage = () => {
         toast.error(`Lỗi: ${errorMessage}`);
       }
     } catch (error) {
-              console.error("Lỗi khi xóa thương hiệu:", error);
+      console.error("Lỗi khi xóa brand:", error);
       toast.error("Không thể kết nối đến server. Vui lòng thử lại!");
     } finally {
       setShowDeleteModal(false);

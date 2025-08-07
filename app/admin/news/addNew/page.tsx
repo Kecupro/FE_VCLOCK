@@ -71,7 +71,7 @@ const AddNew = () => {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('content', content);
-    formData.append('category', selectedCategory);
+    formData.append('categorynews_id', selectedCategory);
     formData.append('news_status', status == 'Công khai' ? '0' : '1');
     formData.append('image', selectedFile);
 

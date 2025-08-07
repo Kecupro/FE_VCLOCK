@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Search,
   Plus,
@@ -7,6 +7,7 @@ import {
   Edit,
   Trash2,
   RefreshCw,
+  UserCircle,
 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -15,41 +16,7 @@ import { useAppContext } from "../../context/AppContext";
 import Link from "next/link";
 import Image from "next/image";
 import { IUser } from "@/app/(site)/cautrucdata";
-import { getAvatarSrc } from "../../utils/avatarUtils";
-
-interface UserRoleInfo {
-  id: number;
-  name: string;
-  displayName: string;
-  permissions: string[];
-}
-
-interface CurrentUser {
-  userId: string;
-  username: string;
-  role: number;
-}
-
-interface APIResponse {
-  success: boolean;
-  message?: string;
-  error?: string;
-  data?: IUser[];
-  list?: IUser[];
-  users?: IUser[];
-  total?: number;
-  totalUsers?: number;
-  count?: number;
-  metadata?: {
-    roles?: Array<{ value: number; label: string }>;
-    statuses?: Array<{ value: number; label: string }>;
-  };
-  debug?: {
-    appliedFilters?: Record<string, unknown>;
-    filterConditions?: unknown;
-    queryExecuted?: unknown;
-  };
-}
+import { CurrentUser, APIResponse } from "@/app/(site)/cautrucdata";
 
 const UsersPage = () => {
   const { isDarkMode } = useAppContext();
@@ -64,7 +31,6 @@ const UsersPage = () => {
   const [userToDelete, setUserToDelete] = useState<IUser | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
-  const [userRole, setUserRole] = useState<UserRoleInfo | null>(null);
   const [roleCheckLoading, setRoleCheckLoading] = useState(true);
   const [availableRoles, setAvailableRoles] = useState<
     Array<{ value: number; label: string }>
@@ -72,39 +38,81 @@ const UsersPage = () => {
   const [availableStatuses, setAvailableStatuses] = useState<
     Array<{ value: number; label: string }>
   >([]);
-
   const limit = 10;
 
-  const defaultRoles = [
+  const isSuperAdmin = useMemo(() => {
+    return currentUser && Number(currentUser.role) == 2;
+  }, [currentUser]);
+
+  const defaultRoles = useMemo(() => [
     { value: 0, label: "Người dùng" },
     { value: 1, label: "Quản trị viên" },
     { value: 2, label: "Quản trị viên cấp cao" },
-  ];
+  ], []);
 
-  const defaultStatuses = [
+  const defaultStatuses = useMemo(() => [
     { value: 0, label: "Bị khóa" },
     { value: 1, label: "Hoạt động" },
-  ];
+  ], []);
 
+  useEffect(() => {
+    const html = document.documentElement;
+    if (isDarkMode) {
+      html.classList.add(styles['dark-mode']);
+    } else {
+      html.classList.remove(styles['dark-mode']);
+    }
+  }, [isDarkMode]);
 
+  const isValidUrl = (string: string): boolean => {
+    try {
+      const url = new URL(string);
+      return url.protocol == "http:" || url.protocol == "https:";
+    } catch {
+      return false;
+    }
+  };
+
+  const getAvatarSource = (avatar: string | null | undefined): string | null => {
+    if (!avatar || avatar.trim() == "") {
+      return null; // Trả về null nếu không có avatar
+    }
+
+    if (isValidUrl(avatar)) {
+      return avatar;
+    }
+
+    let cleanPath = avatar.trim();
+    
+    if (cleanPath.startsWith('/')) {
+      cleanPath = cleanPath.substring(1);
+    }
+    
+    if (cleanPath.startsWith('images/avatar/')) {
+      return `/${cleanPath}`;
+    }
+    
+    return `/images/avatar/${cleanPath}`;
+  };
 
   const getAuthToken = (): string | null => {
     return localStorage.getItem('token') || sessionStorage.getItem('token');
   };
 
-  const createAuthHeaders = (): HeadersInit => {
+  const createAuthHeaders = useCallback((): HeadersInit => {
     const token = getAuthToken();
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
-    
+
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    
-    return headers;
-  };
 
+    return headers;
+  }, []);
+
+  // ! Check vai trò
   useEffect(() => {
     const checkUserRole = async () => {
       try {
@@ -133,7 +141,6 @@ const UsersPage = () => {
         
         if (data.success) {
           setCurrentUser(data.user);
-          setUserRole(data.role);
         } else {
           toast.error(data.message || 'Không thể xác thực người dùng');
         }
@@ -145,29 +152,23 @@ const UsersPage = () => {
     };
 
     checkUserRole();
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle(styles["dark-mode"], isDarkMode);
-  }, [isDarkMode]);
+  }, [createAuthHeaders]);
+  // ! End Check vai trò
 
   const canDeleteUser = (targetUser: IUser): boolean => {
-    if (!currentUser || !userRole) return false;
-    
-    const currentUserRole = Number(currentUser.role);
-    const targetUserRole = typeof targetUser.role == 'string' ? parseInt(targetUser.role) : Number(targetUser.role);
-    
-    if (currentUser.userId == targetUser._id) return false;
-    
-    if (currentUserRole == 2) {
-      return targetUserRole < 2;
-    }
-    
-    if (currentUserRole == 1) {
-      return targetUserRole == 0;
-    }
-    
-    return false;
+    if (!currentUser) return false;
+    const currentRole = Number(currentUser.role);
+    const targetRole = Number(targetUser.role);
+
+    return currentRole == 2 && currentUser.userId != targetUser._id && targetRole < 2;
+  };
+
+  const canEditUser = (targetUser: IUser): boolean => {
+    if (!currentUser) return false;
+    const currentRole = Number(currentUser.role);
+    const targetRole = Number(targetUser.role);
+
+    return currentRole == 2 && currentUser.userId != targetUser._id && targetRole < 2;
   };
 
   const getUserDisplayName = (user: IUser): string => {
@@ -302,7 +303,7 @@ const UsersPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, searchTerm, roleFilter, statusFilter]);
+  }, [currentPage, searchTerm, roleFilter, statusFilter, createAuthHeaders, defaultRoles, defaultStatuses]);
 
   const refreshUserList = useCallback(async () => {
     await fetchUsers();
@@ -481,12 +482,14 @@ const UsersPage = () => {
           <h1 className={styles.title}>Quản lý người dùng</h1>
         </div>
         <div className={styles.headerActions}>
-          <Link href={"users/addUser"}>
-          <button className={styles.addButton}>
-            <Plus size={16} />
-            Thêm người dùng
-          </button>
-          </Link>
+          {isSuperAdmin && (
+            <Link href={"users/addUser"}>
+              <button className={styles.addButton}>
+                <Plus size={16} />
+                Thêm quản trị viên
+              </button>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -498,10 +501,12 @@ const UsersPage = () => {
               <Search className={styles.searchIcon} size={16} />
               <input
                 type="text"
-                placeholder="Tìm theo tên đăng nhập, email, tên người dùng..."
+                placeholder="Tìm email, tên người dùng"
                 value={searchTerm}
                 onChange={handleSearchChange}
                 className={styles.searchInput}
+                style={{width: "102%"
+                }}
               />
             </div>
           </div>
@@ -567,113 +572,105 @@ const UsersPage = () => {
                 </thead>
                 <tbody>
                   {users.length > 0 ? (
-                    users.map((user, index) => (
-                      <tr key={user._id}>
-                        <td className={styles.tableCell}>
-                          {(currentPage - 1) * limit + index + 1}
-                        </td>
-                        <td className={styles.tableCell}>
-                          <div className={styles.userName}>
-                            {user.fullName || "Chưa cập nhật"}
-                          </div>
-                        </td>
-                        <td className={styles.tableCell}>
-                          <div className={styles.avatarContainer}>
-                            <div 
-                              style={{ 
-                                width: '40px', 
-                                height: '40px',
-                                minWidth: '40px',
-                                minHeight: '40px',
-                                maxWidth: '40px',
-                                maxHeight: '40px',
-                                borderRadius: '50%',
-                                overflow: 'hidden'
-                              }}
-                            >
-                              <Image
-                                src={getAvatarSrc(user.avatar)}
-                                alt={`Avatar của ${user.username || user.fullName || 'User'}`}
-                                width={40}
-                                height={40}
-                                className={styles.avatar}
-                                style={{
-                                  objectFit: "cover",
-                                  borderRadius: "50%",
-                                }}
-                                unoptimized={true}
-                                priority={false}
-                                onError={(e) => {
-                                  console.error(`Lỗi load avatar cho user ${user.username}:`, e);
-                                  (e.target as HTMLImageElement).src = "/images/avatar-default.png";
-                                }}
-                                onLoad={() => {
-                                  		console.log(`Avatar đã tải thành công cho người dùng ${user.username}:`, user.avatar);
-                                }}
-                              />
+                    users.map((user, index) => {
+                      const avatarSrc = getAvatarSource(user.avatar);
+                      return (
+                        <tr key={user._id}>
+                          <td className={styles.tableCell}>
+                            {(currentPage - 1) * limit + index + 1}
+                          </td>
+                          <td className={styles.tableCell}>
+                            <div className={styles.userName}>
+                              {user.fullName || "Chưa cập nhật"}
                             </div>
-                          </div>
-                        </td>
-                        <td className={styles.tableCell}>
-                          <span className={styles.email}>
-                            {user.email || "N/A"}
-                          </span>
-                        </td>
-                        <td className={styles.tableCell}>
-                          <span
-                            className={`${styles.statusBadge} ${
-                              String(user.account_status) == "1"
-                                ? styles.statusActive
-                                : styles.statusInactive
-                            }`}
-                          >
-                            {getStatusName(user.account_status)}
-                          </span>
-                        </td>
-                        <td className={styles.tableCell}>
-                          <span
-                            className={`${styles.statusBadge} ${
-                              Number(user.role) == 0
-                                ? styles.roleUser
-                                : Number(user.role) == 1
-                                ? styles.roleAdmin  
-                                : styles.roleSuperAdmin
-                            }`}
-                          >
-                            {getRoleName(user.role)}
-                          </span>
-                        </td>
-                        <td className={styles.tableCell}>
-                          <div className={styles.actions}>
-                            <Link href={`users/${user._id}`}>
-                              <button
-                                className={`${styles.actionButton} ${styles.viewButton}`}
-                                title="Xem chi tiết"
-                              >
-                                <Eye size={16} />
-                              </button>
-                            </Link>
-                            <Link href={`users/editUser/${user._id}`}>
-                              <button
-                                className={`${styles.actionButton} ${styles.editButton}`}
-                                title="Chỉnh sửa"
-                              >
-                                <Edit size={16} />
-                              </button>
-                            </Link>
-                            {canDeleteUser(user) && (
-                              <button
-                                className={`${styles.actionButton}`}
-                                title="Xóa"
-                                onClick={() => handleDeleteClick(user)}
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                          </td>
+                          <td className={styles.tableCell}>
+                            <div className={styles.avatarContainer}>
+                              {avatarSrc ? (
+                                <Image
+                                  src={avatarSrc}
+                                  alt={`Avatar của ${user.username || user.fullName || 'User'}`}
+                                  width={40}
+                                  height={40}
+                                  className={styles.avatar}
+                                  style={{
+                                    border: "none",
+                                    objectFit: "cover",
+                                    borderRadius: "50%",
+                                  }}
+                                  unoptimized={isValidUrl(user.avatar || '')}
+                                  priority={false}
+                                />
+                              ) : (
+                                <UserCircle size={40} className={styles.userIcon} />
+                              )}
+                            </div>
+                          </td>
+                          <td className={styles.tableCell}>
+                            <span className={styles.email}>
+                              {user.email || "N/A"}
+                            </span>
+                          </td>
+                          <td className={styles.tableCell}>
+                            <span
+                              className={`${styles.statusBadge} ${
+                                String(user.account_status) == "1"
+                                  ? styles.statusActive
+                                  : styles.statusInactive
+                              }`}
+                            >
+                              {getStatusName(user.account_status)}
+                            </span>
+                          </td>
+                          <td className={styles.tableCell}>
+                            <span
+                              className={`${styles.statusBadge} ${
+                                Number(user.role) == 0
+                                  ? styles.roleUser
+                                  : Number(user.role) == 1
+                                  ? styles.roleAdmin  
+                                  : styles.roleSuperAdmin
+                              }`}
+                            >
+                              {getRoleName(user.role)}
+                            </span>
+                          </td>
+                          <td className={styles.tableCell}>
+                            <div className={styles.actions}>
+                              <Link href={`users/${user._id}`}>
+                                <button
+                                  className={`${styles.actionButton} ${styles.viewButton}`}
+                                  title="Xem chi tiết"
+                                >
+                                  <Eye size={16} />
+                                </button>
+                              </Link>
+
+                              {canEditUser(user) && (
+                                <Link href={`users/editUser/${user._id}`}>
+                                  <button
+                                    className={`${styles.actionButton} ${styles.editButton}`}
+                                    title="Chỉnh sửa"
+                                  >
+                                    <Edit size={16} />
+                                  </button>
+                                </Link>
+                              )}
+
+                              {canDeleteUser(user) && (
+                                <button
+                                  className={`${styles.actionButton}`}
+                                  title="Xóa"
+                                  onClick={() => handleDeleteClick(user)}
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
                       <td colSpan={7} className={styles.emptyState}>

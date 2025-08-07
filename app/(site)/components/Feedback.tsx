@@ -30,15 +30,36 @@ interface TopRatedProduct {
 export default function Feedback() {
   const [products, setProducts] = useState<TopRatedProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTopRatedProducts = async () => {
       try {
+        setLoading(true);
+        setError(null);
+        
         const response = await fetch('http://localhost:3000/api/products/top-rated?limit=6');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
-        setProducts(data);
+        
+        // Ensure data is an array
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else if (data && Array.isArray(data.products)) {
+          setProducts(data.products);
+        } else if (data && Array.isArray(data.data)) {
+          setProducts(data.data);
+        } else {
+          console.warn("API returned unexpected data format:", data);
+          setProducts([]);
+        }
       } catch (error) {
         console.error('Lỗi khi tải sản phẩm được đánh giá cao:', error);
+        setError(error instanceof Error ? error.message : 'Không thể tải sản phẩm');
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -57,18 +78,34 @@ export default function Feedback() {
       name: product.name,
       price: product.price,
       sale_price: product.sale_price,
-      brand: product.brand,
-      brand_id: product.brand,
-      main_image: product.main_image,
+
+      brand_id: {
+        _id: product.brand._id,
+        name: product.brand.name,
+        image: "",
+        alt: "",
+        description: "",
+        brand_status: 1,
+        created_at: "",
+        updated_at: ""
+      },
+      main_image: {
+        _id: product._id,
+        is_main: true,
+        image: product.main_image.image,
+        alt: product.main_image.alt,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
       quantity: 1,
       status: 0,
-      default: 0,
+
       views: 0,
       sex: "",
       case_diameter: 0,
       style: "",
       features: "",
-      water_resistance: "",
+      water_resistance: 0,
       thickness: 0,
       color: "",
       machine_type: "",
@@ -92,6 +129,30 @@ export default function Feedback() {
         <div className="max-w-6xl mx-auto text-center py-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-700 mx-auto"></div>
           <p className="mt-4 text-gray-600">Đang tải sản phẩm...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full bg-white py-8">
+        <h3 className="text-center font-bold text-2xl mb-3">SẢN PHẨM NỔI BẬT</h3>
+        <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+        <div className="max-w-6xl mx-auto text-center text-red-600">
+          Không thể tải sản phẩm nổi bật
+        </div>
+      </div>
+    );
+  }
+
+  if (!products || products.length === 0) {
+    return (
+      <div className="w-full bg-white py-8">
+        <h3 className="text-center font-bold text-2xl mb-3">SẢN PHẨM NỔI BẬT</h3>
+        <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+        <div className="max-w-6xl mx-auto text-center text-gray-500">
+          Không có sản phẩm nổi bật nào
         </div>
       </div>
     );

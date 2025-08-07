@@ -9,11 +9,9 @@ import {
   Save,
   X,
   Lock,
-  // Eye,
-  // EyeOff,
 } from "lucide-react";
+import { FaUserCircle } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
-import "react-toastify/dist/ReactToastify.css";
 import styles from "../assets/css/AdminProfile.module.css";
 import Image from "next/image";
 import { useAppContext } from "../../context/AppContext";
@@ -23,56 +21,10 @@ import {
   removeFromLocalStorage,
   isBrowser,
 } from "./utils/localStorage";
+import { AdminData, EditData, ApiResponse, UpdateResponse } from "@/app/(site)/cautrucdata";
+
+import { getRoleDisplayName } from "./utils/role";
 import { getAvatarSrc } from "../../utils/avatarUtils";
-
-// Hàm hiển thị tên role
-const getRoleDisplayName = (role: number): string => {
-  switch (role) {
-    case 0: return "Người dùng";
-    case 1: return "Quản trị viên";
-    case 2: return "Quản trị viên cấp cao";
-    default: return "Người dùng";
-  }
-};
-
-
-interface AdminData {
-  _id: string;
-  username: string;
-  email: string;
-  role: string | number;
-  fullName: string;
-  avatar: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-interface EditData extends AdminData {
-  password?: string;
-}
-
-interface ApiResponse {
-  success: boolean;
-  user?: {
-    userId?: string;
-    id?: string;
-    _id?: string;
-    username?: string;
-    email?: string;
-    role?: string | number;
-    fullName?: string;
-    avatar?: string;
-    createdAt?: string;
-    updatedAt?: string;
-  };
-  message?: string;
-}
-
-interface UpdateResponse {
-  success: boolean;
-  message: string;
-  user?: AdminData;
-}
 
 const AdminProfile = () => {
   const { isDarkMode } = useAppContext();
@@ -94,6 +46,7 @@ const AdminProfile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -104,6 +57,29 @@ const AdminProfile = () => {
     }
   }, [isDarkMode]);
 
+  // ! Show ảnh - Sử dụng utility function để xử lý thống nhất
+  const avatarSrc = isEditing
+    ? editData.avatar?.startsWith("data:image")
+      ? editData.avatar
+      : getAvatarSrc(editData.avatar)
+    : getAvatarSrc(adminData.avatar);
+  // ! End Show ảnh
+
+  // Reset avatar error khi avatar thay đổi
+  useEffect(() => {
+    setAvatarError(false);
+  }, [avatarSrc]);
+
+  const checkUsernameExists = async (username: string): Promise<boolean> => {
+  try {
+    const res = await fetch(`/api/admin/check-username?username=${encodeURIComponent(username)}`);
+    const data = await res.json();
+    return data.exists;
+  } catch {
+    return false;
+  }
+  };
+
   const hasVietnameseDiacritics = (str: string): boolean => {
     const vietnameseDiacritics =
       /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
@@ -113,7 +89,7 @@ const AdminProfile = () => {
   const getUserId = useCallback((): string | null => {
     if (isBrowser && window.location.pathname.includes("/admin/user/")) {
       const pathParts = window.location.pathname.split("/");
-      const idIndex = pathParts.findIndex((part) => part === "user") + 1;
+      const idIndex = pathParts.findIndex((part) => part == "user") + 1;
       if (idIndex > 0 && pathParts[idIndex]) {
         return pathParts[idIndex];
       }
@@ -125,7 +101,7 @@ const AdminProfile = () => {
         const parsedUser = JSON.parse(cachedUser);
         return parsedUser._id || parsedUser.id || parsedUser.userId || null;
       } catch (error) {
-        console.error("Lỗi phân tích dữ liệu người dùng đã lưu:", error);
+        console.error("Lỗi phân tích người dùng đã lưu:", error);
       }
     }
     return null;
@@ -134,8 +110,6 @@ const AdminProfile = () => {
   const getDisplayName = (userData: AdminData): string => {
     return userData.fullName || userData.username || "Chưa cập nhật";
   };
-
-
 
   const fetchUserDataById = useCallback(
     async (id: string) => {
@@ -162,14 +136,14 @@ const AdminProfile = () => {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          if (response.status === 401) {
+          if (response.status == 401) {
             removeFromLocalStorage("token");
             removeFromLocalStorage("user");
             if (isBrowser) window.location.href = "/login";
             return;
           }
 
-          if (response.status === 404)
+          if (response.status == 404)
             throw new Error("Không tìm thấy người dùng với ID này");
 
           let errorMessage = `HTTP error! status: ${response.status}`;
@@ -177,7 +151,7 @@ const AdminProfile = () => {
             const errorData = await response.json();
             if (errorData.error) errorMessage = errorData.error;
           } catch (e) {
-            console.error("Lỗi phân tích thông báo lỗi:", e);
+            console.error("Lỗi phân tích lỗi phản hồi:", e);
           }
           throw new Error(errorMessage);
         }
@@ -189,7 +163,7 @@ const AdminProfile = () => {
             _id: userData._id || id,
             username: userData.username || "",
             email: userData.email || "",
-            role: Number(userData.role) || 0, // Đảm bảo role là number
+            role: getRoleDisplayName(userData.role || 0),
             fullName: userData.fullName || userData.username || "",
             avatar:
               userData.avatar ||
@@ -207,7 +181,7 @@ const AdminProfile = () => {
       } catch (error) {
         let errorMessage = "Không thể tải thông tin người dùng";
         if (error instanceof Error) {
-          if (error.name === "AbortError") {
+          if (error.name == "AbortError") {
             errorMessage = "Hết thời gian chờ - vui lòng kiểm tra kết nối";
           } else if (error.message.includes("fetch")) {
             errorMessage = "Lỗi kết nối - vui lòng kiểm tra server";
@@ -224,7 +198,7 @@ const AdminProfile = () => {
         setIsLoading(false);
       }
     },
-    [getFromLocalStorage, isBrowser, removeFromLocalStorage, setToLocalStorage, setAdminData, setEditData]
+    [setAdminData, setEditData]
   );
 
   const fetchCurrentUserData = useCallback(async () => {
@@ -248,7 +222,7 @@ const AdminProfile = () => {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        if (response.status === 401) {
+        if (response.status == 401) {
           removeFromLocalStorage("token");
           removeFromLocalStorage("user");
           if (isBrowser) window.location.href = "/login";
@@ -260,7 +234,7 @@ const AdminProfile = () => {
           const errorData = await response.json();
           if (errorData.message) errorMessage = errorData.message;
         } catch (error) {
-          console.error("Lỗi phân tích thông báo lỗi:", error);
+          console.error("Lỗi phân tích lỗi phản hồi:", error);
         }
 
         throw new Error(errorMessage);
@@ -289,7 +263,7 @@ const AdminProfile = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [getFromLocalStorage, isBrowser, removeFromLocalStorage, fetchUserDataById]);
+  }, [fetchUserDataById]);
 
   const updateUserData = async (updatedData: EditData) => {
     setIsSaving(true);
@@ -347,8 +321,8 @@ const AdminProfile = () => {
           avatar: data.user?.avatar || updatedData.avatar,
           updatedAt: data.user?.updatedAt || new Date().toISOString(),
         };
-        if (data.user?.role !== undefined) {
-            updatedUserData.role = Number(data.user.role);
+        if (data.user?.role != undefined) {
+            updatedUserData.role = getRoleDisplayName(data.user.role);
         } else {
             updatedUserData.role = adminData.role;
         }
@@ -406,63 +380,49 @@ const AdminProfile = () => {
   };
 
   const handleSave = async () => {
-    if (!editData) {
-        toast.error("Dữ liệu chỉnh sửa không hợp lệ.", { position: "top-right", autoClose: 5000 });
-        return;
-    }
+  if (!editData) {
+    toast.error("Dữ liệu chỉnh sửa không hợp lệ.", { position: "top-right" });
+    return;
+  }
 
-    if (!editData.username?.trim() || !editData.fullName?.trim()) {
-      toast.error("Vui lòng điền đầy đủ thông tin bắt buộc", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+  const fullName = editData.fullName?.trim();
+  const username = editData.username?.trim();
+
+  if (!fullName || !username) {
+    toast.error("Vui lòng điền đầy đủ thông tin bắt buộc", { position: "top-right" });
+    return;
+  }
+
+  const isValidUsername = /^[a-zA-Z0-9_]+$/.test(username);
+
+  if (!isValidUsername) {
+    toast.error("Tên đăng nhập chỉ chứa chữ cái, số, và dấu gạch dưới", {
+      position: "top-right",
+    });
+    return;
+  }
+
+  if (username != adminData.username) {
+    const exists = await checkUsernameExists(username);
+    if (exists) {
+      toast.error("Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.", { position: "top-right" });
+      return;
+    }
+  }
+
+  if (editData.password && editData.password.trim() != "") {
+    if (editData.password.length < 6) {
+      toast.error("Mật khẩu phải có ít nhất 6 ký tự", { position: "top-right" });
       return;
     }
 
-    if (editData.password && editData.password.trim() !== "") {
-      if (editData.password.length < 6) {
-        toast.error("Mật khẩu phải có ít nhất 6 ký tự", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-        return;
-      }
-
-      if (hasVietnameseDiacritics(editData.password)) {
-        toast.error("Mật khẩu không được chứa dấu", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-        return;
-      }
-    }
-
-    const usernameRegex = /^[a-zA-Z0-9_]+$/;
-    if (!usernameRegex.test(editData.username.trim())) {
-      toast.error("Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+    if (hasVietnameseDiacritics(editData.password)) {
+      toast.error("Mật khẩu không được chứa dấu", { position: "top-right" });
       return;
     }
+  }
 
-    await updateUserData(editData);
+  await updateUserData(editData);
   };
 
   const handleCancel = () => {
@@ -523,18 +483,20 @@ const AdminProfile = () => {
           <div className={styles.avatarSection}>
             <div className={styles.avatarContainer}>
               <div className={styles.avatarWrapper}>
-                <Image
-                  src={getAvatarSrc(adminData.avatar)}
-                  alt="Avatar"
-                  className={styles.avatar}
-                  width={120}
-                  height={120}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = `/images/avatar-default.png`;
-                  }}
-                  unoptimized
-                  priority
-                />
+                {avatarSrc ? (
+                  <Image
+                    src={avatarError ? "/images/avatar-default.png" : avatarSrc}
+                    alt="Avatar"
+                    className={styles.avatar}
+                    width={120}
+                    height={120}
+                    unoptimized={avatarSrc?.startsWith('http')}
+                    priority
+                    onError={() => setAvatarError(true)}
+                  />
+                ) : (
+                  <FaUserCircle size={32} />
+                )}
                 <div className={styles.statusIndicator}></div>
               </div>
               <div className={styles.userInfo}>
@@ -544,7 +506,11 @@ const AdminProfile = () => {
                       {getDisplayName(isEditing ? editData : adminData)}
                     </h2>
                     <p className={styles.userRole}>
-                      {getRoleDisplayName(Number(adminData.role)) || "Chưa cập nhật"}
+                      {adminData.role == 2
+                        ? 'Quản trị viên cấp cao'
+                        : adminData.role == 1
+                        ? 'Quản trị viên'
+                        : 'Thành viên'}
                     </p>
                   </div>
                   <div className={styles.buttonGroup}>
@@ -652,23 +618,26 @@ const AdminProfile = () => {
                   <label className={styles.label}>Ảnh đại diện</label>
                   {editData.avatar && (
                     <div className="mb-2">
-                      <Image
-                        src={editData.avatar || getAvatarSrc(adminData.avatar)}
-                        alt="Avatar Preview"
-                        width={100}
-                        height={100}
-                        style={{
+                      {avatarSrc ? (
+                        <Image
+                          src={avatarError ? "/images/avatar-default.png" : avatarSrc}
+                          alt="Avatar"
+                          style={{
                           width: "100px",
                           height: "100px",
                           objectFit: "cover",
                           borderRadius: "50%",
+                          margin: " 10px 0"
                         }}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = getAvatarSrc(adminData.avatar);
-                        }}
-                        unoptimized
-                        priority
-                      />
+                          width={120}
+                          height={120}
+                          unoptimized={avatarSrc?.startsWith('http')}
+                          priority
+                          onError={() => setAvatarError(true)}
+                        />
+                      ) : (
+                        <FaUserCircle size={32} />
+                      )}
                     </div>
                   )}
 
@@ -786,9 +755,10 @@ const AdminProfile = () => {
                   <Mail className={styles.fieldIcon} />
                   {adminData.email || "Chưa cập nhật"}
                 </div>
-                <small className="mt-1 text-muted d-block">
-                  Email không thể chỉnh sửa vì lý do bảo mật
+                <small style={{ color: "#ff5722" }} className="mt-1 d-block">
+                  Lưu ý: Email không thể chỉnh sửa vì lý do bảo mật
                 </small>
+
               </div>
 
               <div className={styles.formGroup}>
@@ -803,7 +773,11 @@ const AdminProfile = () => {
                 <div className={styles.roleField}>
                   <span className={styles.roleContent}>
                     <Shield className={styles.roleIcon} />
-                    {adminData.role || "Chưa cập nhật"}
+                    {adminData.role == 2
+                      ? 'Quản trị viên cấp cao'
+                      : adminData.role == 1
+                      ? 'Quản trị viên'
+                      : 'Thành viên'}
                   </span>
                   <small className="mt-1 text-muted d-block"></small>
                 </div>

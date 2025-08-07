@@ -88,7 +88,7 @@ export default function Show1SP(props: { sp: IProduct }) {
                                         </h6>
                                     </div>
                                     <p className="text-[12px] text-gray-600 mb-2 truncate">
-                                        {brandMap[sp.brand.name] ?? "Không rõ thương hiệu"}
+                                        {(sp.brand_id?.name || sp.brand?.name) ?? "Không rõ thương hiệu"}
                                     </p>
                                 </div>
 

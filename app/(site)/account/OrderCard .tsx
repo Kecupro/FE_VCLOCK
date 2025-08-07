@@ -1,81 +1,46 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { IOrder } from "../cautrucdata";
 import * as Dialog from "@radix-ui/react-dialog";
-import Image from "next/image";
-import { IOrder, IOrderDetail } from "../cautrucdata";
-import FormBinhLuan from "./FormBinhLuan";
-import { toast } from "react-toastify";
-import { CheckCircle, XCircle, RefreshCw, CreditCard, Clock, Loader2, Truck, Undo2 } from "lucide-react";
-import Link from "next/link";
+import { Clock, Loader2, Truck, CheckCircle, Undo2, XCircle, CreditCard, RefreshCw } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface OrderCardProps {
   user_id: string;
 }
 
-const PAGE_SIZE = 5; // Số đơn mỗi trang
+const PAGE_SIZE = 5;
 
 export default function OrderCard({ user_id }: OrderCardProps) {
   const [orders, setOrders] = useState<IOrder[]>([]);
-  const [orderDetailsMap, setOrderDetailsMap] = useState<Record<string, IOrderDetail[]>>({});
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(true);
-  const [reviewedDetails, setReviewedDetails] = useState<Record<string, number>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [returnReason, setReturnReason] = useState("");
-
-
-  const selectedOrder = orders.find((o) => o._id === selectedOrderId);
-  const selectedDetails = selectedOrderId ? orderDetailsMap[selectedOrderId] || [] : [];
+  const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const res = await fetch(`http://localhost:3000/api/orders?user_id=${user_id}`);
-        const data: IOrder[] = await res.json();
-        setOrders(data);
-
-        // fetch chi tiết từng đơn hàng
-        const detailMap: Record<string, IOrderDetail[]> = {};
-        await Promise.all(
-          data.map(async (order) => {
-            const detailRes = await fetch(`http://localhost:3000/api/order-details/${order._id}`);
-            const details: IOrderDetail[] = await detailRes.json();
-            detailMap[order._id] = details;
-          })
-        );
-        setOrderDetailsMap(detailMap);
+        const data = await res.json();
+        if (res.ok) {
+          setOrders(data || []);
+        } else {
+          console.error("Lỗi khi tải đơn hàng:", data.error);
+        }
       } catch (err) {
-        console.error("Lỗi khi fetch đơn hàng:", err);
+        console.error("Lỗi khi tải đơn hàng:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchOrders();
-  }, [user_id]);
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-      try {
-        const res = await fetch(`http://localhost:3000/reviews/user`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await res.json();
-        const map: Record<string, number> = {};
-        data.forEach((review: { order_detail_id: string, rating: number }) => {
-          map[review.order_detail_id] = review.rating;
-        });
-        setReviewedDetails(map);
-      } catch (err) {
-        console.error("Lỗi fetch review:", err);
-      }
-    };
-    fetchReviews();
-  }, []);
+
+    if (user_id) {
+      fetchOrders();
+    }
+  }, [user_id]);
 
   const handleCancelOrder = async (order_id: string) => {
     try {
@@ -84,7 +49,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
       });
       setOrders((prev) =>
         prev.map((o) =>
-          o._id === order_id ? { ...o, order_status: "cancelled" } : o
+          o._id === order_id ? { ...o, order_status: "daHuy" } : o
         )
       );
       toast.success("Đơn hàng đã được hủy thành công");
@@ -99,7 +64,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
     const res = await fetch(`http://localhost:3000/api/return-order/${order_id}`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json", // ⬅️ THIẾU DÒNG NÀY
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ reason }),
     });
@@ -115,7 +80,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
         o._id === order_id
           ? {
               ...o,
-              order_status: "returned",
+              order_status: "hoanTra",
               note: (o.note || "") + `\nTrả hàng: ${reason}`,
             }
           : o
@@ -131,58 +96,55 @@ export default function OrderCard({ user_id }: OrderCardProps) {
     }
   };
 
-
-
-
   const statusColorMap = {
-    pending: "text-yellow-500",
-    processing: "text-blue-500",
-    shipping: "text-purple-500",
-    delivered: "text-green-500",
-    returned: "text-orange-500",
-    cancelled: "text-red-500",
+    choXuLy: "text-yellow-500",
+    dangXuLy: "text-blue-500",
+    dangGiaoHang: "text-purple-500",
+    daGiaoHang: "text-green-500",
+    hoanTra: "text-orange-500",
+    daHuy: "text-red-500",
+    hoanThanh: "text-green-600",
   };
 
   const paymentStatusTextMap = {
-    unpaid: "Chưa thanh toán",
-    paid: "Đã thanh toán",
-    refunding: "Đang hoàn tiền",
-    refunded: "Đã hoàn tiền",
-    failed: "Thất bại",
+    chuaThanhToan: "Chưa thanh toán",
+    thanhToan: "Đã thanh toán",
+    choHoanTien: "Đang hoàn tiền",
+    hoanTien: "Đã hoàn tiền",
   };
 
   const paymentStatusColorMap = {
-    unpaid: "text-yellow-500",
-    paid: "text-green-600",
-    refunding: "text-blue-500",
-    refunded: "text-green-500",
-    failed: "text-red-500",
+    chuaThanhToan: "text-yellow-500",
+    thanhToan: "text-green-600",
+    choHoanTien: "text-blue-500",
+    hoanTien: "text-green-500",
   };
 
   const statusIconMap: Record<string, React.ReactNode> = {
-    pending: <Clock size={16} className="inline mr-1" />,
-    processing: <Loader2 size={16} className="inline mr-1 animate-spin" />,
-    shipping: <Truck size={16} className="inline mr-1" />,
-    delivered: <CheckCircle size={16} className="inline mr-1 text-green-500" />,
-    returned: <Undo2 size={16} className="inline mr-1 text-orange-500" />,
-    cancelled: <XCircle size={16} className="inline mr-1 text-red-500" />,
+    choXuLy: <Clock size={16} className="inline mr-1" />,
+    dangXuLy: <Loader2 size={16} className="inline mr-1 animate-spin" />,
+    dangGiaoHang: <Truck size={16} className="inline mr-1" />,
+    daGiaoHang: <CheckCircle size={16} className="inline mr-1 text-green-500" />,
+    hoanTra: <Undo2 size={16} className="inline mr-1 text-orange-500" />,
+    daHuy: <XCircle size={16} className="inline mr-1 text-red-500" />,
+    hoanThanh: <CheckCircle size={16} className="inline mr-1 text-green-600" />,
   };
 
   const paymentStatusIconMap: Record<string, React.ReactNode> = {
-    unpaid: <CreditCard size={16} className="inline mr-1" />,
-    paid: <CheckCircle size={16} className="inline mr-1" />,
-    refunding: <RefreshCw size={16} className="inline mr-1" />,
-    refunded: <CheckCircle size={16} className="inline mr-1" />,
-    failed: <XCircle size={16} className="inline mr-1" />,
+    chuaThanhToan: <CreditCard size={16} className="inline mr-1" />,
+    thanhToan: <CheckCircle size={16} className="inline mr-1" />,
+    choHoanTien: <RefreshCw size={16} className="inline mr-1" />,
+    hoanTien: <CheckCircle size={16} className="inline mr-1" />,
   };
 
   const statusTextMap: Record<string, string> = {
-    pending: "Chờ xác nhận",
-    processing: "Đang xử lý",
-    shipping: "Đang giao",
-    delivered: "Đã giao",
-    returned: "Đã trả hàng",
-    cancelled: "Đã hủy",
+    choXuLy: "Chờ xác nhận",
+    dangXuLy: "Đang xử lý",
+    dangGiaoHang: "Đang giao",
+    daGiaoHang: "Đã giao",
+    hoanTra: "Đã trả hàng",
+    daHuy: "Đã hủy",
+    hoanThanh: "Hoàn thành",
   };
 
   // Phân trang
@@ -207,16 +169,16 @@ export default function OrderCard({ user_id }: OrderCardProps) {
         <div key={order._id} className="border border-gray-200 rounded-lg p-4 bg-white space-y-2 shadow-sm mb-4">
           <div className="flex justify-between text-sm text-gray-700">
             <div>
-              <p>Mã đơn: <strong>DH-{order.orderCode}</strong></p>
+              <p>Mã đơn: <strong>DH-{order._id.slice(-8)}</strong></p>
             </div>
             <div className="flex flex-col items-end">
-              <span className={`${statusColorMap[order.order_status || "pending"]} font-medium`}>
-                {statusIconMap[order.order_status || "pending"]}
-                {statusTextMap[order.order_status || "pending"]}
+              <span className={`${statusColorMap[order.order_status || "choXuLy"]} font-medium`}>
+                {statusIconMap[order.order_status || "choXuLy"]}
+                {statusTextMap[order.order_status || "choXuLy"]}
               </span>
-              <span className={`flex items-center text-xs mt-1 ${paymentStatusColorMap[order.payment_status || "unpaid"]}`}>
-                {paymentStatusIconMap[order.payment_status || "unpaid"]}
-                {paymentStatusTextMap[order.payment_status || "unpaid"]}
+              <span className={`flex items-center text-xs mt-1 ${paymentStatusColorMap[order.payment_status || "chuaThanhToan"]}`}>
+                {paymentStatusIconMap[order.payment_status || "chuaThanhToan"]}
+                {paymentStatusTextMap[order.payment_status || "chuaThanhToan"]}
               </span>
             </div>
           </div>
@@ -226,7 +188,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
             <p>
               Thành tiền:{" "}
               <span className="text-red-600 font-semibold text-lg">
-                {order.total_amount.toLocaleString("vi-VN")}₫
+                {(order.total_amount || 0).toLocaleString("vi-VN")}₫
               </span>
             </p>
           </div>
@@ -239,7 +201,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
 
           <div className="flex justify-end items-center gap-2 flex-wrap">
             {/* Nút tuỳ trạng thái */}
-            {order.order_status === "pending" && (
+            {order.order_status === "choXuLy" && (
               <Dialog.Root>
                 <Dialog.Trigger asChild>
                   <button className="border border-red-500 text-red-500 px-4 py-1.5 rounded text-sm hover:bg-red-50">
@@ -280,7 +242,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
                 Tiếp tục mua sắm
               </button>
 
-            {order.order_status === "delivered" && (
+            {order.order_status === "daGiaoHang" && (
               <Dialog.Root>
                 <Dialog.Trigger asChild>
                   <button className="border border-orange-500 text-orange-500 px-4 py-1.5 rounded text-sm hover:bg-orange-50">
@@ -309,8 +271,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
                       <Dialog.Close asChild>
                         <button
                           onClick={() => handleReturnOrder(order._id, returnReason)}
-                          disabled={!returnReason.trim()} // ✅ Chặn gửi nếu chưa nhập lý do
-                          className="px-4 py-1.5 text-sm rounded bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50"
+                          className="px-4 py-1.5 text-sm rounded bg-orange-600 text-white hover:bg-orange-700"
                         >
                           Gửi yêu cầu
                         </button>
@@ -320,157 +281,113 @@ export default function OrderCard({ user_id }: OrderCardProps) {
                 </Dialog.Portal>
               </Dialog.Root>
             )}
-
-            <Dialog.Root>
-              <Dialog.Trigger asChild>
-                <button
-                  onClick={() => setSelectedOrderId(order._id)}
-                  className="px-4 py-1.5 border border-black text-sm rounded hover:bg-black hover:text-white"
-                >
-                  Xem chi tiết
-                </button>
-              </Dialog.Trigger>
-              <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
-                <Dialog.Content className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 rounded-lg shadow-lg">
-                  <Dialog.Title className="text-xl font-semibold mb-4">Chi tiết đơn hàng</Dialog.Title>
-                  {selectedOrder && (
-                    <div className="text-sm text-gray-700 space-y-2">
-                      <p><strong>Mã đơn:</strong> DH-{selectedOrder.orderCode}</p>
-                      <p><strong>Phương thức:</strong> {selectedOrder.payment_method_id.name}</p>
-                      <p><strong>Trạng thái đơn hàng: </strong> 
-                        <span className={`${statusColorMap[order.order_status || "pending"]} font-medium`}>
-                          {statusIconMap[order.order_status || "pending"]}
-                          {statusTextMap[order.order_status || "pending"]}
-                        </span>
-                      </p>
-                      <p><strong>Trạng thái thanh toán: </strong><span className={`${paymentStatusColorMap[order.payment_status || "unpaid"]}`}>
-                          {paymentStatusIconMap[order.payment_status || "unpaid"]}
-                          {paymentStatusTextMap[order.payment_status || "unpaid"]}
-                        </span>
-                      </p>
-                      <p><strong>Ngày đặt:</strong> {new Date(selectedOrder.created_at || "").toLocaleDateString("vi-VN")}</p>
-                      <p><strong>Ghi chú:</strong> {selectedOrder.note || "Không có"}</p>
-                      <p><strong>Tên người nhận:</strong> {selectedOrder.address_id?.receiver_name}</p>
-                      <p><strong>Địa chỉ giao hàng:</strong> {order.address_id?.address}</p>
-                      <p><strong>Số điện thoại:</strong> {order.address_id?.phone}</p>
-                    </div>
-                  )}
-
-                  <hr className="my-4" />
-
-                  <div className="space-y-4">
-                    {selectedDetails.map((item) => (
-                      <div key={item._id} className="flex gap-3 items-start border-b pb-3">
-                        <Image
-                          src={`/images/product/${item.product_id.main_image.image}`}
-                          alt={item.product_id.main_image.alt}
-                          width={60}
-                          height={60}
-                          className="rounded border object-cover"
-                        />
-                        <div className="flex-1">
-                          {/* Thêm link sang trang sản phẩm */}
-                          <Link
-                            href={`/product/${item.product_id._id}`}
-                            className="text-sm font-medium text-blue-600 hover:underline"
-                          >
-                            {item.product_id.name}
-                          </Link>
-                          <p className="text-xs text-gray-500">x{item.quantity}</p>
-                          <p className="text-sm font-semibold text-gray-800 mt-1">
-                            {item.price.toLocaleString("vi-VN")}₫
-                          </p>
-                          {/* Nút đánh giá nếu đơn đã giao */}
-                          {selectedOrder?.order_status === "delivered" && (
-                            reviewedDetails[item._id] ? (
-                              <div className="mt-2 text-sm text-green-600">
-                                <i className="fa-solid fa-star text-yellow-400"></i> Bạn đã đánh giá ({reviewedDetails[item._id]}/5)
-                              </div>
-                            ) : (
-                              <Dialog.Root>
-                                <Dialog.Trigger asChild>
-                                  <button className="mt-2 inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 hover:underline transition">
-                                    <i className="fa-regular fa-pen-to-square"></i> Đánh giá sản phẩm
-                                  </button>
-                                </Dialog.Trigger>
-                                <Dialog.Portal>
-                                  <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
-                                  <Dialog.Content className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-                                                            bg-white w-full max-w-md p-6 rounded-2xl shadow-2xl
-                                                            max-h-[90vh] overflow-y-auto border border-gray-200 space-y-4">
-                                    <Dialog.Title className="text-lg font-semibold mb-4">Đánh giá sản phẩm</Dialog.Title>
-                                    <FormBinhLuan
-                                      productId={item.product_id._id}
-                                      orderDetailId={item._id}
-                                      onSuccess={(rating) => {
-                                        toast.success("Đánh giá thành công");
-                                        setReviewedDetails(prev => ({ ...prev, [item._id]: rating }));
-                                      }}
-                                    />
-                                    <div className="text-right">
-                                      <Dialog.Close asChild>
-                                        <button className="mt-2 px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 text-sm">Đóng</button>
-                                      </Dialog.Close>
-                                    </div>
-                                  </Dialog.Content>
-                                </Dialog.Portal>
-                              </Dialog.Root>
-                            )
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <hr className="my-4" />
-                  <div className="text-right text-lg font-bold text-red-600">
-                    Tổng: {selectedOrder?.total_amount.toLocaleString("vi-VN")}₫
-                  </div>
-
-                  <div className="text-right pt-4">
-                    <Dialog.Close asChild>
-                      <button className="px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 text-sm">Đóng</button>
-                    </Dialog.Close>
-                  </div>
-                </Dialog.Content>
-              </Dialog.Portal>
-            </Dialog.Root>
           </div>
         </div>
       ))}
 
       {/* Phân trang */}
       {totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-6">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 rounded border bg-white text-gray-700 border-gray-300 hover:bg-gray-100 disabled:opacity-50"
-          >
-            Trang trước
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => (
+        <div className="flex justify-center mt-6">
+          <div className="flex gap-2">
             <button
-              key={i + 1}
-              onClick={() => setCurrentPage(i + 1)}
-              className={`px-3 py-1 rounded border ${
-                currentPage === i + 1
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-              }`}
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
             >
-              {i + 1}
+              Trước
             </button>
-          ))}
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 rounded border bg-white text-gray-700 border-gray-300 hover:bg-gray-100 disabled:opacity-50"
-          >
-            Trang sau
-          </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-3 py-1 border rounded text-sm ${
+                  currentPage === page
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "hover:bg-gray-50"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Sau
+            </button>
+          </div>
         </div>
+      )}
+
+      {/* Modal chi tiết đơn hàng */}
+      {selectedOrder && (
+        <Dialog.Root open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 bg-black/30" />
+            <Dialog.Content className="bg-white rounded-xl shadow-xl p-6 max-w-2xl w-full mx-auto fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 space-y-4 z-50 max-h-[80vh] overflow-y-auto">
+              <Dialog.Title className="text-lg font-semibold">Chi tiết đơn hàng</Dialog.Title>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between text-sm">
+                  <div>
+                    <p>Mã đơn: <strong>DH-{selectedOrder._id.slice(-8)}</strong></p>
+                    <p>Ngày đặt: {new Date(selectedOrder.created_at).toLocaleDateString("vi-VN")}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`${statusColorMap[selectedOrder.order_status || "choXuLy"]} font-medium`}>
+                      {statusTextMap[selectedOrder.order_status || "choXuLy"]}
+                    </span>
+                    <br />
+                    <span className={`${paymentStatusColorMap[selectedOrder.payment_status || "chuaThanhToan"]} text-xs`}>
+                      {paymentStatusTextMap[selectedOrder.payment_status || "chuaThanhToan"]}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="border-t pt-4">
+                  <h4 className="font-medium mb-2">Thông tin giao hàng</h4>
+                  <p>Tên người nhận: {selectedOrder.address_id?.receiver_name}</p>
+                  <p>Địa chỉ: {selectedOrder.address_id?.address}</p>
+                  <p>Số điện thoại: {selectedOrder.address_id?.phone}</p>
+                </div>
+
+                <div className="border-t pt-4">
+                  <h4 className="font-medium mb-2">Sản phẩm</h4>
+                  {selectedOrder.details?.map((detail, index) => (
+                    <div key={index} className="flex justify-between items-center py-2">
+                      <div>
+                        <p className="font-medium">{detail.product_id.name}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-t pt-4">
+                  <div className="flex justify-between">
+                    <span>Tổng tiền:</span>
+                    <span className="font-semibold text-lg">
+                      {(selectedOrder.total_amount || 0).toLocaleString("vi-VN")}₫
+                    </span>
+                  </div>
+                  {selectedOrder.note && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600">Ghi chú: {selectedOrder.note}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <Dialog.Close asChild>
+                  <button className="px-4 py-2 text-sm rounded border border-gray-300 hover:bg-gray-100">
+                    Đóng
+                  </button>
+                </Dialog.Close>
+              </div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
       )}
     </>
   );

@@ -188,7 +188,7 @@ export default function ProductDetail() {
               </span>
             )}
           </div>
-          <p className="mb-2 text-gray-700 font-medium">{product.brand.name ?? "Không rõ thương hiệu"}</p>
+          <p className="mb-2 text-gray-700 font-medium">{(product.brand_id?.name || product.brand?.name) ?? "Không rõ thương hiệu"}</p>
           <div className="mb-6">
             {/* <h2 className="font-semibold mb-2 text-base text-black">Bộ sản phẩm gồm:</h2> */}
             <div className="flex gap-4 mb-4">

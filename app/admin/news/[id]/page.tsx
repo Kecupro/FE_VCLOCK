@@ -155,7 +155,7 @@ const NewsDetailPage = () => {
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Danh mục:</span>
                 <span className={styles.detailValue}>
-                  {news.category?.name || "Không có danh mục"}
+                  {news.categorynews_id?.name || "Không có danh mục"}
                 </span>
               </div>
               <div className={styles.detailRow}>

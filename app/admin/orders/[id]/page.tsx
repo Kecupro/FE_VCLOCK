@@ -36,16 +36,14 @@ const OrderDetailPage = () => {
       if (modalAction == 'cancel') {
         await updateOrderStatus(selectedOrder._id, 'daHuy');
       
-              if (selectedOrder.payment_status == 'paid') {
-        await updatePaymentStatus(selectedOrder._id, 'refunding');
-      } else {
-                  await updatePaymentStatus(selectedOrder._id, 'unpaid');
-      }
-      } else if (modalAction == 'nextStatus') {
-        if (selectedOrder.order_status) {
-          const next = getNextStatus(selectedOrder.order_status);
-          if (next) await updateOrderStatus(selectedOrder._id, next);
+        if (selectedOrder.payment_status == 'thanhToan') {
+          await updatePaymentStatus(selectedOrder._id, 'choHoanTien');
+        } else {
+          await updatePaymentStatus(selectedOrder._id, 'chuaThanhToan');
         }
+      } else if (modalAction == 'nextStatus') {
+        const next = getNextStatus(selectedOrder.order_status);
+        if (next) await updateOrderStatus(selectedOrder._id, next);
       }
     
       setModalVisible(false);
@@ -55,12 +53,13 @@ const OrderDetailPage = () => {
 
   const getNextStatus = (current: string) => {
     const orderFlow = [
-        "pending",
-        "processing",
-        "shipping",
-        "delivered",
-        "cancelled",
-        "returned"
+        "choXuLy",
+        "dangXuLy",
+        "dangGiaoHang",
+        "daGiaoHang",
+        "daHuy",
+        "hoanTra",
+        "hoanThanh"
       ];
     const currentIndex = orderFlow.indexOf(current);
     if (currentIndex >= 0 && currentIndex < orderFlow.length - 1) {
@@ -74,30 +73,32 @@ const OrderDetailPage = () => {
   const isBankTransfer = order?.payment_method_id?.name == 'Chuyển khoản Ngân hàng';
   const canRefund =
     isBankTransfer &&
-    order.order_status == 'returned' &&
-    order.payment_status == 'refunding';
+    order.order_status == 'hoanTra' &&
+    order.payment_status == 'choHoanTien';
   const isCOD = order?.payment_method_id?.name == 'Thanh toán khi nhận hàng (COD)';
   const canMarkPaid =
     isCOD &&
-    order.order_status == 'delivered' &&
-    order.payment_status == 'unpaid' ||
-    order?.order_status == 'cancelled' && 
-    order.payment_status == 'refunding';
+    order.order_status == 'daGiaoHang' &&
+    order.payment_status == 'chuaThanhToan' ||
+    order?.order_status == 'daHuy' && 
+    order.payment_status == 'choHoanTien';
   // ! <== Xử lý logic order ==>
   const getStatusLabel = (status?: string) => {
       switch (status) {
-        case 'pending':
+        case 'choXuLy':
           return 'Chờ xử lý';
-        case 'processing':
+        case 'dangXuLy':
           return 'Đang xử lý';
-        case 'shipping':
+        case 'dangGiaoHang':
           return 'Đang giao';
-        case 'delivered':
+        case 'daGiaoHang':
           return 'Đã giao';
-        case 'returned':
+        case 'hoanTra':
           return 'Hoàn trả';
-        case 'cancelled':
+        case 'daHuy':
           return 'Đã hủy';
+        case 'hoanThanh':
+          return 'Hoàn thành';
         default:
           return 'Không rõ';
       }
@@ -105,37 +106,37 @@ const OrderDetailPage = () => {
 
   const getStatusStyle = (status?: string) => {
       switch (status) {
-        case 'pending':
+        case 'choXuLy':
           return styles.statuschoXuLy;
-        case 'processing':
+        case 'dangXuLy':
           return styles.statusdangXuLy;
-        case 'shipping':
+        case 'dangGiaoHang':
           return styles.statusdangGiaoHang;
-        case 'delivered':
+        case 'daGiaoHang':
           return styles.statusdaGiaoHang;
-        case 'returned':
+        case 'hoanTra':
           return styles.statushoanTra;
-        case 'cancelled':
+        case 'daHuy':
           return styles.statusdaHuy;
+        case 'hoanThanh':
+          return styles.statushoanThanh;
         default:
           return styles.statusUnknown;
       }
   };
 
   const paymentLabels: Record<string, string> = {
-      unpaid: 'Chưa thanh toán',
-      paid: 'Đã thanh toán',
-      refunding: 'Chờ hoàn tiền',
-      refunded: 'Đã hoàn tiền',
-      failed: 'Thanh toán thất bại',
+      chuaThanhToan: 'Chưa thanh toán',
+      thanhToan: 'Đã thanh toán',
+      choHoanTien: 'Chờ hoàn tiền',
+      hoanTien: 'Đã hoàn tiền',
   };
 
   const paymentBadgeStyles: Record<string, string> = {
-      unpaid: styles.statuschuaThanhToan,
-      paid: styles.statusthanhToan,
-      refunding: styles.statuschoHoanTien,
-      refunded: styles.statushoanTien,
-      failed: styles.statusUnknown,
+      chuaThanhToan: styles.statuschuaThanhToan,
+      thanhToan: styles.statusthanhToan,
+      choHoanTien: styles.statuschoHoanTien,
+      hoanTien: styles.statushoanTien,
   };
 
   const { isDarkMode } = useAppContext();
@@ -253,33 +254,23 @@ const OrderDetailPage = () => {
                   </h3>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Người đặt:</span>
-                    <span className={styles.detailValue}>
-                      {typeof order?.user_id === 'object' ? order.user_id.username : 'N/A'}
-                    </span>
+                    <span className={styles.detailValue}>{order?.user_id.username}</span>
                   </div>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Email:</span>
-                    <span className={styles.detailValue}>
-                      {typeof order?.user_id === 'object' ? order.user_id.email : 'N/A'}
-                    </span>
+                    <span className={styles.detailValue}>{order?.user_id.email}</span>
                   </div>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Người nhận:</span>
-                    <span className={styles.detailValue}>
-                      {typeof order?.user_id === 'object' ? order.user_id.addresses[0]?.receiver_name : 'N/A'}
-                    </span>
+                    <span className={styles.detailValue}>{order?.user_id.addresses[0]?.receiver_name}</span>
                   </div>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>SĐT:</span>
-                    <span className={styles.detailValue}>
-                      {typeof order?.user_id === 'object' ? order.user_id.addresses[0]?.phone : 'N/A'}
-                    </span>
+                    <span className={styles.detailValue}>{order?.user_id.addresses[0]?.phone}</span>
                   </div>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Địa chỉ:</span>
-                    <span className={styles.detailValue}>
-                      {typeof order?.user_id === 'object' ? order.user_id.addresses[0]?.address : 'N/A'}
-                    </span>
+                    <span className={styles.detailValue}>{order?.user_id.addresses[0]?.address}</span>
                   </div>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Ghi chú:</span>
@@ -294,7 +285,7 @@ const OrderDetailPage = () => {
                   <div className={styles.detailRow}>
                       <span className={styles.detailLabel}>Voucher:</span>
                       <span className={styles.detailValue}>
-                        {order?.voucher_id && typeof order.voucher_id === 'object' ? (
+                        {order?.voucher_id ? (
                           <>
                             <div><strong>Tên:</strong> {order.voucher_id.voucher_name}</div>
                             <div><strong>Mã:</strong> {order.voucher_id.voucher_code}</div>
@@ -434,9 +425,9 @@ const OrderDetailPage = () => {
 
               {canRefund && (
                 <button
-                  className={`${styles.badgeButton} ${order?.payment_status == 'refunded' ? styles.disabledButton : styles.refundButton}`}
+                  className={`${styles.badgeButton} ${order?.payment_status == 'hoanTien' ? styles.disabledButton : styles.refundButton}`}
                   disabled={isLocked}
-                  onClick={() => order?._id && updatePaymentStatus(order._id, 'refunded')}
+                  onClick={() => order?._id && updatePaymentStatus(order._id, 'hoanTien')}
                 >
                   Hoàn tiền
                 </button>

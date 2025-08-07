@@ -18,6 +18,7 @@ import {
 
 import { AppProvider, useAppContext } from '../context/AppContext';
 import { AdminAuthProvider, useAdminAuth } from '../context/AdminAuthContext';
+import { getAvatarSrc } from '../utils/avatarUtils';
 
 import './globals.css';
 
@@ -57,7 +58,7 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
         const res = await axios.get<SearchResult[]>(`http://localhost:3000/api/admin/search?q=${value}`);
         setSearchResults(res.data);
       } catch (err) {
-        console.error('Lỗi tìm kiếm:', err);
+        console.error('Search error:', err);
       }
     } else {
       setSearchResults([]);
@@ -79,6 +80,8 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
   };
   // ! <== End Search ==>
 
+  const avatarSrc = user?.avatar ? getAvatarSrc(user.avatar) : null;
+
   const handleCollapsedLinkClick = (e: React.MouseEvent, href: string) => {
     if (isSidebarCollapsed) {
       e.preventDefault(); 
@@ -87,7 +90,7 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
   };
 
   useEffect(() => {
-  		console.log("Chế độ tối:", isDarkMode);
+  console.log("isDarkMode:", isDarkMode);
   const html = document.documentElement;
   if (isDarkMode) {
     html.classList.add('dark-mode');
@@ -555,18 +558,25 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
 
             <Dropdown align="end">
               <Dropdown.Toggle as={Nav.Link} id="dropdown-basic" className="profile-dropdown-toggle" style={{ paddingBottom: '0'}}>
-                <FaUserCircle />
+                {avatarSrc ? (
+                  <Image
+                    src={avatarSrc}
+                    alt="Avatar"
+                    width={32}
+                    height={32}
+                    style={{ objectFit: 'cover', borderRadius: '50%' }}
+                  />
+                ) : (
+                  <FaUserCircle size={32} />
+                )}      
               </Dropdown.Toggle>
 
               <Dropdown.Menu>
-                <p>{user?.fullName || 'N/A'}</p>
-                <p><span>{user?.email || 'N/A'}</span></p>
+                <p>{user?.fullName}</p>
+                <p><span>{user?.email || 'NaN'}</span></p>
                 <Dropdown.Divider />
                 <Dropdown.Item href="/admin/account">Cài đặt tài khoản</Dropdown.Item>
-                <Dropdown.Item onClick={() => {
-                  logout();
-                  window.location.href = '/';
-                }}>Đăng xuất</Dropdown.Item>
+                <Dropdown.Item onClick={logout}>Đăng xuất</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </Nav>

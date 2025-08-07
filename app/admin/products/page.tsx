@@ -136,7 +136,7 @@ const ProductsPage = () => {
   <div className={styles.container}>
     <div className={styles.header}>
       <h1 className={styles.title}>Sản phẩm</h1>
-      <Link href="products/addProduct">
+              <Link href="/admin/products/addProduct">
         <button className={styles.addButton}>
           <Plus size={16} /> Thêm sản phẩm
         </button>
@@ -268,10 +268,10 @@ const ProductsPage = () => {
                 </td>
                 <td>
                   <div className={styles.actions}>
-                    <Link href={`products/${product._id}`}>
+                    <Link href={`/admin/products/${product._id}`}>
                       <button className={styles.actionButton}><Eye size={16} /></button>
                     </Link>
-                    <Link href={`products/edit?id=${product._id}`}>
+                    <Link href={`/admin/products/edit?id=${product._id}`}>
                       <button className={styles.actionButton}><Edit size={16} /></button>
                     </Link>
                     <button className={styles.actionButton} onClick={() => handleDeleteClick(product._id)}>

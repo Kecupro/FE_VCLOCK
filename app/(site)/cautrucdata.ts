@@ -1,190 +1,190 @@
 export interface IProduct {
-    _id: string;
-    brand: {name:string};
-    brand_id: { _id: string; name: string };
-    name: string;
-    description: string;
-    price: number;
-    sale_price: number;
-    status: number,default: 0;
-    quantity: number;
-    views: number;
-    sex: string;
-    case_diameter: number;
-    style: string;
-    features: string;
-    water_resistance: string;
-    thickness: number;
-    color: string;
-    machine_type: string;
-    strap_material: string;
-    case_material: string;
-    sold: number;
-    categories: { name: string }[];
-    main_image?: { image: string; alt: string };
-    images: IHinh[];
-    slug: string;
-    created_at: string;
-    updated_at: string;
+  _id: string;
+  brand_id: IBrand;
+  brand?: IBrand; // Thêm trường brand để tương thích với API
+  name: string;
+  description: string;
+  price: number;
+  sale_price: number;
+  status: number;
+  quantity: number;
+  views: number;
+  sex: string;
+  case_diameter: number;
+  style: string;
+  features: string;
+  water_resistance: number;
+  thickness: number;
+  color: string;
+  machine_type: string;
+  strap_material: string;
+  case_material: string;
+  categories: ICategory[];
+  main_image: IHinh;
+  images: IHinh[];
+  slug: string;
+  sold: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface IHinh {
-    _id: string;
-    is_main: boolean;
-    image: string;
-    alt: string;
+  _id: string;
+  is_main: boolean;
+  image: string;
+  alt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface IBrand {
-    _id: number;
-    name: string;
-    image: string;
-    alt: string;
-    description: string;
-    brand_status: number;
-    productCount: number;
-    created_at: string;
-    updated_at: string;
+  _id: string;
+  name: string;
+  image: string;
+  alt: string;
+  description: string;
+  brand_status: number;
+  productCount?: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ICart {
-    _id: string;
-    product_id: string;
-    so_luong: number;
-    price: number;
-    sale_price: number;
-    name: string;
-    main_image: { image: string; alt: string };
-    brand:{name:string};
-    quantity:number
+  _id: string;
+  product_id: IProduct;
+  so_luong: number;
+  price: number;
+  sale_price: number;
+  name: string;
+  main_image: IHinh;
+  brand: IBrand;
+  quantity: number;
 }
 
 export interface ICategory {
-    _id: string;
-    name: string;
-    image?: string | null;
-    alt?: string | null;
-    category_status?: 0 | 1;
-    created_at?: Date;
-    updated_at?: Date;
+  _id: string;
+  name: string;
+  image: string | null;
+  alt: string | null;
+  category_status: 0 | 1;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface INews {
-    _id: string;
-    category: { _id: string; name: string };
-    title: string;
-    content: string;
-    image?: string | null;
-    news_status?: 0 | 1;
-    views?: number;
-    created_at?: Date;
-    updated_at?: Date;
+  _id: string;
+  categorynews_id: ICateNews;
+  category?: ICateNews; // Thêm trường category để tương thích với API
+  title: string;
+  content: string;
+  image: string | null;
+  news_status: number;
+  views: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ICateNews {
-    _id: string;
-    name: string;
-    status: number;
-    created_at?: Date;
-    updated_at?: Date;
+  _id: string;
+  name: string;
+  status: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface IOrder {
   _id: string;
-  user_id: string | IUser;
-  orderCode: string;
-  voucher_id?: string | IVoucher;
-  address_id?:IAddress;
-  payment_method_id: { name: string };
-  note?: string | null;
-  shipping_fee?: number;
-  total_amount: number;
-  discount_amount?: number;
-  order_status?: "pending" | "processing" | "shipping" | "delivered" | "returned" | "cancelled";
-  payment_status?: "unpaid" | "paid" | "refunding" | "refunded" | "failed";
-  details?: IOrderDetail[];
-  created_at?: Date;
-  updated_at?: Date;
+  user_id: IUser;
+  voucher_id: IVoucher;
+  address_id: IAddress;
+  payment_method_id: IPaymentMethod;
+  details: {
+    product_id: {
+      name: string;
+      main_image: IHinh;
+    };
+  }[];
+  note: string | null;
+  shipping_fee: number | null;
+  total_amount: number | null;
+  discount_amount: number | null;
+  order_status: 'choXuLy' | 'dangXuLy' | 'dangGiaoHang' | 'daGiaoHang' | 'daHuy' | 'hoanTra' | 'hoanThanh';
+  payment_status: 'chuaThanhToan' | 'thanhToan' | 'choHoanTien' | 'hoanTien';
+  created_at: string;
+  updated_at: string;
+
 }
 
 export interface IOrderDetail {
-    _id: string;
-    order_id: string;
-    product_id: {
-        _id: string;
-        name: string;
-        price: number;
-        sale_price: number;
-        status: number;
-        main_image: { image: string; alt: string };
-      };
-    quantity: number;
-    price: number;
+  _id: string;
+  order_id: string;
+  product_id: IProduct;
+  quantity: number;
+  price: number;
 }
 
 export interface IProductCategory {
-    _id: string;
-    product_id: string;
-    category_id: string;
+  _id: string;
+  product_id: IProduct;
+  category_id: ICategory;
 }
 
 export interface IReview {
-    _id: string;
-    order_detail_id: string;
-    rating: number;
-    comment?: string | null;
-    created_at?: Date;
-    user:ReviewUser;
+  _id: string;
+  user_id: ReviewUser;
+  order_detail_id: IOrderDetail;
+  rating: number;
+  comment: string | null;
+  created_at: string;
 }
 
 export interface ReviewUser {
-    _id: string;
-    username: string;
-    avatar: string;
+  _id: string;
+  username: string;
+  avatar: string;
 }
 
 export interface IStats {
-    _id: string;
-    totalReviews: number;
-    averageRating: number;
+  _id: string;
+  totalReviews: number;
+  averageRating: number;
 }
 
 export interface IUser {
-    _id: string;
-    username: string;
-    // password_hash: string;
-    email: string;
-    account_status: 0 | 1;
-    role: 0 | 1 | 2; // 0: User, 1: Admin, 2: Super Admin
-    avatar?: string | null;
-    fullName: string;
-    addresses: IAddress[];
-    created_at?: Date;
-    updated_at?: Date;
+  _id: string;
+  username: string;
+  email: string;
+  account_status: 0 | 1;
+  role: 0 | 1 | 2;
+  avatar: string | null;
+  fullName: string;
+  addresses: IAddress[];
+  created_at: string;
+  updated_at: string;
 }
 
 export interface IVoucher {
-    _id: string;
-    voucher_name: string;
-    voucher_code: string;
-    start_date: Date;
-    end_date: Date;
-    discount_type: string;
-    discount_value: number;
-    minimum_order_value?: number;
-    max_discount?: number | null;
-    used?: boolean;
-    created_at?: Date;
-    updated_at?: Date;
+  _id: string;
+  voucher_name: string;
+  voucher_code: string;
+  start_date: Date;
+  end_date: Date;
+  discount_type: string;
+  discount_value: number;
+  minimum_order_value: number;
+  max_discount: number;
+  used?: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface IWishList {
-    _id: string;
-    product_id: string;
-    user_id: string;
-    created_at?: Date;
-    updated_at?: Date;
-    product: IProduct;
+  _id: string;
+  product_id: IProduct;
+  product: IProduct;
+  user_id: IUser;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface IAddress {
@@ -194,20 +194,20 @@ export interface IAddress {
   phone: number;
   address: string;
   is_default?: boolean;
-  created_at?: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface IPaymentMethod {
-  _id?: string;
+  _id: string;
   name: string;
   code: string;
-  description?: string | null;
-  is_active?: boolean;
-  icon_url?: string | null;
+  description: string;
+  is_active: boolean;
+  icon_url: string | null;
   status: number;
-  created_at?: Date;
-  updated_at?: Date;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface SearchResult {
@@ -219,8 +219,9 @@ export interface SearchResult {
 export interface OrderApiResponse {
   list: IOrder[];
   total: number;
+  products: IProduct[];
+  totalCount: number;
 }
-
 
 export interface RecentOrderDisplay {
   customerName: string;
@@ -228,8 +229,8 @@ export interface RecentOrderDisplay {
   paymentMethod: string;
   totalAmount: string;
   status: IOrder['order_status'];
-  paymentStatus?: IOrder['payment_status'];
-  created_at: string;
+  paymentStatus: IOrder['payment_status'];
+  created_at: string; 
 }
 
 export interface RevenueItem {
@@ -237,17 +238,88 @@ export interface RevenueItem {
   value: number;
 }
 
+export interface ProductApiResponse {
+  list: IProduct[];
+}
+
 export interface ProductSummary {
   _id: string;
   name: string;
-  main_image: { image: string; alt: string };
+  main_image: IHinh;
   quantity: number;
   sold: number;
   created_at: string;
   updated_at: string;
 }
 
-export interface ProductApiResponse {
-  list: IProduct[];
-  total: number;
+export interface AdminData {
+  _id: string;
+  username: string;
+  email: string;
+  role: string | number;
+  fullName: string;
+  avatar: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface EditData extends AdminData {
+  password?: string;
+}
+
+export interface ApiResponse {
+  success: boolean;
+  user?: {
+    userId?: string;
+    id?: string;
+    _id?: string;
+    username?: string;
+    email?: string;
+    role?: string | number;
+    fullName?: string;
+    avatar?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  };
+  message?: string;
+}
+
+export interface UpdateResponse {
+  success: boolean;
+  message: string;
+  user?: AdminData;
+}
+
+export interface UserRoleInfo {
+  id: number;
+  name: string;
+  displayName: string;
+  permissions: string[];
+}
+
+export interface CurrentUser {
+  userId: string;
+  username: string;
+  role: number;
+}
+
+export interface APIResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+  data?: IUser[];
+  list?: IUser[];
+  users?: IUser[];
+  total?: number;
+  totalUsers?: number;
+  count?: number;
+  metadata?: {
+    roles?: Array<{ value: number; label: string }>;
+    statuses?: Array<{ value: number; label: string }>;
+  };
+  debug?: {
+    appliedFilters?: Record<string, unknown>;
+    filterConditions?: unknown;
+    queryExecuted?: unknown;
+  };
 }

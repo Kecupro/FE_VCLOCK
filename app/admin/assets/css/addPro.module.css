@@ -413,7 +413,12 @@ html.dark-mode .infoList {
 }
 
 .select::-webkit-scrollbar-track {
-  background: #2c2c2c;
+  background: var(--card-bg-light);
+  border-radius: 4px;
+}
+
+html.dark-mode .select::-webkit-scrollbar-track {
+  background: var(--card-bg-dark);
   border-radius: 4px;
 }
 
@@ -426,6 +431,4 @@ html.dark-mode .infoList {
 .select::-webkit-scrollbar-thumb:hover {
   background-color: red;
 }
-
-
 

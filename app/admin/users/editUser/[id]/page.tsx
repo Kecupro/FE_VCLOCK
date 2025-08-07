@@ -1,32 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { useAppContext } from '../../../../context/AppContext';
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import styles from "../../../assets/css/add.module.css";
-
-interface IAddress {
-  _id: string;
-  user_id: string;
-  receiver_name: string;
-  phone: number;
-  address: string;
-  created_at?: Date;
-  updated_at: Date;
-}
-
-interface IUser {
-  _id: string;
-  username: string;
-  email: string;
-  role: 0 | 1 | 2;
-  account_status: 0 | 1;
-  fullName: string;
-  avatar: string | null;
-  created_at: string;
-  updated_at: string;
-  addresses?: IAddress[];
-}
+import { IUser } from '@/app/(site)/cautrucdata';
 
 const EditUser = () => {
   const router = useRouter();
@@ -34,17 +12,19 @@ const EditUser = () => {
   const userId = params.id as string;
 
   const [selectedRole, setSelectedRole] = useState<string>("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>("");
-  const [activeImageTab, setActiveImageTab] = useState("preview");
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<IUser | null>(null);
   const [userToEdit, setUserToEdit] = useState<IUser | null>(null);
-  const [selectedAddressId, setSelectedAddressId] = useState<string>("");
-  const [addressAction, setAddressAction] = useState<"select" | "edit">(
-    "select"
-  );
+  const [showPassword, setShowPassword] = useState(false);
+
+  const { isDarkMode } = useAppContext();
+
+  useEffect(() => {
+    const html = document.documentElement;
+    if (isDarkMode) html.classList.add(styles['dark-mode']);
+    else html.classList.remove(styles['dark-mode']);
+  }, [isDarkMode]);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -120,8 +100,9 @@ const EditUser = () => {
 
     const hasLetter = /[a-zA-Z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[^a-zA-Z0-9]/.test(password);
 
-    if (!hasLetter || !hasNumber) {
+    if (!hasLetter || !hasNumber || !hasSpecialChar) {
       return {
         isValid: false,
         message: "Mật khẩu nên chứa ít nhất một chữ cái và một số",
@@ -160,7 +141,7 @@ const EditUser = () => {
           router.push("/login");
         }
       } catch (error) {
-        console.error("Lỗi tải thông tin người dùng hiện tại:", error);
+        console.error("Error fetching current user:", error);
         router.push("/login");
       }
     };
@@ -211,20 +192,11 @@ const EditUser = () => {
 
           const roleString = getRoleString(userData.role);
           setSelectedRole(roleString);
-
-          if (userData.addresses && userData.addresses.length > 0) {
-            setSelectedAddressId(userData.addresses[0]._id);
-          }
-
-          if (userData.avatar) {
-            setActiveImageTab("preview");
-          }
         } else {
           const errorData = await response.json();
           toast.error(errorData.error || "Không thể tải thông tin người dùng");
         }
-      } catch (error) {
-        console.error("Lỗi tải thông tin người dùng:", error);
+      } catch {
         toast.error("Lỗi khi tải thông tin người dùng");
       } finally {
         setFetchLoading(false);
@@ -234,88 +206,9 @@ const EditUser = () => {
     fetchUser();
   }, [userId, currentUser]);
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
-  const getImageSrc = (imagePath: string): string => {
-    if (!imagePath || imagePath.trim() === "") {
-      return "/images/avatar-default.png";
-    }
-    
-    // Nếu avatar bắt đầu bằng http (Google, Facebook, etc.) thì sử dụng trực tiếp
-    if (imagePath.startsWith('http')) {
-      return imagePath; // Bỏ timestamp để tránh reload liên tục
-    }
-    
-    // Nếu là đường dẫn tương đối bắt đầu bằng /
-    if (imagePath.startsWith('/')) {
-      return imagePath;
-    }
-    
-    // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-    const avatarUrl = `http://localhost:3000/uploads/avatars/${imagePath}`;
-    return avatarUrl; // Bỏ timestamp để tránh reload liên tục
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const allowedTypes = [
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "image/webp",
-      ];
-      if (!allowedTypes.includes(file.type)) {
-        toast.error("Chỉ chấp nhận các file ảnh (JPEG, PNG, GIF, WebP)");
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Kích thước file không được vượt quá 5MB");
-        return;
-      }
-
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-
-      const newPreviewUrl = URL.createObjectURL(file);
-      setPreviewUrl(newPreviewUrl);
-
-      setSelectedFile(file);
-      setActiveImageTab("preview");
-    }
-  };
-
-  const handleImageTabClick = (tab: string) => {
-    setActiveImageTab(tab);
-    if (tab === "upload") {
-      const fileInput = document.getElementById(
-        "userFileInput"
-      ) as HTMLInputElement;
-      fileInput?.click();
-    }
-  };
-
   const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newRole = e.target.value;
     setSelectedRole(newRole);
-
-    if (newRole !== "user") {
-      setSelectedAddressId("");
-      setAddressAction("select");
-      setFormData((prev) => ({
-        ...prev,
-        phone: "",
-        address: "",
-        receiver_name: "",
-      }));
-    }
   };
 
   const handleInputChange = (
@@ -325,9 +218,9 @@ const EditUser = () => {
   ) => {
     const { name, value } = e.target;
 
-    if (name === "password") {
+    if (name == "password") {
       const sanitizedPassword = sanitizePassword(value);
-      if (sanitizedPassword !== value) {
+      if (sanitizedPassword != value) {
         toast.warning(
           "Một số ký tự không hợp lệ đã được loại bỏ khỏi mật khẩu"
         );
@@ -350,36 +243,6 @@ const EditUser = () => {
       const validation = validatePassword(formData.password);
       if (!validation.isValid) {
         toast.error(validation.message);
-      }
-    }
-  };
-
-  const handleAddressSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-
-    if (value === "") {
-      setAddressAction("select");
-      setSelectedAddressId("");
-      setFormData((prev) => ({
-        ...prev,
-        phone: "",
-        address: "",
-        receiver_name: "",
-      }));
-    } else {
-      setAddressAction("edit");
-      setSelectedAddressId(value);
-
-      const selectedAddress = userToEdit?.addresses?.find(
-        (addr) => addr._id === value
-      );
-      if (selectedAddress) {
-        setFormData((prev) => ({
-          ...prev,
-          phone: selectedAddress.phone.toString(),
-          address: selectedAddress.address,
-          receiver_name: selectedAddress.receiver_name,
-        }));
       }
     }
   };
@@ -416,16 +279,6 @@ const EditUser = () => {
         toast.error(passwordValidation.message);
         return false;
       }
-    }
-
-    if (
-      selectedRole === "user" &&
-      addressAction === "edit" &&
-      formData.phone &&
-      !/^\d{10,11}$/.test(formData.phone)
-    ) {
-      toast.error("Số điện thoại không hợp lệ (10-11 chữ số)");
-      return false;
     }
 
     return true;
@@ -467,15 +320,6 @@ const EditUser = () => {
         }
       }
 
-      if (selectedFile) {
-        formDataToSend.append("image", selectedFile);
-      }
-
-      console.log(
-        "Sending FormData with image:",
-        selectedFile ? selectedFile.name : "No image"
-      );
-
       const userResponse = await fetch(
         `http://localhost:3000/api/admin/user/edit/${userId}`,
         {
@@ -494,64 +338,12 @@ const EditUser = () => {
         );
       }
 
-
-      if (
-        selectedRole === "user" &&
-        addressAction === "edit" &&
-        selectedAddressId
-      ) {
-        try {
-          const addressData: { phone?: number; address?: string; receiver_name?: string } = {};
-          let hasAddressData = false;
-
-          if (formData.phone && formData.phone.trim()) {
-            const phoneNumber = parseInt(formData.phone.trim());
-            if (!isNaN(phoneNumber)) {
-              addressData.phone = phoneNumber;
-              hasAddressData = true;
-            }
-          }
-
-          if (formData.address && formData.address.trim()) {
-            addressData.address = formData.address.trim();
-            hasAddressData = true;
-          }
-
-          if (formData.receiver_name && formData.receiver_name.trim()) {
-            addressData.receiver_name = formData.receiver_name.trim();
-            hasAddressData = true;
-          }
-
-          if (hasAddressData) {
-            const endpoint = `http://localhost:3000/api/admin/user/addresses/${selectedAddressId}`;
-
-            const addressResponse = await fetch(endpoint, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify(addressData),
-            });
-
-            if (!addressResponse.ok) {
-              const addressError = await addressResponse.json();
-              console.error("Lỗi API địa chỉ:", addressError);
-              toast.error("Không thể cập nhật địa chỉ");
-            }
-          }
-        } catch (error) {
-          console.error("Lỗi cập nhật địa chỉ:", error);
-          toast.error("Lỗi khi cập nhật địa chỉ");
-        }
-      }
-
       toast.success("Cập nhật người dùng thành công!");
       setTimeout(() => {
         router.push("/admin/users");
       }, 1500);
     } catch (error) {
-              console.error("Lỗi cập nhật người dùng:", error);
+      console.error("Error updating user:", error);
       toast.error(
         error instanceof Error
           ? error.message
@@ -575,16 +367,16 @@ const EditUser = () => {
   const canEditThisUser =
     currentUser &&
     userToEdit &&
-    (Number(currentUser.role) === 2 ||
-      (Number(currentUser.role) === 1 && Number(userToEdit.role) === 0));
+    (Number(currentUser.role) == 2 ||
+      (Number(currentUser.role) == 1 && Number(userToEdit.role) == 0));
 
-  const canChangeRole = currentUser && Number(currentUser.role) === 2;
+  const canChangeRole = currentUser && Number(currentUser.role) == 2;
 
   const canEditAccountStatus =
     currentUser &&
     userToEdit &&
-    (Number(currentUser.role) === 2 ||
-      (Number(currentUser.role) === 1 && Number(userToEdit.role) === 0));
+    (Number(currentUser.role) == 2 ||
+      (Number(currentUser.role) == 1 && Number(userToEdit.role) == 0));
 
   if (fetchLoading) {
     return (
@@ -620,7 +412,7 @@ const EditUser = () => {
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.formGroup}>
-          <label className={styles.label}>Vai trò *</label>
+          <label className={styles.label}>Vai trò <span style={{color: "red"}}>*</span></label>
           <select
             className={styles.select}
             value={selectedRole}
@@ -631,19 +423,12 @@ const EditUser = () => {
             <option value="">--- Chọn vai trò ---</option>
             <option value="user">Người dùng</option>
             <option value="moderator">Quản trị viên</option>
-            {canChangeRole && (
-              <option value="admin">Quản trị viên cấp cao</option>
-            )}
+            <option value="admin">Quản trị viên cấp cao</option>
           </select>
-          {!canChangeRole && (
-            <p style={{ fontSize: "12px", color: "#666", margin: "5px 0 0 0" }}>
-              Chỉ có quản trị viên cấp cao mới có thể thay đổi vai trò
-            </p>
-          )}
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Tên đăng nhập *</label>
+          <label className={styles.label}>Tên đăng nhập <span style={{color: "red"}}>*</span></label>
           <input
             type="text"
             name="username"
@@ -678,39 +463,43 @@ const EditUser = () => {
             value={formData.email}
             onChange={handleInputChange}
             disabled
-            style={{ backgroundColor: "#f5f5f5" }}
+            style={{ backgroundColor: "var(--card-bg-dark)" }}
           />
-          <p style={{ fontSize: "12px", color: "#666", margin: "5px 0 0 0" }}>
-            Email không thể chỉnh sửa
-          </p>
         </div>
 
         <div className={styles.formGroup}>
           <label className={styles.label}>Mật khẩu mới</label>
-          <input
-            type="password"
+          <div className="position-relative">
+            <input
+            type={showPassword ? "text" : "password"}
             name="password"
             className={styles.input}
-            placeholder="Để trống nếu không muốn thay đổi..."
+            placeholder="Nhập mật khẩu..."
             value={formData.password}
             onChange={handleInputChange}
             onBlur={handlePasswordBlur}
-            minLength={6}
-            maxLength={40}
-          />
-          <div style={{ fontSize: "12px", color: "#666", margin: "5px 0 0 0" }}>
-            <p style={{ margin: "0 0 3px 0" }}>
-              Để trống nếu không muốn thay đổi mật khẩu
-            </p>
-            <p style={{ margin: "0" }}>
-              Mật khẩu phải có 6-40 ký tự, bao gồm chữ cái, số và có thể có ký
-              tự đặc biệt
-            </p>
+            />
+            <button
+            type="button"
+            className="top-50 btn btn-sm position-absolute end-0 translate-middle-y"
+            style={{
+              border: "none",
+              background: "transparent",
+              zIndex: 10,
+            }}
+            onClick={() => setShowPassword(!showPassword)}
+            >
+            {showPassword ? (
+              <span style={{ fontSize: "14px" }}>👁️</span>
+            ) : (
+              <span style={{ fontSize: "14px" }}>🙈</span>
+            )}
+          </button>
           </div>
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Trạng thái tài khoản *</label>
+          <label className={styles.label}>Trạng thái tài khoản <span style={{color: "red"}}>*</span></label>
           <select
             className={styles.select}
             name="account_status"
@@ -721,241 +510,19 @@ const EditUser = () => {
             <option value={1}>Hoạt động</option>
             <option value={0}>Bị khóa</option>
           </select>
-          {!canEditAccountStatus && (
-            <p style={{ fontSize: "12px", color: "#666", margin: "5px 0 0 0" }}>
-              Bạn không có quyền thay đổi trạng thái tài khoản này
-            </p>
-          )}
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Ảnh đại diện</label>
-          <div className={styles.imageSection}>
-            <div className={styles.imageTabs}>
-              <button
-                type="button"
-                className={`${styles.imageTab} ${
-                  activeImageTab === "upload" ? styles.imageTabActive : ""
-                }`}
-                onClick={() => handleImageTabClick("upload")}
-              >
-                Tải lên ảnh mới
-              </button>
-            </div>
-
-            {activeImageTab === "preview" && (
-              <div
-                className={styles.imagePreview}
-                style={{ margin: "10px 0 0 5px" }}
-              >
-                {selectedFile ? (
-                  <>
-                    <p style={{ margin: "0", fontSize: "14px", color: "#666" }}>
-                      Ảnh mới đã chọn: {selectedFile.name}
-                    </p>
-                    <img
-                      src={previewUrl}
-                      alt="New avatar preview"
-                      style={{
-                        maxWidth: "100px",
-                        maxHeight: "100px",
-                        marginTop: "10px",
-                        borderRadius: "4px",
-                      }}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "/images/avatar-default.png"; 
-                        target.onerror = null; 
-                      }}
-                    />
-                  </>
-                ) : formData.currentImage ? (
-                  <>
-                    <p style={{ margin: "0", fontSize: "14px", color: "#666" }}>
-                      Ảnh hiện tại:
-                    </p>
-                    <img
-                      src={getImageSrc(formData.currentImage)}
-                      alt="Current avatar"
-                      style={{
-                        maxWidth: "100px",
-                        maxHeight: "100px",
-                        marginTop: "10px",
-                        borderRadius: "4px",
-                      }}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "/images/avatar-default.png"; 
-                        target.onerror = null; 
-                      }}
-                    />
-                  </>
-                ) : (
-                  <p style={{ margin: "0", fontSize: "14px", color: "#666" }}>
-                    Chưa có ảnh đại diện
-                  </p>
-                )}
-              </div>
-            )}
-
-            <input
-              id="userFileInput"
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              style={{ display: "none" }}
-            />
+          <div className={styles.infoBox}>
+            <h4 className={styles.infoTitle}>📋 Thông tin quan trọng:</h4>
+            <ul className={styles.infoList}>
+              <li>Username và email phải duy nhất trong hệ thống</li>
+              <li>Email không thể thay đổi</li>
+              <li>Tên đầy đủ là bắt buộc</li>
+              <li>Mật khẩu phải có ít nhất 6 kí tự, bao gồm chữ cái, số và ký tự đặc biệt</li>
+            </ul>
           </div>
         </div>
-
-        {selectedRole === "user" &&
-          userToEdit?.addresses &&
-          userToEdit.addresses.length > 0 && (
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Chỉnh sửa địa chỉ</label>
-              <select
-                className={styles.select}
-                value={selectedAddressId}
-                onChange={handleAddressSelection}
-              >
-                <option value="">--- Chọn địa chỉ để chỉnh sửa ---</option>
-                {userToEdit.addresses.map((address) => (
-                  <option key={address._id} value={address._id}>
-                    {address.receiver_name} - {address.phone} -{" "}
-                    {address.address}
-                  </option>
-                ))}
-              </select>
-
-              {addressAction === "edit" && selectedAddressId && (
-                <div
-                  style={{
-                    marginTop: "15px",
-                    border: "1px solid #ddd",
-                    borderRadius: "4px",
-                    overflow: "hidden",
-                  }}
-                >
-                  <div
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "12px",
-                      borderBottom: "1px solid #ddd",
-                    }}
-                  >
-                    <h4
-                      style={{ margin: "0", fontSize: "16px", color: "#333" }}
-                    >
-                      Chỉnh sửa địa chỉ
-                    </h4>
-                  </div>
-
-                  <div style={{ padding: "15px" }}>
-                    <table
-                      style={{ width: "100%", borderCollapse: "collapse" }}
-                    >
-                      <tbody>
-                        <tr>
-                          <td
-                            style={{
-                              padding: "8px",
-                              fontWeight: "bold",
-                              width: "150px",
-                              verticalAlign: "top",
-                            }}
-                          >
-                            Tên người nhận:
-                          </td>
-                          <td style={{ padding: "8px" }}>
-                            <input
-                              type="text"
-                              name="receiver_name"
-                              className={styles.input}
-                              placeholder="Nhập tên người nhận..."
-                              value={formData.receiver_name}
-                              onChange={handleInputChange}
-                              style={{ width: "100%", margin: "0" }}
-                            />
-                          </td>
-                        </tr>
-                        <tr>
-                          <td
-                            style={{
-                              padding: "8px",
-                              fontWeight: "bold",
-                              verticalAlign: "top",
-                            }}
-                          >
-                            Số điện thoại:
-                          </td>
-                          <td style={{ padding: "8px" }}>
-                            <input
-                              type="tel"
-                              name="phone"
-                              className={styles.input}
-                              placeholder="Nhập số điện thoại..."
-                              value={formData.phone}
-                              onChange={handleInputChange}
-                              pattern="[0-9]{10,11}"
-                              style={{ width: "100%", margin: "0" }}
-                            />
-                            <p
-                              style={{
-                                fontSize: "12px",
-                                color: "#666",
-                                margin: "5px 0 0 0",
-                              }}
-                            >
-                              Nhập 10-11 chữ số
-                            </p>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td
-                            style={{
-                              padding: "8px",
-                              fontWeight: "bold",
-                              verticalAlign: "top",
-                            }}
-                          >
-                            Địa chỉ:
-                          </td>
-                          <td style={{ padding: "8px" }}>
-                            <textarea
-                              name="address"
-                              className={styles.textarea}
-                              placeholder="Nhập địa chỉ..."
-                              rows={3}
-                              value={formData.address}
-                              onChange={handleInputChange}
-                              style={{ width: "100%", margin: "0" }}
-                            />
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-        {selectedRole === "user" &&
-          (!userToEdit?.addresses || userToEdit.addresses.length === 0) && (
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Địa chỉ</label>
-              <p
-                style={{
-                  fontSize: "14px",
-                  color: "#666",
-                  fontStyle: "italic",
-                  margin: "0",
-                }}
-              >
-                Người dùng này chưa có địa chỉ nào.
-              </p>
-            </div>
-          )}
 
         <div className={styles.formActions}>
           <button

@@ -214,7 +214,7 @@ function ShopPageContent() {
     ? categories 
     : [...categories.slice(0, 1), ...categories.slice(1, 6)]; // "Tất cả" + 5 danh mục đầu tiên
 
-  const filteredBrands = brands.filter(b => b.name.toLowerCase().includes(brandSearch.toLowerCase()));
+  const filteredBrands = brands.filter(b => b?.name?.toLowerCase().includes(brandSearch.toLowerCase()));
 
   return (
     <main className="max-w-7xl mx-auto py-10 px-4 pt-40">
@@ -231,13 +231,13 @@ function ShopPageContent() {
             <button
               key={brand._id}
               className={`flex flex-col items-center min-w-[70px] px-2 py-1 bg-white rounded-lg transition-all duration-200 \
-                ${selectedBrand === brand.name ? "border-red-500 bg-red-50" : "border-gray-200 hover:border-red-400 hover:bg-gray-50"}
+                ${selectedBrand === brand?.name ? "border-red-500 bg-red-50" : "border-gray-200 hover:border-red-400 hover:bg-gray-50"}
               `}
               style={{ width: 60, minHeight: 75 }}
-              onClick={() => setSelectedBrand(brand.name === selectedBrand ? null : brand.name)}
+              onClick={() => setSelectedBrand(brand?.name === selectedBrand ? null : brand?.name)}
             >
               <div className={`flex items-center justify-center rounded-full bg-white border transition-all duration-200
-                ${selectedBrand === brand.name ? "border-red-500 shadow-md" : "border-gray-200 group-hover:border-red-400"}
+                ${selectedBrand === brand?.name ? "border-red-500 shadow-md" : "border-gray-200 group-hover:border-red-400"}
               `}
                 style={{ width: 50, height: 50, marginBottom: 2 }}
               >
@@ -253,7 +253,7 @@ function ShopPageContent() {
                 className="text-[11px] mt-1 text-center text-gray-500 font-medium break-words"
                 style={{ maxWidth: 60, lineHeight: '13px', whiteSpace: 'normal', overflow: 'visible', display: 'block' }}
               >
-                {brand.name.split(' ')[0]}
+                {brand?.name?.split(' ')[0] || 'Unknown'}
               </span>
             </button>
           ))}
@@ -316,33 +316,33 @@ function ShopPageContent() {
               <button
                 key={brand._id}
                 className={`flex flex-col items-center min-w-[70px] px-2 py-1 bg-white transition-all duration-200 \
-                  ${selectedBrand === brand.name ? "border-red-500 bg-red-50" : "border-gray-200 hover:border-red-400 hover:bg-gray-50"}
+                  ${selectedBrand === brand?.name ? "border-red-500 bg-red-50" : "border-gray-200 hover:border-red-400 hover:bg-gray-50"}
                 `}
                 style={{ width: 60, minHeight: 75 }}
                 
                 onClick={() => {
-                  setSelectedBrand(brand.name === selectedBrand ? null : brand.name);
+                  setSelectedBrand(brand?.name === selectedBrand ? null : brand?.name);
                   setShowBrandModal(false);
                 }}
               >
                 <div className={`flex items-center justify-center rounded-full bg-white border transition-all duration-200
-                  ${selectedBrand === brand.name ? "border-red-500 shadow-md" : "border-gray-200 group-hover:border-red-400"}
+                  ${selectedBrand === brand?.name ? "border-red-500 shadow-md" : "border-gray-200 group-hover:border-red-400"}
                 `}
                   style={{ width: 50, height: 50, marginBottom: 2 }}
                 >
                   <img
                     src={`/images/brand/${brand.image}`}
-                    alt={brand.name}
+                    alt={brand?.name || 'Brand'}
                     className="object-contain transition-transform duration-200 group-hover:scale-110"
                     style={{ width: 50, height: 50 }}
-                    onError={(e) => handleBrandImageError(e, brand.name)}
+                    onError={(e) => handleBrandImageError(e, brand?.name || 'Unknown')}
                   />
                 </div>
                 <span
                   className="text-[11px] mt-1 text-center text-gray-500 font-medium break-words"
                   style={{ maxWidth: 60, lineHeight: '13px', whiteSpace: 'normal', overflow: 'visible', display: 'block' }}
                 >
-                  {brand.name}
+                  {brand?.name || 'Unknown'}
                 </span>
               </button>
             ))}
@@ -508,7 +508,7 @@ function ShopPageContent() {
                     </h6>
                   </div>
                   <p className="text-[12px] text-gray-600 mb-1 truncate">
-                    {sp.brand.name ?? "Không rõ thương hiệu"}
+                    {(sp.brand_id?.name || sp.brand?.name) ?? "Không rõ thương hiệu"}
                   </p>
                 </div>
                 <div className="mt-auto flex flex-col gap-2">

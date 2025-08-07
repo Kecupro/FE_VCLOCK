@@ -94,7 +94,7 @@ const NewsPage = () => {
 
   const filteredNews = news.filter(news => {
     const matchesSearch = news.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter == 'all' || news.category?._id == categoryFilter;
+    const matchesCategory = categoryFilter == 'all' || news.categorynews_id?._id == categoryFilter;
     const matchesStatus = statusFilter == 'all' || String(news.news_status) == statusFilter;
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -188,9 +188,9 @@ const NewsPage = () => {
                   <td>{(currentPage - 1) * limit + index + 1}</td>
                   <td><Image src={item.image ? `/images/news/${item.image}` : `/images/logo/logoV.png`} alt={item.title} width={80} height={80} style={{ objectFit: "cover" }} /></td>
                   <td style={{ maxWidth: 200, wordBreak: "break-word" }}>{item.title}</td>
-                  <td>{item.category?.name || "Không có danh mục"}</td>
-                  <td>{ item.created_at ? new Date(item.created_at).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }) : "N/A"}</td>
-                  <td>{ item.updated_at ? new Date(item.updated_at).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }) : "N/A"}</td>
+                  <td>{item.categorynews_id?.name || "Không có danh mục"}</td>
+                  <td>{ new Date(item.created_at).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })}</td>
+                  <td>{ new Date(item.updated_at).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })}</td>
                   <td>{item.views}</td>
                   <td>
                     <span className={`${styles.statusBadge} ${item.news_status == 0 ? styles.statusActive : styles.statusInactive}`}>
