@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
-import { IProduct, IBrand } from "../cautrucdata";
+import { IProduct } from "../cautrucdata";
 import AddToCart from "./AddToCart";
 import BuyNow from "./BuyNow";
 import WishlistButton from "./WishlistButton";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
 interface WishlistItem {
@@ -18,18 +18,9 @@ interface WishlistItem {
 export default function Show1SP(props: { sp: IProduct }) {
     const sp = props.sp;
 
-    const [brands, setBrands] = useState<IBrand[]>([]);
     const [wishlistStatus, setWishlistStatus] = useState<{[key: string]: boolean}>({});
     const { user } = useAuth();
     
-    // Fetch danh sách thương hiệu
-    useEffect(() => {
-        fetch("http://localhost:3000/api/brand")
-            .then((res) => res.json())
-            .then((data) => setBrands(data))
-            .catch((err) => console.error("Lỗi fetch brand:", err));
-    }, []);
-
     // Fetch wishlist status for all products
         useEffect(() => {
             const fetchWishlist = async () => {
@@ -65,11 +56,6 @@ export default function Show1SP(props: { sp: IProduct }) {
     
             fetchWishlist();
         }, [user]); // Re-fetch when user state changes
-
-    const brandMap = useMemo(
-        () => Object.fromEntries(brands.map(b => [b._id, b.name])),
-        [brands]
-    );
 
     return (
         <div className="relative flex flex-col bg-white rounded shadow hover:shadow-lg transition p-4 group h-full">

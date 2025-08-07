@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
 import { IOrder, IOrderDetail } from "../cautrucdata";
+import FormBinhLuan from "./FormBinhLuan";
 import { toast } from "react-toastify";
 import { CheckCircle, XCircle, RefreshCw, CreditCard, Clock, Loader2, Truck, Undo2 } from "lucide-react";
 import Link from "next/link";
@@ -41,6 +42,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
   const [orderDetailsMap, setOrderDetailsMap] = useState<Record<string, IOrderDetail[]>>({});
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reviewedDetails, setReviewedDetails] = useState<Record<string, number>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [returnReason, setReturnReason] = useState("");
 
@@ -95,7 +97,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
         data.forEach((review: { order_detail_id: string, rating: number }) => {
           map[review.order_detail_id] = review.rating;
         });
-        // setReviewedDetails(map); // Xoá dòng này nếu không dùng
+        setReviewedDetails(map);
       } catch (err) {
         console.error("Lỗi fetch review:", err);
       }
@@ -406,10 +408,47 @@ export default function OrderCard({ user_id }: OrderCardProps) {
                     <p className="text-sm font-semibold text-gray-800 mt-1">
                       {item.price.toLocaleString("vi-VN")}₫
                     </p>
-                      </div>
-                    </div>
-                  ))}
+                    {/* Nút đánh giá nếu đơn đã giao */}
+                    {selectedOrder?.order_status === "daGiaoHang" && (
+                      reviewedDetails[item._id] ? (
+                        <div className="mt-2 text-sm text-green-600">
+                          <i className="fa-solid fa-star text-yellow-400"></i> Bạn đã đánh giá ({reviewedDetails[item._id]}/5)
+                        </div>
+                      ) : (
+                        <Dialog.Root>
+                          <Dialog.Trigger asChild>
+                            <button className="mt-2 inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 hover:underline transition">
+                              <i className="fa-regular fa-pen-to-square"></i> Đánh giá sản phẩm
+                            </button>
+                          </Dialog.Trigger>
+                          <Dialog.Portal>
+                            <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
+                            <Dialog.Content className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                                                      bg-white w-full max-w-md p-6 rounded-2xl shadow-2xl
+                                                      max-h-[90vh] overflow-y-auto border border-gray-200 space-y-4">
+                              <Dialog.Title className="text-lg font-semibold mb-4">Đánh giá sản phẩm</Dialog.Title>
+                              <FormBinhLuan
+                                productId={item.product_id._id}
+                                orderDetailId={item._id}
+                                onSuccess={(rating) => {
+                                  toast.success("Đánh giá thành công");
+                                  setReviewedDetails(prev => ({ ...prev, [item._id]: rating }));
+                                }}
+                              />
+                              <div className="text-right">
+                                <Dialog.Close asChild>
+                                  <button className="mt-2 px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 text-sm">Đóng</button>
+                                </Dialog.Close>
+                              </div>
+                            </Dialog.Content>
+                          </Dialog.Portal>
+                        </Dialog.Root>
+                      )
+                    )}
+                  </div>
                 </div>
+              ))}
+            </div>
 
             <hr className="my-4" />
             <div className="text-right text-lg font-bold text-red-600">
