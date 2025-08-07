@@ -115,7 +115,7 @@ const VouchersPage = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>Mã Khuyến Mãi</h1>
-        <Link href="addVoucher">
+        <Link href="/admin/vouchers/addVoucher">
           <button className={styles.addButton}>
             <Plus size={16} /> Thêm mới
           </button>
@@ -222,10 +222,10 @@ const VouchersPage = () => {
 
                     <td className={styles.tableCell}>
                       <div className={styles.actions}>
-                        <Link href={`${voucher._id}`}>
+                        <Link href={`/admin/vouchers/${voucher._id}`}>
                           <button className={styles.actionButton}><Eye size={16} /></button>
                         </Link>
-                        <Link href={`editVoucher?id=${voucher._id}`}>
+                        <Link href={`/admin/vouchers/editVoucher?id=${voucher._id}`}>
                           <button className={styles.actionButton}><Edit size={16} /></button>
                         </Link>
                         <button className={styles.actionButton} onClick={() => handleDeleteClick(voucher._id)}>

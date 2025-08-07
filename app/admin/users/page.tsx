@@ -73,9 +73,9 @@ const UsersPage = () => {
     }
   };
 
-  const getAvatarSource = (avatar: string | null | undefined): string | null => {
+  const getAvatarSource = (avatar: string | null | undefined): string => {
     if (!avatar || avatar.trim() == "") {
-      return null; // Trả về null nếu không có avatar
+      return "/images/avatar-default.png";
     }
 
     if (isValidUrl(avatar)) {
@@ -586,24 +586,20 @@ const UsersPage = () => {
                           </td>
                           <td className={styles.tableCell}>
                             <div className={styles.avatarContainer}>
-                              {avatarSrc ? (
-                                <Image
-                                  src={avatarSrc}
-                                  alt={`Avatar của ${user.username || user.fullName || 'User'}`}
-                                  width={40}
-                                  height={40}
-                                  className={styles.avatar}
-                                  style={{
-                                    border: "none",
-                                    objectFit: "cover",
-                                    borderRadius: "50%",
-                                  }}
-                                  unoptimized={isValidUrl(user.avatar || '')}
-                                  priority={false}
-                                />
-                              ) : (
-                                <UserCircle size={40} className={styles.userIcon} />
-                              )}
+                              <Image
+                                src={avatarSrc}
+                                alt={`Avatar của ${user.username || user.fullName || 'User'}`}
+                                width={40}
+                                height={40}
+                                className={styles.avatar}
+                                style={{
+                                  border: "none",
+                                  objectFit: "cover",
+                                  borderRadius: "50%",
+                                }}
+                                unoptimized={isValidUrl(user.avatar || '')}
+                                priority={false}
+                              />
                             </div>
                           </td>
                           <td className={styles.tableCell}>

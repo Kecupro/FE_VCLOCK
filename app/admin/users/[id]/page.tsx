@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useCallback  } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, User } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useAppContext } from '../../../context/AppContext';
 import styles from '../../assets/css/detail.module.css';
 import Image from 'next/image';
@@ -19,7 +19,6 @@ const UserDetailPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<number>(0);
   const [hasPermission, setHasPermission] = useState<boolean>(false);
-  const [imageError, setImageError] = useState<boolean>(false);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -100,8 +99,10 @@ const UserDetailPage = () => {
     checkUserRole();
   }, [checkUserRole]);
 
-  const getAvatarUrl = (avatar: string | null | undefined): string | null => {
-    if (!avatar) return null;
+  const getAvatarUrl = (avatar: string | null | undefined): string => {
+    if (!avatar) {
+      return "/images/avatar-default.png";
+    }
 
     if (avatar.startsWith('http://') || avatar.startsWith('https://')) {
       return avatar;
@@ -112,25 +113,6 @@ const UserDetailPage = () => {
 
   const AvatarDisplay = ({ user }: { user: IUser }) => {
   const avatarUrl = getAvatarUrl(user.avatar);
-
-  if (!avatarUrl || imageError) {
-    return (
-      <div
-        style={{
-          width: '110px',
-          height: '110px',
-          borderRadius: '100px',
-          backgroundColor: '#f3f4f6',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '2px solid #e5e7eb'
-        }}
-      >
-        <User size={40} color="#9ca3af" />
-      </div>
-    );
-  }
 
   return (
     <Image
@@ -143,7 +125,6 @@ const UserDetailPage = () => {
         objectFit: 'cover',
         border: '2px solid #e5e7eb',
       }}
-      onError={() => setImageError(true)}
     />
   );
   };

@@ -166,7 +166,7 @@ const EditPaymentMethod = () => {
           <div className={styles.tinymceWrapper}>
           <Editor
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onEditorChange={(content) => setDescription(content)}
             init={{
               height: 400,
               menubar: false,

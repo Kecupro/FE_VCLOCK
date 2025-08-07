@@ -59,9 +59,9 @@ export default function AdminChat() {
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
-  const user_img_default = "https://media.istockphoto.com/id/1300845620/vi/vec-to/bi%E1%BB%83u-t%C6%B0%E1%BB%A3ng-ng%C6%B0%E1%BB%9Di-d%C3%B9ng-ph%E1%BA%B3ng-b%E1%BB%8B-c%C3%B4-l%E1%BA%ADp-tr%C3%AAn-n%E1%BB%81n-tr%E1%BA%AFng-bi%E1%BB%83u-t%C6%B0%E1%BB%A3ng-ng%C6%B0%E1%BB%9Di-d%C3%B9ng-minh-h%E1%BB%8Da-vector.jpg?s=612x612&w=0&k=20&c=MyAgwZm-Ct_rQpQGYh0Wb0N7KeAaFsY_WrZJ89EAiIw=";
+  const user_img_default = "/images/avatar-default.png";
   const currentAdminId = "admin-id";
-  const adminAvatar = "https://secure.gravatar.com/avatar/2ad86d4128742b555b487c8a62a33e9e?s=96&d=mm&r=g";
+  const adminAvatar = "/images/avatar-default.png";
 
   useEffect(() => {
     fetch("http://localhost:3000/api/conversations")

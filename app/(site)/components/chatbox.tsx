@@ -49,8 +49,8 @@ interface UserToken {
   avatar?: string;
 }
 
-const defaultUserAvatar = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-const adminAvatar = "https://secure.gravatar.com/avatar/2ad86d4128742b555b487c8a62a33e9e?s=96&d=mm&r=g";
+const defaultUserAvatar = "/images/avatar-default.png";
+const adminAvatar = "/images/avatar-default.png";
 
 const [userInfo, setUserInfo] = useState<UserToken | null>(null);
 

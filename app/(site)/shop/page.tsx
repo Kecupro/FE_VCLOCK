@@ -387,12 +387,12 @@ function ShopPageContent() {
               >
                 {showAllCategories ? (
                   <>
-                    <i className="fa-solid fa-chevron-up text-red-400"></i>
+                    <i className="fa-solid fa-angle-up text-red-400"></i>
                     Thu gọn
                   </>
                 ) : (
                   <>
-                    <i className="fa-solid fa-chevron-down text-red-400"></i>
+                    <i className="fa-solid fa-angle-down text-red-400"></i>
                     Xem thêm ({categories.length - 6})
                   </>
                 )}
@@ -457,7 +457,7 @@ function ShopPageContent() {
                 >
                   <i className="fa-solid fa-sort mr-2"></i>
                   {sortLabel}
-                  <i className="fa-solid fa-chevron-down ml-2"></i>
+                  <i className="fa-solid fa-angle-down ml-2"></i>
                 </button>
                 {showSortDropdown && (
                   <div className="absolute right-0 mt-2 w-[220px] bg-white border border-gray-200 rounded shadow-lg z-50 animate-fade-in">

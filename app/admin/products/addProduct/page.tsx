@@ -33,6 +33,7 @@ const AddProduct = () => {
   const [selectedCaseMaterial, setSelectedCaseMaterial] = useState('');
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [brands, setBrands] = useState<IBrand[]>([]);
+  const [status, setStatus] = useState('Hoạt động');
 
   const { isDarkMode } = useAppContext();
 
@@ -210,6 +211,14 @@ const AddProduct = () => {
           <select className={styles.select} value={selectedBrand} onChange={(e) => setSelectedBrand(e.target.value)}>
             <option value="">--- Chọn thương hiệu ---</option>
             {brands.map(cate => <option key={cate._id} value={cate._id}>{cate.name}</option>)}
+          </select>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Trạng thái <span style={{color: "red"}}>*</span></label>
+          <select className={styles.select} value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="Hoạt động">Hoạt động</option>
+            <option value="Không hoạt động">Không hoạt động</option>
           </select>
         </div>
 

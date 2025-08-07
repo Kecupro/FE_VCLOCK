@@ -360,6 +360,10 @@ const OrdersPage = () => {
                 const imagePath = productImage?.image ? `/images/product/${productImage.image}` : null;
                 const orderStatusText = statusMap[order.order_status] || 'Không rõ';
                 const orderStatusLabel = orderStatusText as keyof typeof statusConfigs;
+                
+                // Debug log
+                console.log('Order status:', order.order_status, 'Mapped to:', orderStatusText);
+                
                 const lockedStatuses = ['daGiaoHang', 'hoanTra', 'hoanThanh', 'daHuy'];
                 const isLocked = lockedStatuses.includes(order.order_status);
                 const isBankTransfer = order.payment_method_id?.name == 'Chuyển khoản Ngân hàng';
@@ -369,11 +373,11 @@ const OrdersPage = () => {
                   order.payment_status == 'choHoanTien';
                 const isCOD = order.payment_method_id?.name == 'Thanh toán khi nhận hàng (COD)';
                 const canMarkPaid =
-                  isCOD &&
+                  (isCOD &&
                   order.order_status == 'daGiaoHang' &&
-                  order.payment_status == 'chuaThanhToan' ||
-                  order?.order_status == 'daHuy' && 
-                  order.payment_status == 'choHoanTien';; 
+                  order.payment_status == 'chuaThanhToan') ||
+                  (order?.order_status == 'daHuy' && 
+                  order.payment_status == 'choHoanTien');
 
                 return (
                   <tr key={order._id}>
