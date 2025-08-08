@@ -10,7 +10,6 @@ export default function Categories() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
-	// Fetch danh sách thương hiệu
 	useEffect(() => {
 		setLoading(true);
 		setError(null);
@@ -23,7 +22,6 @@ export default function Categories() {
 				return res.json();
 			})
 			.then((data) => {
-				// Ensure data is an array
 				if (Array.isArray(data)) {
 					setBrands(data);
 				} else if (data && Array.isArray(data.brands)) {
@@ -31,12 +29,12 @@ export default function Categories() {
 				} else if (data && Array.isArray(data.data)) {
 					setBrands(data.data);
 				} else {
-					console.warn("API returned unexpected data format:", data);
+					        console.warn("API trả về định dạng dữ liệu không mong đợi:", data);
 					setBrands([]);
 				}
 			})
 			.catch((err) => {
-				console.error("Lỗi fetch brand:", err);
+				        console.error("Lỗi tải thương hiệu:", err);
 				setError(err.message);
 				setBrands([]);
 			})

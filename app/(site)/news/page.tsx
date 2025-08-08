@@ -11,7 +11,6 @@ interface NewsResponse {
   totalNews: number;
 }
 
-// Skeleton component cho loading
 const NewsSkeleton = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     {[...Array(6)].map((_, index) => (
@@ -44,11 +43,10 @@ export default function News() {
     fetchCategories();
   }, []);
 
-  // Debounce fetchNews để tránh gọi API quá nhiều
   const debouncedFetchNews = useCallback(() => {
     const timeoutId = setTimeout(() => {
       fetchNews();
-    }, 50); // Giảm delay xuống 50ms
+    }, 50);
 
     return () => clearTimeout(timeoutId);
   }, [currentPage, selectedCategory]);
@@ -78,7 +76,6 @@ export default function News() {
       
       const response = await axios.get(url);
       
-      // Thêm delay nhỏ để tạo hiệu ứng mượt
       await new Promise(resolve => setTimeout(resolve, 150));
       
       setNewsData(response.data as NewsResponse);
@@ -97,13 +94,12 @@ export default function News() {
   };
 
   const handleCategoryChange = (categoryId: string) => {
-    if (categoryId === selectedCategory) return; // Không làm gì nếu đã chọn
+    if (categoryId === selectedCategory) return;
     setSelectedCategory(categoryId);
     setCurrentPage(1);
     setIsTransitioning(true);
   };
 
-  // Loading chỉ hiển thị khi lần đầu load
   if (loading && !newsData) {
     return (
       <div className="w-full bg-gray-50 py-12 pt-40">
@@ -141,7 +137,6 @@ export default function News() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
       
           <aside className="lg:col-span-1 space-y-8">
-            {/* Danh mục tin tức */}
             <div className="bg-white rounded-lg shadow-sm p-4">
               <h4 className="font-semibold text-xl mb-4 text-gray-800 border-b pb-2">
                 <i className="fas fa-list mr-2"></i>
@@ -178,7 +173,6 @@ export default function News() {
               </div>
             </div>
 
-            {/* Bài viết mới */}
             <div className="bg-white rounded-lg shadow-sm p-4">
               <h4 className="font-semibold text-xl mb-4 text-gray-800 border-b pb-2">
                 <i className="fas fa-newspaper mr-2"></i>
@@ -213,7 +207,6 @@ export default function News() {
           </aside>
 
           <section className="lg:col-span-3">
-            {/* Hiển thị danh mục đang chọn */}
             {selectedCategory !== 'all' && (
               <div className="mb-6 animate-fade-in">
                 <h4 className="text-lg font-semibold text-gray-800">
@@ -230,7 +223,6 @@ export default function News() {
               </div>
             )}
 
-            {/* Content với smooth transition */}
             <div className={`transition-opacity duration-300 ${isTransitioning ? 'opacity-50' : 'opacity-100'}`}>
               {isTransitioning ? (
                 <NewsSkeleton />

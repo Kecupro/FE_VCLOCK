@@ -38,33 +38,28 @@ export default function AddressSelector({ value, onChange }: {
   const [ward, setWard] = useState('');
   const [street, setStreet] = useState("");
 
-  // Dropdown states
   const [isProvinceOpen, setIsProvinceOpen] = useState(false);
   const [isDistrictOpen, setIsDistrictOpen] = useState(false);
   const [isWardOpen, setIsWardOpen] = useState(false);
 
-  // Refs for dropdown containers
   const provinceRef = useRef<HTMLDivElement>(null);
   const districtRef = useRef<HTMLDivElement>(null);
   const wardRef = useRef<HTMLDivElement>(null);
 
-  // Sử dụng ref để lưu trữ onChange function và tránh vòng lặp vô hạn
+
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
-  // Sử dụng ref để theo dõi việc đã parse value chưa
   const hasParsedValue = useRef(false);
 
-  // Sử dụng ref để lưu trữ giá trị cuối cùng đã gửi ra ngoài
   const lastSentValue = useRef('');
 
-  // Reset hasParsedValue khi value thay đổi
   useEffect(() => {
     hasParsedValue.current = false;
-    lastSentValue.current = ''; // Reset lastSentValue khi value thay đổi
+    lastSentValue.current = ''; 
   }, [value]);
 
-  // Close dropdowns when clicking outside
+ 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (provinceRef.current && !provinceRef.current.contains(event.target as Node)) {
@@ -95,7 +90,6 @@ export default function AddressSelector({ value, onChange }: {
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/districts/${province}`)
         .then(res => res.json())
         .then(setDistricts);
-      // Reset district và ward khi province thay đổi
       setDistrict('');
       setWard('');
       setWards([]);
@@ -112,7 +106,6 @@ export default function AddressSelector({ value, onChange }: {
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wards/${district}`)
         .then(res => res.json())
         .then(setWards);
-      // Reset ward khi district thay đổi
       setWard('');
     } else {
       setWards([]);
@@ -120,24 +113,20 @@ export default function AddressSelector({ value, onChange }: {
     }
   }, [district]);
 
-  // Parse value prop to set initial state
   useEffect(() => {
     if (value && provinces.length > 0 && !hasParsedValue.current) {
-      const addressParts = value.split(', ').reverse(); // Reverse to get [province, district, ward, street]
+      const addressParts = value.split(', ').reverse(); 
       
-      // Find province
       const provinceName = addressParts[0];
       const foundProvince = provinces.find(p => p.name === provinceName);
       if (foundProvince) {
         setProvince(foundProvince.code);
       }
       
-      // Đánh dấu đã parse để tránh chạy lại
       hasParsedValue.current = true;
     }
-  }, [value, provinces]); // Chỉ phụ thuộc vào value và provinces
+  }, [value, provinces]); 
 
-  // Parse district và ward sau khi có districts và wards
   useEffect(() => {
     if (value && districts.length > 0 && hasParsedValue.current) {
       const addressParts = value.split(', ').reverse();
@@ -162,7 +151,6 @@ export default function AddressSelector({ value, onChange }: {
         }
       }
       
-      // Set street address
       const streetAddress = addressParts.slice(3).reverse().join(', ');
       if (streetAddress) {
         setStreet(streetAddress);
@@ -170,7 +158,6 @@ export default function AddressSelector({ value, onChange }: {
     }
   }, [value, wards]);
 
-  // Custom Dropdown component
   const CustomDropdown = ({
     items,
     selected,
@@ -232,19 +219,16 @@ export default function AddressSelector({ value, onChange }: {
     </div>
   );
 
-  // Tìm tên tỉnh, huyện, xã
   const provinceName = provinces.find((p) => p.code === province)?.name || "";
   const districtName = districts.find((d) => d.code === district)?.name || "";
   const wardName = wards.find((w) => w.code === ward)?.name || "";
 
-  // Gọi onChange khi có thay đổi - sử dụng setTimeout để tránh vòng lặp
+  
   useEffect(() => {
     const full = [street, wardName, districtName, provinceName].filter(Boolean).join(", ");
     
-    // Chỉ gọi onChange khi giá trị thực sự thay đổi và không rỗng
     if (full !== lastSentValue.current && full.trim() !== '') {
       lastSentValue.current = full;
-      // Sử dụng setTimeout để tránh vòng lặp vô hạn
       setTimeout(() => {
         onChangeRef.current(full);
       }, 0);

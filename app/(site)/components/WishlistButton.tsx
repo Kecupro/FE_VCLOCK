@@ -12,12 +12,10 @@ export default function WishlistButton({ productId, initialIsWishlisted }: Wishl
     const [isLoading, setIsLoading] = useState(false);
     const { addToWishlist, removeFromWishlist, getWishlistStatus } = useWishlist();
 
-    // Update wishlist status when initialIsWishlisted changes
     useEffect(() => {
         setIsWishlisted(initialIsWishlisted);
     }, [initialIsWishlisted]);
 
-    // Refresh wishlist status when component mounts
     useEffect(() => {
         const refreshStatus = async () => {
             const token = localStorage.getItem("token");
@@ -48,7 +46,6 @@ export default function WishlistButton({ productId, initialIsWishlisted }: Wishl
             }
 
             if (success) {
-                // Refresh wishlist status after successful operation
                 const statusMap = await getWishlistStatus();
                 setIsWishlisted(statusMap[productId] || false);
                 toast.success(isWishlisted ? "Đã xóa khỏi danh sách yêu thích!" : "Đã thêm vào danh sách yêu thích!");

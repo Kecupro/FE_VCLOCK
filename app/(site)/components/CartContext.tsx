@@ -42,7 +42,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         setSelectedItems(JSON.parse(storedSelected));
       } catch (error) {
-        console.error('Lỗi phân tích selectedItems từ localStorage:', error);
+        console.error('Lỗi phân tích các mục đã chọn từ localStorage:', error);
         setSelectedItems([]);
       }
     }
@@ -132,7 +132,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         setSelectedItems(JSON.parse(storedSelected));
       } catch (error) {
-        console.error('Lỗi phân tích selectedItems từ localStorage:', error);
+        console.error('Lỗi phân tích các mục đã chọn từ localStorage:', error);
         setSelectedItems([]);
       }
     }

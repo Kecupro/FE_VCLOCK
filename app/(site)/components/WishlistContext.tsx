@@ -54,7 +54,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
         setWishlistCount(0);
       }
     } catch (error) {
-              console.error('Lỗi tải số lượng wishlist:', error);
+              console.error('Lỗi tải số lượng danh sách yêu thích:', error);
       setWishlistCount(0);
     }
   }, []);
@@ -88,7 +88,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
       }
       return {};
     } catch (error) {
-              console.error('Lỗi tải trạng thái wishlist:', error);
+              console.error('Lỗi tải trạng thái danh sách yêu thích:', error);
       return {};
     }
   };
@@ -113,7 +113,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
       }
       return false;
     } catch (error) {
-              console.error('Lỗi thêm vào wishlist:', error);
+              console.error('Lỗi thêm vào danh sách yêu thích:', error);
       return false;
     }
   };
@@ -138,7 +138,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
       }
       return false;
     } catch (error) {
-              console.error('Lỗi xóa khỏi wishlist:', error);
+              console.error('Lỗi xóa khỏi danh sách yêu thích:', error);
       return false;
     }
   };
@@ -147,7 +147,6 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     fetchWishlistCount();
   }, []);
 
-  // Lắng nghe sự thay đổi của token để refresh wishlist count
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'token' || e.key === null) {

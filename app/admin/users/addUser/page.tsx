@@ -197,8 +197,6 @@ const AddUser = () => {
         fullName: formData.fullName.trim(),
       };
 
-      console.log("Sending create data:", createData);
-
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/user/add`, {
         method: "POST",
         headers: {
@@ -213,8 +211,7 @@ const AddUser = () => {
         throw new Error(errorData.message || "Lỗi khi tạo người dùng");
       }
 
-      const result = await response.json();
-      console.log("Create user response:", result);
+      await response.json();
 
       toast.success("Tạo người dùng thành công!");
       
@@ -231,7 +228,7 @@ const AddUser = () => {
         router.push("/admin/users");
       }, 1500);
     } catch (error) {
-      console.error("Error creating user:", error);
+              console.error("Lỗi khi tạo người dùng:", error);
       toast.error(
         error instanceof Error
           ? error.message

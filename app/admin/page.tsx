@@ -125,7 +125,7 @@ export default function AdminDashboardPage() {
       setMonthlyRevenue(revenueByMonth);
       setOrders(
         allOrders.map((o) => ({
-          customerName: o.user_id?.username || '...',
+          customerName: o.user_id?.fullName || o.user_id?.username || '...',
           orderId: o._id,
           paymentMethod: o.payment_method_id?.name || '...',
           totalAmount: (o.total_amount || 0).toLocaleString(),
@@ -215,10 +215,8 @@ export default function AdminDashboardPage() {
   <Container fluid>
     <h2 className="mt-3 mb-4">Trang chủ</h2>
 
-    {/* Overview Cards */}
     <Row className="mb-4">
 
-    {/* Quản lý người dùng */}
       <Col md={3}>
       <Nav.Link href="/admin/users" className="card-link">
         <Card className="overview-card">
@@ -233,7 +231,6 @@ export default function AdminDashboardPage() {
       </Nav.Link>
       </Col>
 
-    {/* Quản lý đơn hàng */}
       <Col md={3}>
      <Nav.Link href="/admin/orders" className="card-link">
       <Card className="overview-card">
@@ -248,7 +245,6 @@ export default function AdminDashboardPage() {
       </Nav.Link>
       </Col>
 
-    {/* Quản lý tin tức */}
       <Col md={3}>
      <Nav.Link href="/admin/news" className="card-link">
       <Card className="overview-card">
@@ -263,7 +259,6 @@ export default function AdminDashboardPage() {
       </Nav.Link>
       </Col>
 
-    {/* Quản lý sản phẩm */}
       <Col md={3}>
      <Nav.Link href="/admin/products" className="card-link">
       <Card className="overview-card">
@@ -278,7 +273,6 @@ export default function AdminDashboardPage() {
       </Nav.Link>
       </Col>
 
-    {/* Quản lý danh mục sản phẩm*/}
       <Col md={3}>
      <Nav.Link href="/admin/categories-product-list" className="card-link">
       <Card className="overview-card">
@@ -293,7 +287,6 @@ export default function AdminDashboardPage() {
       </Nav.Link>
       </Col>
 
-    {/* Quản lý danh mục tin tức*/}
       <Col md={3}>
      <Nav.Link href="/admin/categories-news-list" className="card-link">
       <Card className="overview-card">
@@ -323,7 +316,6 @@ export default function AdminDashboardPage() {
       </Nav.Link>
       </Col>
 
-    {/* Quản lý voucher */}
       <Col md={3}>
      <Nav.Link href="/admin/vouchers" className="card-link">
       <Card className="overview-card">
@@ -483,7 +475,6 @@ export default function AdminDashboardPage() {
     </Row>
 
     <Row className="mt-0">
-      {/* Sản phẩm bán chạy */}
       <Col md={6}>
         <Card className="mb-4 sp-dashboard-card">
           <Card.Body>
@@ -508,7 +499,6 @@ export default function AdminDashboardPage() {
         </Card>
       </Col>
           
-      {/* Sản phẩm tồn kho mới nhất */}
       <Col md={6}>
         <Card className="mb-4 sp-dashboard-card">
           <Card.Body>

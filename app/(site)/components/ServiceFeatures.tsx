@@ -2,17 +2,17 @@
 
 const features = [
     {
-        icon: "images/24-hours-phone-service.png",
+        icon: "images/mixed/24-hours-phone-service.png",
         title: "Phục vụ 24/7",
         desc: "Hỗ trợ khách hàng mọi lúc, mọi nơi.",
     },
     {
-        icon: "images/logistics-delivery-truck-in-movement.png",
+        icon: "images/mixed/logistics-delivery-truck-in-movement.png",
         title: "Giao hàng tận nơi",
         desc: "Nhanh chóng, an toàn, tiện lợi.",
     },
     {
-        icon: "images/gift.png",
+        icon: "images/mixed/gift.png",
         title: "Miễn phí vận chuyển",
         desc: "Cam kết chất lượng và bảo hành chính hãng.",
     },

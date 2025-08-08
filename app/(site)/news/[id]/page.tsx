@@ -22,13 +22,12 @@ export default function NewsDetail() {
     }
   }, [params?.id]);
 
-  // Kiểm tra và xóa session cũ nếu cần
   const cleanupOldSession = () => {
     if (typeof window === 'undefined') return;
     
     const lastCleanup = localStorage.getItem('viewedNewsLastCleanup');
     const now = Date.now();
-    const oneDay = 24 * 60 * 60 * 1000; // 24 giờ
+    const oneDay = 24 * 60 * 60 * 1000;
     
     if (!lastCleanup || (now - parseInt(lastCleanup)) > oneDay) {
       localStorage.removeItem('viewedNews');
@@ -36,21 +35,19 @@ export default function NewsDetail() {
     }
   };
 
-  // Kiểm tra xem đã xem tin tức này trong session chưa
   const hasViewedInSession = (newsId: string): boolean => {
     if (typeof window === 'undefined') return false;
     
-    cleanupOldSession(); // Dọn dẹp session cũ trước khi kiểm tra
+    cleanupOldSession();
     
     const viewedNews = JSON.parse(localStorage.getItem('viewedNews') || '[]');
     return viewedNews.includes(newsId);
   };
 
-  // Đánh dấu đã xem tin tức trong session
   const markAsViewed = (newsId: string) => {
     if (typeof window === 'undefined') return;
     
-    cleanupOldSession(); // Dọn dẹp session cũ trước khi thêm mới
+    cleanupOldSession();
     
     const viewedNews = JSON.parse(localStorage.getItem('viewedNews') || '[]');
     if (!viewedNews.includes(newsId)) {
@@ -77,21 +74,18 @@ export default function NewsDetail() {
       hasIncrementedView.current = true;
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/news/${params.id}/increment-view`);
       
-      // Type assertion để xử lý response.data
       const responseData = response.data as { success?: boolean; message?: string; views?: number };
       
       if (responseData.success) {
-        // Đánh dấu đã xem trong session
         markAsViewed(params.id as string);
         
-        // Cập nhật lượt xem trong state nếu cần
         if (news) {
           setNews(prev => prev ? { ...prev, views: (prev.views || 0) + 1 } : null);
         }
       }
     } catch (error) {
               console.error('Lỗi tăng lượt xem:', error);
-      hasIncrementedView.current = false; // Reset if failed
+      hasIncrementedView.current = false;
     }
   };
 

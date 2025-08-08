@@ -5,7 +5,7 @@ import clsx from "clsx";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean;
-  variant?: "primary" | "secondary" | "danger" | "outline"; // loại nút
+  variant?: "primary" | "secondary" | "danger" | "outline";
   children: React.ReactNode;
 }
 

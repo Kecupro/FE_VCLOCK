@@ -49,7 +49,7 @@ function AccountPageContent() {
   });
   const [tab, setTab] = useState<"info" | "orders" | "favorites" | "addresses" | "voucher">("info");
   
-  // Kiểm tra query parameter để set tab mặc định
+
   useEffect(() => {
     const tabParam = searchParams.get('tab');
     if (tabParam === 'favorites') {
@@ -62,12 +62,12 @@ function AccountPageContent() {
   const [avatarError, setAvatarError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Address management states
+
   const [addresses, setAddresses] = useState<IAddress[]>([]);
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [isLoadingWishlist, setIsLoadingWishlist] = useState(false);
   const { refreshWishlistCount } = useWishlist();
-  // Edit profile states
+
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editForm, setEditForm] = useState({
     fullName: ''
@@ -81,13 +81,10 @@ function AccountPageContent() {
     } else {
       setIsAuthenticated(true);
       
-      // Sử dụng user từ AuthContext
       if (user) {
-        // Chỉ set editForm khi không đang edit để tránh reset input
         if (!isEditingProfile) {
           setEditForm({ fullName: user.fullName || '' });
         }
-        // Luôn set avatar, kể cả khi user không có avatar
         const newAvatar = getAvatarSrc(user.avatar);
         setAvatar(newAvatar);
       }
@@ -95,19 +92,19 @@ function AccountPageContent() {
     }
   }, [user, router, isEditingProfile]);
 
-  // Tối ưu hóa avatar với useMemo
+
   const memoizedAvatar = useMemo(() => {
     return getAvatarSrc(user?.avatar);
   }, [user?.avatar]);
 
-  // Cập nhật avatar khi user thay đổi
+
   useEffect(() => {
     if (user?.avatar) {
       setAvatar(memoizedAvatar);
     }
   }, [memoizedAvatar]);
 
-  // Reset avatar error khi avatar thay đổi
+
   useEffect(() => {
     setAvatarError(false);
   }, [avatar]);
@@ -127,11 +124,11 @@ function AccountPageContent() {
         setAddresses(data);
       }
     } catch (error) {
-              console.error("Lỗi tải địa chỉ:", error);
+      console.error("Lỗi tải địa chỉ:", error);
     }
   }, []);
 
-  // Fetch addresses when tab changes to addresses
+
   useEffect(() => {
     if (tab === 'addresses') {
       fetchAddresses();
@@ -154,13 +151,13 @@ function AccountPageContent() {
         setWishlistItems(data);
       }
     } catch (error) {
-              console.error("Lỗi tải wishlist:", error);
+      console.error("Lỗi tải danh sách yêu thích:", error);
     } finally {
       setIsLoadingWishlist(false);
     }
   }, []);
 
-  // Fetch wishlist items when tab changes to favorites
+
   useEffect(() => {
     if (tab === 'favorites') {
       fetchWishlistItems();
@@ -205,10 +202,8 @@ function AccountPageContent() {
       });
 const result = await response.json();
       if (response.ok) {
-        // Cập nhật AuthContext để header cũng được cập nhật
         await refreshUser();
         
-        // Cập nhật editForm với dữ liệu mới
         setEditForm({ fullName: result.user.fullName || '' });
         if (result.user.avatar) {
           const updatedAvatar = getAvatarSrc(result.user.avatar);
@@ -217,7 +212,6 @@ const result = await response.json();
         setSelectedAvatarFile(null);
         setIsEditingProfile(false);
         
-        // Trigger storage event để header cập nhật ngay lập tức
         window.dispatchEvent(new StorageEvent('storage', {
           key: 'user',
           newValue: JSON.stringify(result.user)
@@ -228,7 +222,7 @@ const result = await response.json();
         toast.error(result.message || "Có lỗi xảy ra khi cập nhật thông tin!");
       }
     } catch (error) {
-              console.error("Lỗi cập nhật hồ sơ:", error);
+      console.error("Lỗi cập nhật hồ sơ:", error);
       toast.error("Có lỗi xảy ra khi cập nhật thông tin!");
     } finally {
       setIsLoading(false);
@@ -272,7 +266,7 @@ const result = await response.json();
         setIsAddingAddress(false);
       }
     } catch (error) {
-              console.error("Lỗi thêm địa chỉ:", error);
+      console.error("Lỗi thêm địa chỉ:", error);
     }
   };
 
@@ -294,7 +288,7 @@ const result = await response.json();
         setAddresses(addresses.filter(addr => addr._id !== addressId));
       }
     } catch (error) {
-              console.error("Lỗi xóa địa chỉ:", error);
+      console.error("Lỗi xóa địa chỉ:", error);
     }
   };
 
@@ -337,7 +331,7 @@ address: address.address
         setEditingAddressId(null);
       }
     } catch (error) {
-              console.error("Lỗi cập nhật địa chỉ:", error);
+      console.error("Lỗi cập nhật địa chỉ:", error);
     }
   };
 
@@ -356,15 +350,15 @@ address: address.address
 
       if (response.ok) {
         setWishlistItems(wishlistItems.filter(item => item.product_id !== productId));
-        refreshWishlistCount(); // Refresh wishlist count trong header
+        refreshWishlistCount(); 
         toast.success('Đã xóa sản phẩm khỏi danh sách yêu thích!');
       }
     } catch (error) {
-              console.error("Lỗi xóa khỏi wishlist:", error);
+      console.error("Lỗi xóa khỏi danh sách yêu thích:", error);
       alert('Có lỗi xảy ra khi xóa sản phẩm khỏi danh sách yêu thích.');
     }
   };
-//them 
+
   const handleSetDefaultAddress = async (id: string) => {
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/addresses/${id}/set-default`, {
@@ -374,18 +368,18 @@ address: address.address
           'Content-Type': 'application/json'
         }
       });
-      await fetchAddresses(); // fetch lại danh sách địa chỉ
+      await fetchAddresses(); 
       toast.success("Đã đặt địa chỉ làm mặc định thành công!");
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       const errorMessage =
         error.response?.data?.message || "Không thể đặt mặc định. Vui lòng thử lại.";
-      console.error("Lỗi set default address:", err);
+      console.error("Lỗi đặt địa chỉ mặc định:", err);
       toast.error(errorMessage);
     }
   };
 
-  // Thêm hàm xóa toàn bộ wishlist
+
   const handleClearWishlist = async () => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa tất cả sản phẩm khỏi danh sách yêu thích?")) return;
     const token = localStorage.getItem("token");
@@ -408,7 +402,7 @@ address: address.address
         toast.error(result.message || 'Có lỗi xảy ra khi xóa toàn bộ wishlist.');
       }
     } catch (error) {
-      console.error("Lỗi xóa toàn bộ wishlist:", error);
+              console.error("Lỗi xóa toàn bộ danh sách yêu thích:", error);
       toast.error('Có lỗi xảy ra khi xóa toàn bộ wishlist.');
     } finally {
       setIsLoadingWishlist(false);
@@ -813,7 +807,7 @@ type="submit"
             {tab === "favorites" && (
               <div>
                 <h2 className="text-xl font-bold text-gray-800 mb-6">Sản phẩm yêu thích</h2>
-                {/* Nút xóa tất cả wishlist */}
+
                 {wishlistItems.length > 0 && (
                   <div className="flex justify-end mb-4">
                     <button
@@ -842,7 +836,6 @@ type="submit"
                           height={100}
                           className="w-full h-full object-contain transition-all duration-300 group-hover:scale-105 group-hover:brightness-110"
                           onError={() => {
-                            // Fallback sẽ được xử lý bởi Next.js Image component
                           }}
                         />
                         </div>
@@ -884,7 +877,7 @@ type="submit"
                 <div className="flex flex-col gap-6 max-w-6xl w-full mx-auto">
                   <VoucherCard user_id={user?._id || ""} />
                 </div>
-                {/* Hiển thị nếu không có user hoặc user không có _id */}
+
                 {(!user || !user._id) && (
                   <div className="text-center py-12">
                     <i className="fa-solid fa-ticket text-6xl text-gray-400 mb-4"></i>

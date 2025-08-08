@@ -113,7 +113,6 @@ const NewsDetailPage = () => {
 
       <div className={styles.form}>
         <div className={styles.topGrid}>
-          {/* BÊN TRÁI: Tiêu đề & mô tả */}
           <div className={styles.leftColumn}>
             <div className={styles.detailSection}>
               <h4 className={styles.sectionTitle}>Tiêu đề</h4>

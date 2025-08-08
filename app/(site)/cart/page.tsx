@@ -7,8 +7,6 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { CheckCircle, Circle } from "lucide-react";
 import { useCart } from "../components/CartContext";
-
-// Force dynamic rendering to avoid build issues
 export const dynamic = 'force-dynamic';
 
 export default function CartPage() {
@@ -54,7 +52,6 @@ export default function CartPage() {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <div className="flex items-center mb-2">
-                {/* chọn tất cả sản phảma trong giỏ */}
               <button
                 onClick={toggleSelectAll}
                 className="flex items-center m-3 gap-2 px-3 py-2 rounded text-sm transition-colors bg-gray-100 hover:bg-gray-200"
@@ -137,7 +134,7 @@ export default function CartPage() {
 
                                 if (val > product.quantity) {
                                   toast.error(`Số lượng hàng không đủ. Chỉ còn ${product.quantity} sản phẩm.`);
-                                  updateQuantity(item._id, product.quantity); // auto set về tối đa
+                                  updateQuantity(item._id, product.quantity); 
                                 } else {
                                   updateQuantity(item._id, val);
                                 }
@@ -187,11 +184,11 @@ export default function CartPage() {
               {showConfirmModal && (
                 <div
                   className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 h-full min-h-screen"
-                  onClick={() => setShowConfirmModal(false)} // click ngoài modal
+                  onClick={() => setShowConfirmModal(false)} 
                 >
                   <div
                     className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full"
-                    onClick={(e) => e.stopPropagation()} // chặn click bên trong lan ra
+                    onClick={(e) => e.stopPropagation()} 
                   >
                     <h2 className="text-lg font-semibold mb-4">Xác nhận xoá</h2>
                     <p className="mb-4 text-gray-700">Bạn có chắc chắn muốn xoá toàn bộ giỏ hàng không?</p>

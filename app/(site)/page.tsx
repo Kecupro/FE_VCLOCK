@@ -1,6 +1,5 @@
 "use client";
 
-// import Image from "next/image";
 import Banner from "./components/Banner";
 import Categories from "./components/Categories";
 import ProductNew from "./components/ProductNew";
@@ -11,7 +10,6 @@ import ProductSale from "./components/ProductSale";
 import dynamic from "next/dynamic";
 const VoucherBoxList = dynamic(() => import("./components/VoucherBoxList"), { ssr: false });
 const AdPopup = dynamic(() => import("./components/AdPopup"), { ssr: false });
-// import TawkToChat from "./components/TawkToChat";
 
 export default function Home() {
   return (
@@ -22,16 +20,9 @@ export default function Home() {
       <ServiceFeatures />
       <Categories />
       <VoucherBoxList />
-      {/* <img
-        src="/images/newarrival.png"
-        alt="Hero Image"
-        width={500}
-        height={500}  
-        className="w-full h-auto"
-      /> */}
     <ProductNew/>
      <img
-        src="/images/qc4.png"
+        src="/images/ads/qc4.png"
         alt="Hero Image"
         width={500}
         height={500}  
@@ -39,7 +30,7 @@ export default function Home() {
       />
     <ProductSale />
      <img
-        src="/images/qc2.png"
+        src="/images/ads/qc2.png"
         alt="Hero Image"
         width={500}
         height={500}  
@@ -47,14 +38,13 @@ export default function Home() {
       />
       <News />
        <img
-        src="/images/qc3.png"
+        src="/images/ads/qc3.png"
         alt="Hero Image"
         width={500}
         height={500}  
         className="w-full h-auto"
       />
       <Feedback />
-      {/* <TawkToChat /> */}
     </div>
   );
 }

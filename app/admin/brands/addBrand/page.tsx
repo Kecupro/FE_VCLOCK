@@ -213,7 +213,7 @@ const AddBrand = () => {
         });
       }
     } catch (error) {
-      console.error('Error creating brand:', error);
+              console.error('Lỗi khi tạo thương hiệu:', error);
       const errorMessage = 'Có lỗi xảy ra khi kết nối đến server';
       setErrors({ general: errorMessage });
       

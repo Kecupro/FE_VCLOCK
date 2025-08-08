@@ -11,7 +11,7 @@ import { IBrand } from "../cautrucdata";
 import { FaThLarge } from 'react-icons/fa';
 import { toast } from "react-toastify";
 import Image from "next/image";
-// Định nghĩa type cho item trong wishlist
+
 interface WishlistItem {
   _id: string;
   product_id: string;
@@ -26,7 +26,7 @@ function formatMoney(num: number | undefined) {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ";
 }
 
-// Helper function để xử lý lỗi brand image
+
 function handleBrandImageError(e: React.SyntheticEvent<HTMLImageElement, Event>, brandName: string) {
   (e.target as HTMLImageElement).style.display = "none";
   const parent = (e.target as HTMLImageElement).parentElement;
@@ -70,7 +70,7 @@ function ShopPageContent() {
 
 
 
-  // Fetch categories
+
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/category`)
       .then((res) => res.json())
@@ -81,14 +81,14 @@ function ShopPageContent() {
       });
   }, []);
 
-  // Fetch brands
+
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/brand`)
       .then((res) => res.json())
       .then((data: IBrand[]) => setBrands(data));
   }, []);
 
-  // Đọc brand parameter từ URL
+
   useEffect(() => {
     const brandParam = searchParams.get('brand');
     if (brandParam) {
@@ -96,7 +96,7 @@ function ShopPageContent() {
     }
   }, [searchParams]);
 
-  // Đọc category parameter từ URL
+
   useEffect(() => {
     const categoryParam = searchParams.get('category');
     if (categoryParam) {
@@ -115,19 +115,18 @@ function ShopPageContent() {
         }
       })
       .catch(() => {
-        // Fallback values nếu API lỗi
         setMinPrice(0);
         setMaxPrice(1000000000);
         setPriceRange([0, 1000000000]);
       });
   }, []);
 
-  // Reset page về 1 khi filter thay đổi
+
   useEffect(() => {
     setPage(1);
   }, [selectedCategory, priceRange, sort, selectedBrand]);
 
-  // Fetch products (có filter theo brand)
+
   useEffect(() => {
     setLoading(true);
     const params = new URLSearchParams();
@@ -144,11 +143,9 @@ function ShopPageContent() {
 
 
     if (priceRange[0] !== minPrice || priceRange[1] !== maxPrice) {
-      // Luôn gửi minPrice nếu khác 0
       if (priceRange[0] > 0) {
         params.append('minPrice', priceRange[0].toString());
       }
-      // Luôn gửi maxPrice nếu khác maxPrice từ API
       if (priceRange[1] !== maxPrice) {
         params.append('maxPrice', priceRange[1].toString());
       }
@@ -208,16 +205,15 @@ function ShopPageContent() {
       .then(data => setBestSellers(data));
   }, []);
 
-  // Tính toán danh mục hiển thị
   const displayedCategories = showAllCategories 
     ? categories 
-    : [...categories.slice(0, 1), ...categories.slice(1, 6)]; // "Tất cả" + 5 danh mục đầu tiên
+    : [...categories.slice(0, 1), ...categories.slice(1, 6)]; 
 
   const filteredBrands = brands.filter(b => b?.name?.toLowerCase().includes(brandSearch.toLowerCase()));
 
   return (
     <main className="max-w-7xl mx-auto py-10 px-4 pt-40">
-      {/* BRAND LIST */}
+
       <div className="mb-8">
         <div
           className="grid gap-2"
@@ -274,7 +270,7 @@ function ShopPageContent() {
         </div>
       </div>
 
-      {/* Modal hiển thị tất cả brand */}
+
       {showBrandModal && (
         <div className="fixed left-1/2 top-33 z-50 -translate-x-1/2 bg-white rounded-lg shadow-lg border border-gray-200 p-4" style={{maxWidth:1250, width:'100%'}}>
           <button

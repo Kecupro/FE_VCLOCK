@@ -1,11 +1,10 @@
 import { ICart, IProduct, IHinh } from "../cautrucdata";
-import { useCart } from "./CartContext"; // Dùng context thay vì localStorage
+import { useCart } from "./CartContext";
 
 export default function AddToCart({ sp }: { sp: IProduct }) {
   const { addToCart } = useCart();
 
   const handleAddToCart = () => {
-    // Xử lý main_image để đảm bảo cấu trúc đúng
     let mainImage: IHinh = {
       _id: "",
       is_main: true,
@@ -57,7 +56,7 @@ export default function AddToCart({ sp }: { sp: IProduct }) {
       quantity: sp.quantity,
     };
 
-    addToCart(item); // 👈 gọi context
+    addToCart(item); 
   };
 
   return (
@@ -65,7 +64,6 @@ export default function AddToCart({ sp }: { sp: IProduct }) {
       className="flex-1 mx-auto font-normal block bg-gray-300 text-black p-2 rounded-sm mt-1 hover:bg-gray-400 transition-colors duration-200"
       onClick={handleAddToCart}
     >
-      {/* Show icon only */}
       <div className="flex items-center justify-center">
         <i className="fa-solid fa-cart-plus text-base"></i>
       </div>

@@ -479,7 +479,6 @@ const EditBrand = () => {
               )}
             </div>
             
-            {/* Preview image */}
             {activeTab == 'preview' && previewUrl && (
               <div className={styles.imagePreview}>
                 <Image
@@ -500,7 +499,6 @@ const EditBrand = () => {
               </div>
             )}
             
-            {/* No image state */}
             {activeTab == 'preview' && !previewUrl && (
               <div className={styles.imagePreview}>
                 <p style={{ color: '#666', fontStyle: 'italic' }}>
@@ -509,7 +507,6 @@ const EditBrand = () => {
               </div>
             )}
             
-            {/* Hidden file input */}
             <input 
               id="fileInput"
               type="file" 

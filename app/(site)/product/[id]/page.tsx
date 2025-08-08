@@ -2,7 +2,6 @@
 
 import { IStats, IProduct } from "../../cautrucdata";
 import { useState, useEffect, useRef   } from "react";
-// import { usePathname } from "next/navigation";
 import SPLienQuan from "../SPLienQuan";
 import HienBinhLuanSP from "../HienBinhLuanSP";
 import StarRating from "../../components/StarRating";
@@ -22,24 +21,19 @@ export default function ProductDetail() {
   const refetchBinhLuan = useRef<() => void>(() => {});
 
   
-  const params = useParams();  // slug là toàn bộ chuỗi ví dụ: "baume-and-mercier-hampton-10709-blue-watch-35-x-22mm-6833ff0acc1ed305e8513aae"
+  const params = useParams();  
   const slug = params?.id as string;
-  const id = typeof slug === "string" ? slug.split('-').slice(-1)[0] : undefined;  // lấy ID từ cuối slug
+  const id = typeof slug === "string" ? slug.split('-').slice(-1)[0] : undefined;
 
-  // Lấy Stats
+
   useEffect(() => {
     if (!id) return;
   
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/stats/${id}`)
       .then(res => res.json())
       .then(data => setStats(data))
-      .catch(err => console.error("Lỗi fetch stats:", err));
+              .catch(err => console.error("Lỗi tải thống kê:", err));
   }, [id]);
-
-  // // Lấy id từ URL (ví dụ URL: /product/abc-def)
-  // const pathname = usePathname(); 
-  // // Giả sử id luôn là phần cuối của path
-  // const id = pathname?.split("/").pop();
 
   useEffect(() => {
     if (!id) return;
@@ -50,8 +44,6 @@ export default function ProductDetail() {
         if (!res.ok) throw new Error("Lấy sản phẩm thất bại");
         const data = await res.json(); 
 
-          /* ---------- NORMALIZE ---------- */
-        // 1. Sắp xếp: ảnh chính lên đầu
         const imgObjects = [...data.images].sort(
           (a: IRawImage, b: IRawImage) => (b.is_main ? 1 : 0) - (a.is_main ? 1 : 0)
         ).map((i: IRawImage) => ({
@@ -60,16 +52,10 @@ export default function ProductDetail() {
         }));
         
 
-        // // 2. Chuyển thành mảng string, kèm đường dẫn /upload/product/
-        // const imgUrls: string[] = sorted.map(
-        //   (i: IRawImage) => `/upload/product/${i.image}`
-        // );
-
-        // 3. Trả về object mới, trong đó images là string[]
         const cleanProduct: IProduct = {
           ...data,
           images: imgObjects,
-          brand_id: data.brand._id // vì bạn đang dùng brand_id là string để map
+          brand_id: data.brand._id
         };
         
 
@@ -189,15 +175,11 @@ export default function ProductDetail() {
           </div>
           <p className="mb-2 text-gray-700 font-medium">{(product.brand_id?.name || product.brand?.name) ?? "Không rõ thương hiệu"}</p>
           <div className="mb-6">
-            {/* <h2 className="font-semibold mb-2 text-base text-black">Bộ sản phẩm gồm:</h2> */}
             <div className="flex gap-4 mb-4">
               <AddToCart sp={product} />
               <BuyNow sp={product} />
             </div>
             <ul className="list-disc list-inside text-gray-700 text-sm space-y-1 w-100">
-              {/* {product.included.map((item, idx) => (
-                <li key={idx}>{item}</li>
-              ))} */}
             </ul>
           </div>
         </div>
@@ -302,81 +284,6 @@ export default function ProductDetail() {
                 <span className="ml-2 font-semibold text-lg text-gray-800">{stats?.averageRating}</span>
                 <span className="text-gray-500 text-sm">({stats?.totalReviews} đánh giá)</span>
               </div>
-
-              {/* Form bình luận */}
-              {/* <form className="w-full flex flex-col gap-3 mb-10">
-                <label className="font-medium text-sm w-full">Đánh giá của bạn</label>
-                <div className="flex gap-1 text-red-500 text-xl w-full">
-                  <i className="fa-regular fa-star cursor-pointer hover:text-red-400"></i>
-                  <i className="fa-regular fa-star cursor-pointer hover:text-red-400"></i>
-                  <i className="fa-regular fa-star cursor-pointer hover:text-red-400"></i>
-                  <i className="fa-regular fa-star cursor-pointer hover:text-red-400"></i>
-                  <i className="fa-regular fa-star cursor-pointer hover:text-red-400"></i>
-                </div>
-                <textarea
-                  className="border border-gray-300 rounded p-2 text-sm focus:ring-2 focus:ring-red-200 w-full"
-                  rows={3}
-                  placeholder="Nhận xét của bạn..."
-                />
-                <button
-                  type="submit"
-                  className="bg-black text-white px-6 py-2 rounded font-semibold hover:bg-red-700 transition w-full"
-                >
-                  Gửi đánh giá
-                </button>
-              </form> */}
-              {/* <ReviewForm productId={product._id} onSuccess={() => { refetchBinhLuan.current(); // gọi lại fetch khi bình luận mới
-              }}
-              /> */}
-              {/* Hiện bình luận */}
-              {/* <div className="w-full space-y-8">
-                <div className="flex gap-4 items-start w-full">
-                      <img
-                    src="/avatar1.jpg"
-                    alt="avatar"
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div className="flex-1 w-full">
-                    <div className="flex items-center gap-2 mb-1 w-full">
-                      <span className="font-semibold">Kế Cư</span>
-                      <span className="text-red-500 text-sm flex gap-0.5">
-                        <i className="fa-solid fa-star"></i>
-                        <i className="fa-solid fa-star"></i>
-                        <i className="fa-solid fa-star"></i>
-                        <i className="fa-solid fa-star"></i>
-                        <i className="fa-regular fa-star"></i>
-                      </span>
-                      <span className="text-gray-400 text-xs ml-2">2 ngày trước</span>
-                    </div>
-                    <div className="text-gray-700 text-sm w-full">
-                      Sản phẩm đẹp, giao hàng nhanh, đóng gói cẩn thận.
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-4 items-start w-full">
-                <img
-  src="/avatar2.jpg"
-  alt="avatar"
-  className="w-10 h-10 rounded-full object-cover"
-/>
-                  <div className="flex-1 w-full">
-                    <div className="flex items-center gap-2 mb-1 w-full">
-                      <span className="font-semibold">Lan Hương</span>
-                      <span className="text-red-500 text-sm flex gap-0.5">
-                        <i className="fa-solid fa-star"></i>
-                        <i className="fa-solid fa-star"></i>
-                        <i className="fa-solid fa-star"></i>
-                        <i className="fa-regular fa-star"></i>
-                        <i className="fa-regular fa-star"></i>
-                      </span>
-                      <span className="text-gray-400 text-xs ml-2">5 ngày trước</span>
-                    </div>
-                    <div className="text-gray-700 text-sm w-full">
-                      Đồng hồ đẹp, đúng mô tả, sẽ ủng hộ lần sau.
-                    </div>
-                  </div>
-                </div>
-              </div> */}
 
               <HienBinhLuanSP productId={product._id} onRefetchReady={(fn) => { refetchBinhLuan.current = fn; }} />
             </div>

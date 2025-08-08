@@ -121,7 +121,6 @@ const VoucherDetailPage = () => {
       <div className={styles.form}>
         <div className={styles.productDetails}>
 
-          {/* Thông tin cơ bản */}
           <div className={styles.detailSection}>
             <h3 className={styles.sectionTitle}>
               <Tag size={18} /> &nbsp;Thông tin cơ bản
@@ -140,7 +139,6 @@ const VoucherDetailPage = () => {
             </div>
           </div>
 
-          {/* Thông tin giảm giá */}
           <div className={styles.detailSection}>
             <h3 className={styles.sectionTitle}>
               <Percent size={18} /> &nbsp;Thông tin giảm giá
@@ -175,7 +173,6 @@ const VoucherDetailPage = () => {
             )}
           </div>
 
-          {/* Thời gian hiệu lực */}
           <div className={styles.detailSection}>
             <h3 className={styles.sectionTitle}>
               <Calendar size={18} /> &nbsp;Thời gian hiệu lực
@@ -190,7 +187,6 @@ const VoucherDetailPage = () => {
             </div>
           </div>
 
-          {/* Hệ thống */}
           <div className={styles.detailSection}>
             <h3 className={styles.sectionTitle}>
               <Settings size={18} /> &nbsp;Thông tin hệ thống
@@ -206,7 +202,6 @@ const VoucherDetailPage = () => {
           </div>
         </div>
 
-        {/* Hiệu lực trạng thái */}
         <div className={styles.statusSection}>
           <div className={styles.statusLabel}>Trạng thái mã khuyến mãi</div>
           <span className={`${styles.statusBadge}`}>
@@ -224,7 +219,6 @@ const VoucherDetailPage = () => {
           </span>
         </div>
 
-        {/* Actions */}
         <div className={styles.formActions}>
           <Link href={`editVoucher/?id=${voucher._id}`}>
             <button className={styles.createButton}>
@@ -237,7 +231,6 @@ const VoucherDetailPage = () => {
         </div>
       </div>
 
-      {/* Modal xác nhận */}
       {showModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>

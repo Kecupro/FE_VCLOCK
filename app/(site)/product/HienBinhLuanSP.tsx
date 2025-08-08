@@ -2,13 +2,14 @@
 import { useEffect, useState } from "react";
 import { IReview } from "../cautrucdata";
 import StarRating from "../components/StarRating";
+import { getAvatarSrc } from "../../utils/avatarUtils";
 
 export default function HienBinhLuanSP({
   productId,
   onRefetchReady,
 }: {
   productId: string;
-  onRefetchReady?: (fn: () => void) => void; // callback nhận hàm fetch
+  onRefetchReady?: (fn: () => void) => void;
 }) {
   const [bl_arr, setBlArr] = useState<IReview[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +20,7 @@ export default function HienBinhLuanSP({
       const data = await res.json();
       setBlArr(data.reviews || []);
     } catch (err) {
-      console.error("Lỗi khi fetch đánh giá:", err);
+              console.error("Lỗi khi tải đánh giá:", err);
       setBlArr([]);
     } finally {
       setLoading(false);
@@ -28,7 +29,7 @@ export default function HienBinhLuanSP({
 
   useEffect(() => {
     fetchReviews();
-    if (onRefetchReady) onRefetchReady(fetchReviews); // truyền hàm fetch ra ngoài
+    if (onRefetchReady) onRefetchReady(fetchReviews); 
   }, [productId]);
 
   if (loading) return <p>Đang tải bình luận...</p>;
@@ -51,14 +52,14 @@ export default function HienBinhLuanSP({
             }}
           >
             <img
-              src={bl.user_id?.avatar ? `/images/product/${bl.user_id.avatar}` : "/images/avatar-default.png"}
-              alt={bl.user_id?.username || "User"}
+              src={bl.user_id?.avatar ? getAvatarSrc(bl.user_id.avatar) : "/images/avatar-default.png"}
+              alt={bl.user_id?.fullName || bl.user_id?.username || "User"}
               className="w-full h-full object-cover"
             />
           </div>
           <div className="flex-1 w-full">
             <div className="flex items-center gap-2 mb-1 w-full">
-              <span className="font-semibold">{bl.user_id?.username || "Anonymous"}</span>
+              <span className="font-semibold">{bl.user_id?.fullName || bl.user_id?.username || "Anonymous"}</span>
               <StarRating rating={bl.rating} className="ml-2" />
               <span className="text-gray-400 text-xs ml-2">
                 {bl.created_at ? new Date(bl.created_at).toLocaleString("vi-VN") : ""}

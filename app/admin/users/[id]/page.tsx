@@ -7,7 +7,6 @@ import { useAppContext } from '../../../context/AppContext';
 import styles from '../../assets/css/detail.module.css';
 import Image from 'next/image';
 import { IUser } from '@/app/(site)/cautrucdata';
-// IAddress
 
 const UserDetailPage = () => {
   const router = useRouter();

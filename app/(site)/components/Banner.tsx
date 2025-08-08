@@ -2,22 +2,22 @@ import { useState, useEffect } from "react";
 
 const slides = [
   {
-    image: "/images/banner1.jpg",
+    image: "/images/mixed/banner1.jpg",
     title: "Đồng hồ cao cấp",
     desc: "Khám phá bộ sưu tập đồng hồ sang trọng, đẳng cấp quốc tế.",
   },
   {
-    image: "/images/banner3.jpg",
+    image: "/images/mixed/banner3.jpg",
     title: "Bảo hành chính hãng",
     desc: "Cam kết bảo hành 5 năm cho mọi sản phẩm tại cửa hàng.",
   },
    {
-    image: "/images/banner4.jpg",
+    image: "/images/mixed/banner4.jpg",
     title: "Đồng hồ cao cấp",
     desc: "Giảm giá lên đến 30% cho các mẫu mới nhất trong tháng này.",
   },
    {
-    image: "/images/banner8.jpg",
+    image: "/images/mixed/banner8.jpg",
     title: "Ưu đãi đặc biệt",
     desc: "Giảm giá lên đến 30% cho các mẫu mới nhất trong tháng này.",
   },

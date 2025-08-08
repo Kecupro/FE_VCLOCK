@@ -52,7 +52,7 @@ const VoucherBoxList = () => {
         setSavedVoucherStates([]);
       }
     } catch (error) {
-      console.error("Lỗi refresh voucher states:", error);
+              console.error("Lỗi làm mới trạng thái voucher:", error);
       setSavedVoucherStates([]);
     }
   };

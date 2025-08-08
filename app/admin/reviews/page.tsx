@@ -234,7 +234,7 @@ const RatingPage = () => {
                     {review.order_detail_id?.product_id?.name || 'N/A'}
                   </td>
                   <td className={styles.tableCell}>
-                    {review.user_id?.username || 'Ẩn danh'}
+                    {review.user_id?.fullName || review.user_id?.username || 'Ẩn danh'}
                   </td>
                   <td className={styles.tableCell}>
                     <div className={styles.ratingCell}>

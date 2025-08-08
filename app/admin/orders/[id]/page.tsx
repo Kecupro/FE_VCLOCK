@@ -22,7 +22,6 @@ const OrderDetailPage = () => {
   const [modalAction, setModalAction] = useState<'cancel' | 'nextStatus' | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
 
-  // ! <== Xử lý logic order ==>
   const openConfirmModal = (
       order: IOrder,
       action: 'cancel' | 'nextStatus'
@@ -84,7 +83,6 @@ const OrderDetailPage = () => {
     order.payment_status == 'chuaThanhToan' ||
     order?.order_status == 'daHuy' && 
     order.payment_status == 'choHoanTien';
-  // ! <== Xử lý logic order ==>
   const getStatusLabel = (status?: string) => {
       switch (status) {
         case 'choXuLy':
@@ -256,7 +254,7 @@ const OrderDetailPage = () => {
                   </h3>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Người đặt:</span>
-                    <span className={styles.detailValue}>{order?.user_id.username}</span>
+                    <span className={styles.detailValue}>{order?.user_id.fullName || order?.user_id.username}</span>
                   </div>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Email:</span>

@@ -57,15 +57,13 @@ const AdminProfile = () => {
     }
   }, [isDarkMode]);
 
-  // ! Show ảnh - Sử dụng utility function để xử lý thống nhất
   const avatarSrc = isEditing
     ? editData.avatar?.startsWith("data:image")
       ? editData.avatar
       : getAvatarSrc(editData.avatar)
     : getAvatarSrc(adminData.avatar);
-  // ! End Show ảnh
 
-  // Reset avatar error khi avatar thay đổi
+
   useEffect(() => {
     setAvatarError(false);
   }, [avatarSrc]);
@@ -393,14 +391,7 @@ const AdminProfile = () => {
     return;
   }
 
-  const isValidUsername = /^[a-zA-Z0-9_]+$/.test(username);
 
-  if (!isValidUsername) {
-    toast.error("Tên đăng nhập chỉ chứa chữ cái, số, và dấu gạch dưới", {
-      position: "top-right",
-    });
-    return;
-  }
 
   if (username != adminData.username) {
     const exists = await checkUsernameExists(username);

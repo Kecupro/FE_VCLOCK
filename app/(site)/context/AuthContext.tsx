@@ -18,9 +18,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
   
-  // Hàm lấy user từ API (dùng khi đăng nhập Google hoặc refresh avatar)
   const refreshUser = async () => {
-    // Không refresh nếu đang logout
     if (isLoggingOut) {
       return;
     }
@@ -44,15 +42,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Đọc user từ localStorage khi load
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) setUser(JSON.parse(userData));
-    // Reset logout flag khi component mount
     setIsLoggingOut(false);
   }, []);
 
-  // Lắng nghe sự kiện đăng nhập/đăng xuất từ tab khác
   useEffect(() => {
     const handleStorage = (event: StorageEvent) => {
       if (event.key === "user" || event.key === "token") {
@@ -69,10 +64,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
-  // Đăng xuất
   const logout = () => {
     setIsLoggingOut(true);
-    setUser(null); // Set user null trước để tránh vòng lặp
+    setUser(null); 
     clearAuthData();
     router.push("/");
   };

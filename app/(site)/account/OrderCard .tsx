@@ -12,9 +12,9 @@ interface OrderCardProps {
   user_id: string;
 }
 
-const PAGE_SIZE = 5; // Số đơn mỗi trang
+const PAGE_SIZE = 5; 
 
-// Map trạng thái backend -> frontend
+
 function mapOrderStatus(status?: string) {
   switch (status) {
     case "pending": return "choXuLy";
@@ -55,7 +55,6 @@ export default function OrderCard({ user_id }: OrderCardProps) {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders?user_id=${user_id}`);
         const data: IOrder[] = await res.json();
-        // Map trạng thái
         const mapped = (data || []).map((order: IOrder) => ({
           ...order,
           order_status: mapOrderStatus(order.order_status) as IOrder['order_status'],
@@ -63,7 +62,6 @@ export default function OrderCard({ user_id }: OrderCardProps) {
         }));
         setOrders(mapped);
 
-        // fetch chi tiết từng đơn hàng
         const detailMap: Record<string, IOrderDetail[]> = {};
         await Promise.all(
           mapped.map(async (order) => {
@@ -74,7 +72,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
         );
         setOrderDetailsMap(detailMap);
       } catch (err) {
-        console.error("Lỗi khi fetch đơn hàng:", err);
+        console.error("Lỗi khi tải đơn hàng:", err);
       } finally {
         setLoading(false);
       }
@@ -100,7 +98,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
         });
         setReviewedDetails(map);
       } catch (err) {
-        console.error("Lỗi fetch review:", err);
+        console.error("Lỗi tải đánh giá:", err);
       }
     };
     fetchReviews();
@@ -211,7 +209,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
     hoanThanh: "Hoàn thành",
   };
 
-  // Phân trang
+
   const totalPages = Math.ceil(orders.length / PAGE_SIZE);
   const paginatedOrders = orders.slice(
     (currentPage - 1) * PAGE_SIZE,
@@ -227,7 +225,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
 
   return (
     <>
-      {/* Danh sách đơn hàng */}
+
       {paginatedOrders.map((order) => (
         <div key={order._id} className="border border-gray-200 rounded-lg p-4 bg-white space-y-2 shadow-sm mb-4">
           <div className="flex justify-between text-sm text-gray-700">
@@ -263,7 +261,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
           </div>
 
           <div className="flex justify-end items-center gap-2 flex-wrap">
-            {/* Nút tuỳ trạng thái */}
+
             {order.order_status === "choXuLy" && (
               <Dialog.Root>
                 <Dialog.Trigger asChild>
@@ -298,7 +296,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
               </Dialog.Root>
             )}
 
-            {/* Nút xem chi tiết */}
+
             <button
               className="border border-gray-400 text-gray-700 px-4 py-1.5 rounded text-sm hover:bg-gray-50"
               onClick={() => setSelectedOrderId(order._id)}

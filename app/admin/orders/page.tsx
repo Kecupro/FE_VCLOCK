@@ -29,7 +29,6 @@ const OrdersPage = () => {
   const [paymentStatusCounts, setPaymentStatusCounts] = useState<Record<string, number>>({});
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState<string | null>(null);
 
-  // ! <== Logic status == >
   const openConfirmModal = (
   order: IOrder,
   index: number,
@@ -78,7 +77,6 @@ const OrdersPage = () => {
     }
     return null;
   };
-  // ! <== End Logic status == >
 
   const limit = 6;
   const { isDarkMode } = useAppContext();
@@ -363,8 +361,7 @@ const OrdersPage = () => {
                 const orderStatusText = statusMap[order.order_status] || 'Không rõ';
                 const orderStatusLabel = orderStatusText as keyof typeof statusConfigs;
                 
-                // Debug log
-                console.log('Order status:', order.order_status, 'Mapped to:', orderStatusText);
+
                 
                 const lockedStatuses = ['daGiaoHang', 'hoanTra', 'hoanThanh', 'daHuy'];
                 const isLocked = lockedStatuses.includes(order.order_status);

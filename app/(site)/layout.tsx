@@ -6,7 +6,6 @@ import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { Montserrat } from "next/font/google";
-// import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
@@ -67,16 +66,6 @@ export default function RootLayout({
         <WishlistProvider>
         <Preloader />
           <Header />
-          {/* <Toaster
-            position="top-right"
-            reverseOrder={false}
-            toastOptions={{
-              className: "bg-black text-white",
-              style: {
-                fontSize: "16px",
-                fontFamily: "var(--font-geist-sans)",
-              },
-            }}/> */}
           
           {children}
           <ChatBox />

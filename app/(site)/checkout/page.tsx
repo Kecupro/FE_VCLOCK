@@ -7,7 +7,6 @@ import { ICart, IAddress, IPaymentMethod, IVoucher } from "../cautrucdata";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import * as Dialog from "@radix-ui/react-dialog"; 
-// import { QRCodeSVG } from "qrcode.react";
 import AddressSelector from "../components/AddressSelector";
 import { useRouter } from "next/navigation";
 
@@ -25,13 +24,13 @@ export default function CheckoutPage() {
   	const [total, setTotal] = useState(0);
   	const { user } = useAuth();
 	const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
-	const [selectedPayment, setSelectedPayment] = useState("COD"); // Giữ mặc định là COD	  
+	const [selectedPayment, setSelectedPayment] = useState("COD");	  
 	const [addresses, setAddresses] = useState<IAddress[]>([]);
 	const [showNewAddressForm, setShowNewAddressForm] = useState(false);
-	const [selectedAddressId, setSelectedAddressId] = useState(""); // chọn
-	const [isChangingAddress, setIsChangingAddress] = useState(false); // thay đổi địa chỉ
-	const [isSubmittingAddress, setIsSubmittingAddress] = useState(false);  // trạng thái khi đang submit địa chỉ
-	const [tempSelectedAddressId, setTempSelectedAddressId] = useState(""); // địa chỉ tạm thời khi đang thay đổi
+	const [selectedAddressId, setSelectedAddressId] = useState(""); 
+	const [isChangingAddress, setIsChangingAddress] = useState(false); 
+	const [isSubmittingAddress, setIsSubmittingAddress] = useState(false);  
+	const [tempSelectedAddressId, setTempSelectedAddressId] = useState(""); 
 	const [isLoading, setIsLoading] = useState(false);
 
 	const [newAddress, setNewAddress] = useState({
@@ -46,13 +45,12 @@ export default function CheckoutPage() {
 		"Content-Type": "application/json",
 		...(token && { "Authorization": `Bearer ${token}` }),
 	  };
-	//   lấy token
 	  useEffect(() => {
 		const storedToken = localStorage.getItem("token");
 		setToken(storedToken);
 	  }, []);
 
-	//   hiện voucher của user
+
 	const [vouchers, setVouchers] = useState<IVoucher[]>([]);
 	const [selectedVoucher, setSelectedVoucher] = useState<IVoucher | null>(null);
 		
@@ -84,15 +82,15 @@ export default function CheckoutPage() {
 			} else {
 				setVouchers([]);
 			}
-		  } catch (err) {
-			console.error("Lỗi khi fetch voucher:", err);
+		  		} catch (err) {
+			console.error("Lỗi khi tải voucher:", err);
 			setVouchers([]);
 		  }
 		};
 		fetchVouchers();
 		}, []);	  
 
-	// lấy địa chỉ giao hàng của người dùng
+
 	useEffect(() => {
 		if (token) {
 			fetchAddresses();
@@ -116,7 +114,7 @@ export default function CheckoutPage() {
 				setAddresses(reversedData);
 			}
 		} catch (error) {
-			        console.error("Lỗi tải địa chỉ:", error);
+			console.error("Lỗi tải địa chỉ:", error);
 		}
 	};
 	
@@ -136,7 +134,7 @@ export default function CheckoutPage() {
 	}, [addresses, selectedAddressId, showNewAddressForm]);
 	
 
-	// lấy địa chỉ mới nhất
+
 	const getLatestAddress = () => {
 		if (addresses.length === 0) return null;
 		return [...addresses].sort((a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime())[0];
@@ -153,7 +151,7 @@ export default function CheckoutPage() {
 	  };
 	  
 
-	// tính tổng tiền giỏ hàng
+
 	const subtotal = (cartItems: ICart[]) => {
 		const sum = cartItems.reduce(
 		  (acc, item) =>
@@ -165,7 +163,7 @@ export default function CheckoutPage() {
 	  };
 	
 
-	const [originalTotal, setOriginalTotal] = useState<number>(0); // Tổng tiền gốc
+	const [originalTotal, setOriginalTotal] = useState<number>(0); 
 
 	const finalTotal = useMemo(() => {
 		if (!selectedVoucher) return originalTotal;
@@ -181,13 +179,13 @@ export default function CheckoutPage() {
 		  return originalTotal - discount;
 		}
 	  	
-		// Trường hợp giảm trực tiếp theo số tiền
+
 		return originalTotal - selectedVoucher.discount_value;
 	}, [originalTotal, selectedVoucher]);
 	  
 
 
-	  // lấy sản phẩm đã được selectedItems
+
 	  useEffect(() => {
 		const storedCart = localStorage.getItem("cart");
 		const storedSelected = localStorage.getItem("selectedItems");
@@ -208,7 +206,7 @@ export default function CheckoutPage() {
 	  }, []);	  
 
 
-	//   hiện thị form thanh toán
+
 	const [form, setForm] = useState({
 		name: "",
 		address: "",
@@ -225,7 +223,7 @@ export default function CheckoutPage() {
 		}));
 	};
 
-	// fetch phương thức thanh toán
+
 	useEffect(() => {
 		const fetchPaymentMethods = async () => {
 			try {
@@ -244,10 +242,10 @@ export default function CheckoutPage() {
 					setPaymentMethods([]);
 				}
 				
-				setSelectedPayment("COD"); // mặc định là COD
-			} catch (error) {
-				        console.error("Lỗi tải phương thức thanh toán:", error);
-				setPaymentMethods([]);
+				setSelectedPayment("COD"); 
+					} catch (error) {
+			console.error("Lỗi tải phương thức thanh toán:", error);
+			setPaymentMethods([]);
 			}
 		};
 		fetchPaymentMethods();
@@ -260,7 +258,7 @@ export default function CheckoutPage() {
     const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
     const fullCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    // Xóa sản phẩm đã mua khỏi giỏ hàng
+
     const updatedCart = fullCart.filter((item: ICart) => !selectedIds.includes(item._id));
 
     localStorage.setItem("cart", JSON.stringify(updatedCart));
@@ -276,7 +274,7 @@ export default function CheckoutPage() {
     });
     setSelectedVoucher(null);
 
-    // Reload lại trang hoặc chuyển hướng
+
     window.location.href = '/checkout-success';
 };	
 	
@@ -286,7 +284,6 @@ export default function CheckoutPage() {
 		const selectedPaymentObj = paymentMethods.find(p => p.code === selectedPayment);
 
 		const orderCode = Math.floor(100000 + Math.random() * 900000);
-	  	
 		const orderData = {
 		  cart: selectedCartItems,
 		  total_amount: finalTotal,
@@ -300,14 +297,13 @@ export default function CheckoutPage() {
 		};
 	  
 		try {
-		  // Kiểm tra xem payment method có tồn tại không
+		  
 		  if (!selectedPaymentObj) {
 			toast.error("Phương thức thanh toán không hợp lệ.");
 			return;
 		  }
 		  
 		  if (selectedPayment === "BANK_TRANSFER") {
-			// 👉 BANK_TRANSFER → chỉ tạo payment link, KHÔNG tạo đơn hàng ngay
 			const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/create-payment-link`, {
 			  method: "POST",
 			  headers: { 
@@ -331,7 +327,6 @@ export default function CheckoutPage() {
 			}
 	  
 		  } else {
-			// 👉 COD hoặc các phương thức khác → tạo đơn hàng ngay
 			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/checkout`, {
 			  method: "POST",
 			  headers,
@@ -362,7 +357,7 @@ export default function CheckoutPage() {
 		setIsLoading(true); // Bắt đầu loading
 	
 		try {
-			// 1. Kiểm tra sản phẩm được chọn
+
 			const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
 			const selectedCartItems = cart.filter(item => selectedIds.includes(item._id));
 			if (selectedCartItems.length === 0) {
@@ -371,7 +366,7 @@ export default function CheckoutPage() {
 				return;
 			}
 	
-			// 2. Người chưa đăng nhập
+
 			if (!user) {
 				const { name, address, phone } = form;
 				if (!name || !address || !phone) {
@@ -386,7 +381,7 @@ export default function CheckoutPage() {
 				return;
 			}
 	
-			// 3. Người đã đăng nhập
+
 			if (!selectedAddressId && !showNewAddressForm) {
 				toast.error("Vui lòng chọn hoặc thêm địa chỉ.");
 				return;
@@ -419,7 +414,7 @@ export default function CheckoutPage() {
 						setAddresses(prev => [...prev, data.address]);
 						setSelectedAddressId(data.address._id);
 						setShowNewAddressForm(false);
-						// Sử dụng address_id thay vì new_address để tránh duplicate
+		
 						await submitOrder(data.address._id);
 					} else {
 						toast.error(data.message || "Lỗi khi thêm địa chỉ.");
@@ -430,7 +425,6 @@ export default function CheckoutPage() {
 				}
 	
 			} else {
-				// Dùng địa chỉ đã có
 				const selectedAddress = addresses.find(addr => addr._id === selectedAddressId);
 				if (!selectedAddress) {
 					toast.error("Địa chỉ không hợp lệ.");
@@ -446,7 +440,7 @@ export default function CheckoutPage() {
 			}
 	
 		} finally {
-			setIsLoading(false); // Đặt ở đây để luôn chạy bất kể thành công hay lỗi
+			setIsLoading(false); 
 		}
 	};
 	
@@ -527,19 +521,16 @@ export default function CheckoutPage() {
 							vui lòng chọn địa chỉ giao hàng bên dưới hoặc thêm mới nếu cần:
 						</p>
 
-							{/* Danh sách địa chỉ */}
 							{!isChangingAddress ? (
 								<>
 									{(() => {
 									const defaultAddr = addresses.find((addr) => addr._id === selectedAddressId);
-									// Nếu không có địa chỉ nào cả
 									if (addresses.length === 0) {
 									return <p>Chưa có địa chỉ nào</p>;
 									}
 
-									// Nếu không có địa chỉ đang chọn
 									if (!defaultAddr) {
-									return <p>Vui lòng chọn địa chỉ giao hàng</p>; // hoặc return null nếu muốn ẩn
+									return <p>Vui lòng chọn địa chỉ giao hàng</p>; 
 									}
 									return (
 										<div className="border rounded-xl p-4 bg-white shadow-sm flex items-start justify-between">
@@ -615,7 +606,7 @@ export default function CheckoutPage() {
 									<button
 										type="button"
 										onClick={() => {setIsChangingAddress(false);
-											setTempSelectedAddressId(selectedAddressId); // quay lại địa chỉ đã chọn trước đó
+											setTempSelectedAddressId(selectedAddressId); 
 										}}
 										className="text-sm text-gray-600 underline"
 									>
@@ -633,7 +624,7 @@ export default function CheckoutPage() {
 									onClick={() => {
 										setShowNewAddressForm(!showNewAddressForm);
 										if (!showNewAddressForm) {
-										  setSelectedAddressId(""); // Hủy chọn địa chỉ cũ khi nhập mới
+										  setSelectedAddressId(""); 
 										}
 									  }}
 								>
@@ -717,7 +708,6 @@ export default function CheckoutPage() {
 										key={v._id}
 										className="flex w-full h-[120px] bg-white rounded-lg shadow-md border border-gray-300 overflow-hidden relative"
 										>
-										{/* Cột trái */}
 										<div className="flex flex-col items-center justify-center bg-red-700 text-white px-3 py-2 w-[200px] rounded-l-lg relative">
 											<i className="fa-solid fa-ticket text-lg mb-1"></i>
 											<span className="font-bold text-xs text-center leading-tight line-clamp-2">
@@ -731,7 +721,6 @@ export default function CheckoutPage() {
 											</span>
 										</div>
 
-										{/* Chấm bi */}
 										<div className="flex flex-col justify-center py-1 bg-transparent">
 											{Array.from({ length: 6 }).map((_, i) => (
 											<div
@@ -741,7 +730,6 @@ export default function CheckoutPage() {
 											))}
 										</div>
 
-										{/* Cột phải */}
 										<div className="flex-1 flex flex-col justify-between px-4 py-2 bg-white">
 											<div className="space-y-1 overflow-hidden">
 											<div className="text-red-500 font-bold text-base leading-tight truncate">
@@ -900,7 +888,7 @@ export default function CheckoutPage() {
 								))}
 							</div>
 
-							{/* Nếu chọn ví điện tử, có thể hiển thị QR code (placeholder) */}
+
 							{["MOMO_WALLET", "ZALOPAY_WALLET"].includes(selectedPayment) && (
 								<div className="mt-3 text-sm text-gray-700">
 									Vui lòng quét mã QR bên dưới để thanh toán:
@@ -910,23 +898,7 @@ export default function CheckoutPage() {
 								</div>
 							)}
 
-							{/* {selectedPayment === "BANK_TRANSFER" && (
-							<div className="p-4 border rounded-lg bg-gray-50 mt-4 space-y-2">
-								<p className="font-semibold">Vui lòng chuyển khoản đến:</p>
-								<p>🏦 Ngân hàng: <strong>{bankInfo.bankName}</strong></p>
-								<p>👤 Chủ tài khoản: <strong>{bankInfo.accountName}</strong></p>
-								<p>🔢 Số tài khoản: <strong>{bankInfo.accountNumber}</strong></p>
-								<p>📝 Nội dung chuyển khoản: <strong>{bankInfo.note}</strong></p>
-								{qrCodeUrl && (
-								<div className="mt-4">
-									<QRCodeSVG value={qrCodeUrl} size={256} />
-									<p className="text-sm mt-2 text-red-500">
-									Vui lòng chuyển khoản đúng nội dung để hệ thống tự động xác nhận đơn hàng.
-									</p>
-								</div>
-								)}
-							</div>
-							)} */}
+
 						</div>
 						<button
 							type="submit"

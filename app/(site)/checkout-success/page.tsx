@@ -5,19 +5,15 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle } from "lucide-react";
 import { useEffect, Suspense } from "react";
-// import { toast } from "react-hot-toast";
 
-// Force dynamic rendering to avoid build issues
 export const dynamic = 'force-dynamic';
 
 function CheckoutSuccessContent() {
-  // const [token, setToken] = useState<string | null>(null);
   const searchParams = useSearchParams();
-  // const router = useRouter();
   const orderCode = searchParams.get("orderCode");
 
   useEffect(() => {
-    // Chỉ xóa khi thanh toán thành công (có mã đơn hàng)
+
     if (orderCode) {
       const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
       const fullCart = JSON.parse(localStorage.getItem("cart") || "[]");

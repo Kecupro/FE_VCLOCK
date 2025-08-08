@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
-// Force dynamic rendering to avoid build issues
 export const dynamic = 'force-dynamic';
 
 export default function AboutPage() {
@@ -34,7 +33,6 @@ export default function AboutPage() {
       });
     }, observerOptions);
 
-    // Observe các section
     if (missionRef.current) {
       missionRef.current.setAttribute('data-section', 'mission');
       observer.observe(missionRef.current);
@@ -55,7 +53,7 @@ export default function AboutPage() {
     <main className='min-h-screen bg-[url("https://img.freepik.com/free-vector/seamless-gold-rhombus-grid-pattern-black-background_53876-97589.jpg?semt=ais_hybrid&w=740")] text-gray-900'>
       <div className='relative h-80 md:h-126'>
         <Image
-          src='/images/banner4.jpg' 
+          src='/images/mixed/banner4.jpg' 
           alt='Về V-CLOCK Banner'
           fill
           className='absolute inset-0 w-full h-full object-cover opacity-80'
@@ -76,7 +74,7 @@ export default function AboutPage() {
         </p>
         <div className='max-w-4xl mx-auto'>
           <Image 
-            src='/images/about.png' 
+            src='/images/mixed/about.png' 
             alt='Showroom V-CLOCK' 
             width={800}
             height={500}
@@ -185,7 +183,7 @@ export default function AboutPage() {
               isVisible.whyChoose ? 'animate-slide-right' : ''
             }`}>
              <img 
-                src='images/tt1.png' 
+                src='/images/mixed/tt1.png' 
                 alt='Lý do chọn V-CLOCK' 
                 className='rounded-2xl object-cover w-full h-auto md:h-full hover:scale-105 transition-transform duration-500'
                 style={{

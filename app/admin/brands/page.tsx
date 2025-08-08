@@ -63,7 +63,7 @@ const BrandPage = () => {
         setBrands(data.list);
         setTotalBrands(data.total);
       } catch (error) {
-        console.error("Lỗi khi fetch brand:", error);
+        console.error("Lỗi khi tải thương hiệu:", error);
         toast.error("Có lỗi xảy ra khi tải danh sách thương hiệu!");
       } finally {
         setIsLoading(false);
@@ -95,7 +95,7 @@ const BrandPage = () => {
       setBrands(data.list);
       setTotalBrands(data.total);
     } catch (error) {
-      console.error("Lỗi khi refresh brand list:", error);
+              console.error("Lỗi khi làm mới danh sách thương hiệu:", error);
       toast.error("Có lỗi xảy ra khi làm mới danh sách thương hiệu!");
     } finally {
       setIsLoading(false);
@@ -155,7 +155,7 @@ const BrandPage = () => {
         toast.error(`Lỗi: ${errorMessage}`);
       }
     } catch (error) {
-      console.error("Lỗi khi xóa brand:", error);
+              console.error("Lỗi khi xóa thương hiệu:", error);
       toast.error("Không thể kết nối đến server. Vui lòng thử lại!");
     } finally {
       setShowDeleteModal(false);
@@ -182,7 +182,6 @@ const BrandPage = () => {
         </Link>
       </div>
 
-      {/* Filters */}
       <div className={styles.filters}>
         <div className={styles.filterRow}>
           <div className={styles.filterGroup}>
@@ -232,7 +231,6 @@ const BrandPage = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className={styles.card}>
         {isLoading && (
           <div style={{ textAlign: "center", padding: "20px" }}>
@@ -332,7 +330,6 @@ const BrandPage = () => {
           </table>
         </div>
 
-        {/* Fixed Pagination */}
         <div className={styles.pagination}>
           <div className={styles.paginationInfo}>
             Hiển thị {(currentPage - 1) * limit + 1}
@@ -341,7 +338,6 @@ const BrandPage = () => {
           </div>
 
           <div className={styles.paginationButtons}>
-            {/* First Page Button */}
             <button
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
@@ -352,7 +348,6 @@ const BrandPage = () => {
               Trang đầu
             </button>
 
-            {/* Previous Button */}
             <button
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(currentPage - 1)}
@@ -363,7 +358,6 @@ const BrandPage = () => {
               &laquo;
             </button>
 
-            {/* Page Numbers - Hiển thị từ trang 1 đến 5 */}
             {totalPages > 0 && Array.from(
               { length: Math.min(5, totalPages) },
               (_, i) => i + 1
@@ -379,7 +373,6 @@ const BrandPage = () => {
               </button>
             ))}
 
-            {/* Next Button */}
             <button
               disabled={currentPage === totalPages || totalPages === 0}
               onClick={() => setCurrentPage(currentPage + 1)}
@@ -390,7 +383,6 @@ const BrandPage = () => {
               &raquo;
             </button>
 
-            {/* Last Page Button */}
             <button
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages || totalPages === 0}
@@ -436,7 +428,6 @@ const BrandPage = () => {
         </div>
       )}
 
-      {/* Toast Container */}
       <ToastContainer
         position="top-right"
         autoClose={3000}

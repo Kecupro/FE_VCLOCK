@@ -33,8 +33,6 @@ export default function OptimizedImage({
       setImgSrc(fallbackSrc);
     }
   };
-
-  // Nếu ảnh bắt đầu bằng http hoặc https, sử dụng unoptimized
   const isExternalImage = src.startsWith('http');
 
   if (fill) {

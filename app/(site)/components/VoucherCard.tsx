@@ -48,7 +48,7 @@ const VoucherList: React.FC<Props> = ({ user_id }) => {
           setVouchers([]);
         }
       } catch (err) {
-        console.error("Lỗi khi fetch voucher:", err);
+        console.error("Lỗi khi tải voucher:", err);
         setVouchers([]);
       } finally {
         setLoading(false);
@@ -73,7 +73,6 @@ const VoucherList: React.FC<Props> = ({ user_id }) => {
         key={v._id}
         className="relative flex w-full max-w-[420px] h-[96px] sm:h-[110px] md:h-[120px] bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden mx-auto"
       >
-        {/* Cột trái: Icon + Tên + Code + HSD */}
         <div className="flex flex-col items-center justify-center bg-red-700 text-white px-2 py-1 w-[100px] sm:w-[120px] md:w-[140px] rounded-l-lg relative z-20">
           <FaTicketAlt className="hidden sm:block" size={28} color="#fff" />
           <FaTicketAlt className="block sm:hidden" size={20} color="#fff" />
@@ -82,8 +81,6 @@ const VoucherList: React.FC<Props> = ({ user_id }) => {
           <span className="text-[8px] sm:text-[9px] mt-1 text-center">HSD: {formatDate(v.end_date)}</span>
         </div>
       
-      
-        {/* Cột phải: Nội dung voucher */}
         <div className="flex-1 min-w-0 max-w-[220px] sm:max-w-[260px] md:max-w-[300px] flex flex-col justify-between pl-4 px-1 sm:px-2 py-1 sm:py-2 bg-white">
           <div className="space-y-0.5 sm:space-y-1 overflow-hidden">
             <div className="text-red-500 font-bold text-xs sm:text-sm leading-tight truncate">

@@ -17,11 +17,11 @@ const Footer = () => {
   }, []);
 
   return (
-    <footer className="bg-[url('/images/footer-background.jpg')] text-gray-200 py-10 px-4 mt-8">
+    <footer className="bg-[url('/images/mixed/footer-background.jpg')] text-gray-200 py-10 px-4 mt-8">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between  gap-6">
         <div className="text-center md:text-left">
           <Image 
-            src="/images/logoVCLOCK.png" 
+            src="/images/mixed/logoVCLOCK.png" 
             alt="DUANTN Logo" 
             width={246}
             height={72}

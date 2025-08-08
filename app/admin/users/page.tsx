@@ -111,7 +111,6 @@ const UsersPage = () => {
     return headers;
   }, []);
 
-  // ! Check vai trò
   useEffect(() => {
     const checkUserRole = async () => {
       try {
@@ -152,7 +151,6 @@ const UsersPage = () => {
 
     checkUserRole();
   }, [createAuthHeaders]);
-  // ! End Check vai trò
 
   const canDeleteUser = (targetUser: IUser): boolean => {
     if (!currentUser) return false;

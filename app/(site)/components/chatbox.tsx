@@ -7,7 +7,6 @@ import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
-// Tạo socket connection một lần duy nhất
 let socket: Socket | null = null;
 
 const getSocket = (): Socket => {
@@ -81,24 +80,19 @@ const conversationIdRef = useRef<string>("guest-conversation");
     }
   }, []);
 
-  // Khởi tạo socket connection
   useEffect(() => {
     if (!userInfo) return;
 
     const socketInstance = getSocket();
     socketRef.current = socketInstance;
-
-    // Chỉ join conversation một lần
     if (!isConnectedRef.current) {
       socketInstance.emit("joinConversation", conversationIdRef.current);
       isConnectedRef.current = true;
     }
 
-    // Lắng nghe tin nhắn mới với deduplication tốt hơn
     const handleNewMessage = (msg: Message) => {
       if (msg.conversationId === conversationIdRef.current) {
         setMessages((prev) => {
-          // Kiểm tra duplicate bằng nhiều cách
           const alreadyExists = prev.some(m => 
             m._id === msg._id || 
             (m.senderId === msg.senderId && 
@@ -113,13 +107,11 @@ const conversationIdRef = useRef<string>("guest-conversation");
 
     socketInstance.on("newMessage", handleNewMessage);
 
-    // Cleanup
     return () => {
       socketInstance.off("newMessage", handleNewMessage);
     };
   }, [userInfo]);
 
-  // Lấy tin nhắn khi mở chat
   const fetchMessages = async () => {
     const token = localStorage.getItem("token");
     try {
@@ -156,10 +148,8 @@ const conversationIdRef = useRef<string>("guest-conversation");
       createdAt: new Date().toISOString(),
     };
   
-    // Thêm tin nhắn vào UI ngay lập tức
     setMessages(prev => [...prev, newMessage]);
     
-    // Gửi qua socket
     socketRef.current.emit("sendMessage", newMessage);
     setInput("");
   }; 

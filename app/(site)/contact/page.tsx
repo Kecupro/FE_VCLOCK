@@ -56,10 +56,9 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Banner Section */}
       <div className="relative h-72 md:h-126 bg-gray-800">
         <Image
-          src="/images/banner4.jpg" 
+          src="/images/mixed/banner4.jpg" 
           alt="Liên hệ VClock"
           fill
           priority
@@ -180,7 +179,6 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              {/* Status Messages */}
               {submitStatus === 'success' && (
                 <div className="bg-green-50 border border-green-200 rounded-md p-4">
                   <div className="flex">

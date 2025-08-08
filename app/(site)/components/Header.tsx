@@ -8,7 +8,6 @@ import { useAuth } from "../context/AuthContext";
 import AuthModal from "./AuthModal";
 import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
-// Thêm interface cho search suggestion
 interface SearchSuggestion {
   name: string;
   type: string;
@@ -21,13 +20,12 @@ import { clearAuthData } from '../../utils/authUtils';
 
 function AvatarImage({ avatar, alt, size = 32, className = "" }: { avatar?: string | null, alt?: string, size?: number, className?: string }) {
   const [imgSrc, setImgSrc] = useState(getAvatarSrc(avatar));
-  const [key, setKey] = useState(0); // Thêm key để force re-render
+  const [key, setKey] = useState(0);
   
-  // Cập nhật imgSrc khi avatar thay đổi
   useEffect(() => {
     const newSrc = getAvatarSrc(avatar);
     setImgSrc(newSrc);
-    setKey(prev => prev + 1); // Force re-render khi avatar thay đổi
+    setKey(prev => prev + 1);
   }, [avatar]);
   
   return (
@@ -43,7 +41,7 @@ function AvatarImage({ avatar, alt, size = 32, className = "" }: { avatar?: stri
       }}
     >
       <Image
-        key={key} // Thêm key để force re-render
+        key={key}
         src={imgSrc}
         alt={alt || "avatar"}
         width={size}
@@ -77,8 +75,8 @@ const Header = () => {
         try {
           const loadedUser = JSON.parse(userData);
           setUser(loadedUser);
-          hasRefreshed.current = false; // Reset flag khi có user data
-          // console.log('Header: loadedUser', loadedUser);
+          hasRefreshed.current = false;
+
           const isAdmin = ['1', '2'].includes(loadedUser.role);
           const isTryingToAccessAdminArea = pathname.startsWith('/admin');
           if (!isAdmin && isTryingToAccessAdminArea) {
@@ -96,7 +94,7 @@ const Header = () => {
           router.push('/');
         }
         setUser(null);
-        hasRefreshed.current = false; // Reset flag khi không có user data
+        hasRefreshed.current = false; 
       }
     };
     handleAuthStateChange();
@@ -109,11 +107,9 @@ const Header = () => {
     return () => window.removeEventListener('storage', storageEventListener);
   }, [router, pathname, setUser]);
 
-  // Force refresh user data khi component mount để đảm bảo avatar cập nhật
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
-    // Chỉ refresh khi có token nhưng chưa có user data và chưa refresh, tránh vòng lặp vô hạn
     if (token && !userData && !user && !hasRefreshed.current) {
       hasRefreshed.current = true;
       refreshUser();
@@ -175,14 +171,6 @@ const Header = () => {
 
     return () => clearTimeout(timeoutId);
   }, [searchValue]);
-
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     setScrolled(window.scrollY > Height);
-  //   };
-  //   window.addEventListener("scroll", handleScroll);
-  //   return () => window.removeEventListener("scroll", handleScroll);
-  // }, []);
 
   const { cartCount } = useCart();
   const { wishlistCount } = useWishlist();
@@ -323,10 +311,9 @@ const Header = () => {
           <i className="fa-solid fa-bars text-2xl"></i>
         </button>
 
-        {/* Logo */}
         <Link href="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <Image
-            src="/images/logoVCLOCK.png"
+            src="/images/mixed/logoVCLOCK.png"
             alt="Logo"
             width={246}
             height={72}
@@ -430,7 +417,6 @@ const Header = () => {
               className="hover:text-red-400 transition flex items-center font-semibold"
             >
               CỬA HÀNG
-              {/* <i className="fa-solid fa-chevron-down ml-1 transition-transform duration-200"></i> */}
             </Link>
           </div>
 
@@ -450,7 +436,7 @@ const Header = () => {
         <div className="header-logo text-center">
           <Link href="/" className="">
             <Image
-              src="/images/logoVCLOCK.png"
+              src="/images/mixed/logoVCLOCK.png"
               alt="Logo"
               width={240}
               height={80}
@@ -515,7 +501,6 @@ const Header = () => {
                 </div>
               )}
 
-              {/* Search History */}
               {!searchValue && searchHistory.length > 0 && (
                 <div className="p-2">
                   <div className="text-xs text-gray-500 px-2 py-1">Lịch sử tìm kiếm</div>

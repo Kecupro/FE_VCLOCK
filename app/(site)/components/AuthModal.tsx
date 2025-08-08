@@ -9,7 +9,7 @@ interface AuthModalProps {
 
 const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const { setUser } = useAuth();
-  const [authView, setAuthView] = useState("login"); // 'login', 'register', 'verify', 'forgot-password', 'reset-password'
+  const [authView, setAuthView] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -85,7 +85,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         if (data.user.role === '1' || data.user.role === '2') {
           router.push('/admin');
         } else {
-          router.push('/'); // hoặc '/account' nếu muốn
+          router.push('/');
         }
       } else {
             const errorMsg = data.message || 'Đăng nhập thất bại';
@@ -160,11 +160,10 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       
       if (response.ok) {
         toast.success(data.message || 'Đăng ký thành công, vui lòng kiểm tra email!');
-        // Giữ lại email để điền sẵn ở form xác thực
         const registeredEmail = email;
         resetForm(); 
         setEmail(registeredEmail);
-        setAuthView("verify"); // Chuyển sang màn hình xác thực
+        setAuthView("verify");
       } else {
             const errorMsg = data.message || 'Đăng ký thất bại';
             setError(errorMsg);
@@ -201,11 +200,11 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
       if (response.ok) {
         toast.success(data.message || 'Xác thực thành công! Vui lòng đăng nhập.');
-        const loginUsername = username; // Giữ lại username nếu có
+        const loginUsername = username;
         const loginEmail = email;
         resetForm();
-        setUsername(loginUsername || loginEmail); // Ưu tiên username, fallback về email
-        setAuthView("login"); // Chuyển sang màn hình đăng nhập
+        setUsername(loginUsername || loginEmail);
+        setAuthView("login");
       } else {
         const errorMsg = data.message || 'Xác thực thất bại.';
         setError(errorMsg);
@@ -238,7 +237,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       const data = await response.json();
       if (response.ok) {
         toast.success(data.message);
-        setAuthView("reset-password"); // Chuyển sang màn hình đặt lại mật khẩu
+        setAuthView("reset-password");
       } else {
         setError(data.message || 'Yêu cầu thất bại.');
         toast.error(data.message || 'Yêu cầu thất bại.');
@@ -269,7 +268,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       if (response.ok) {
         toast.success(data.message);
         resetForm();
-        setAuthView("login"); // Chuyển về màn hình đăng nhập
+        setAuthView("login");
       } else {
         setError(data.message || 'Đặt lại mật khẩu thất bại.');
         toast.error(data.message || 'Đặt lại mật khẩu thất bại.');

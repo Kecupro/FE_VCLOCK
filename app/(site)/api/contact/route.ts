@@ -5,7 +5,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // Sửa URL để tránh vòng lặp vô hạn - gọi trực tiếp đến server backend
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact`, {
       method: 'POST',
       headers: {
@@ -25,7 +24,7 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (error) {
-    console.error('Contact API error:', error);
+          console.error('Lỗi API liên hệ:', error);
     return NextResponse.json(
       { message: 'Có lỗi xảy ra khi kết nối đến server.' },
       { status: 500 }

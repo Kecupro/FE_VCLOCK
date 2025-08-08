@@ -125,7 +125,6 @@ const NewsPage = () => {
         </Link>
       </div>
 
-      {/* Filters */}
       <div className={styles.filters}>
         <div className={styles.filterRow}>
           <div className={styles.filterGroup}>
@@ -167,7 +166,6 @@ const NewsPage = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className={styles.card}>
         <div style={{ overflowX: "auto" }}>
           <table className={styles.table}>
@@ -212,7 +210,6 @@ const NewsPage = () => {
           </table>
         </div>
 
-        {/* Pagination */}
         <div className={styles.pagination}>
           <div className={styles.paginationInfo}>
             Hiển thị {(currentPage - 1) * limit + 1} đến {Math.min(currentPage * limit, total)} trong {total} tin tức

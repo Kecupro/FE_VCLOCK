@@ -1,6 +1,5 @@
 "use client";
 
-// app/admin/brand/[id]/page.tsx
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Edit, Trash2 } from "lucide-react";
@@ -204,9 +203,7 @@ const BrandDetailPage: React.FC = () => {
       </div>
 
       <div className={styles.form}>
-        {/* Brand Details */}
         <div className={styles.productDetails}>
-          {/* Image Section */}
           <div className={styles.detailSection}>
             <h3 style={{ marginBottom: "1rem", fontSize: "1.2rem", fontWeight: "600" }}>
               Hình ảnh
@@ -240,7 +237,6 @@ const BrandDetailPage: React.FC = () => {
                 />
               )}
             </div>
-            {/* Status Badge */}
             <div style={{ textAlign: "center" }}>
               <span
                 style={{
@@ -258,7 +254,6 @@ const BrandDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Basic Information */}
           <div className={styles.detailSection}>
             <h3 style={{ marginBottom: "1rem", fontSize: "1.2rem", fontWeight: "600" }}>
               Thông tin cơ bản
@@ -313,7 +308,6 @@ const BrandDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Actions */}
         <div className={styles.formActions}>
           <button
             type="button"
@@ -334,7 +328,6 @@ const BrandDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
@@ -370,7 +363,6 @@ const BrandDetailPage: React.FC = () => {
         </div>
       )}
 
-      {/* Toast Container */}
       <ToastContainer
         position="top-right"
         autoClose={3000}

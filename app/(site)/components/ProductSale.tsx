@@ -36,7 +36,6 @@ export default function ProductSale() {
                 return res.json();
             })
             .then((data) => {
-                // Ensure data is an array
                 if (Array.isArray(data)) {
                     setProducts(data);
                 } else if (data && Array.isArray(data.products)) {
@@ -44,12 +43,12 @@ export default function ProductSale() {
                 } else if (data && Array.isArray(data.data)) {
                     setProducts(data.data);
                 } else {
-                    console.warn("API returned unexpected data format:", data);
+                    console.warn("API trả về định dạng dữ liệu không mong đợi:", data);
                     setProducts([]);
                 }
             })
             .catch((err) => {
-                console.error("Lỗi fetch sp:", err);
+                console.error("Lỗi tải sản phẩm:", err);
                 setError(err.message);
                 setProducts([]);
             })
@@ -58,7 +57,6 @@ export default function ProductSale() {
             });
     }, []);
 
-    // Fetch wishlist status for all products
     useEffect(() => {
         const fetchWishlist = async () => {
             const token = localStorage.getItem("token");
@@ -83,7 +81,7 @@ export default function ProductSale() {
                         setWishlistStatus({});
                     }
                 } catch (err) {
-                    console.error("Lỗi fetch wishlist:", err);
+                    console.error("Lỗi tải danh sách yêu thích:", err);
                     setWishlistStatus({});
                 }
             } else {
@@ -92,7 +90,7 @@ export default function ProductSale() {
         };
 
         fetchWishlist();
-    }, [user]); // Re-fetch when user state changes
+    }, [user]);
 
     if (loading) {
         return (

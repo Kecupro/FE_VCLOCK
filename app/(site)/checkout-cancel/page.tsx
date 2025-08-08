@@ -6,7 +6,7 @@ import Link from "next/link";
 import { XCircle } from "lucide-react";
 import { Suspense } from "react";
 
-// Force dynamic rendering to avoid build issues
+
 export const dynamic = 'force-dynamic';
 
 function CheckoutCancelContent() {

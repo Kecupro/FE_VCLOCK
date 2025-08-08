@@ -1,7 +1,7 @@
 export interface IProduct {
   _id: string;
   brand_id: IBrand;
-  brand?: IBrand; // Thêm trường brand để tương thích với API
+  brand?: IBrand; 
   name: string;
   description: string;
   price: number;
@@ -74,7 +74,7 @@ export interface ICategory {
 export interface INews {
   _id: string;
   categorynews_id: ICateNews;
-  category?: ICateNews; // Thêm trường category để tương thích với API
+  category?: ICateNews; 
   title: string;
   content: string;
   image: string | null;
@@ -141,6 +141,7 @@ export interface IReview {
 export interface ReviewUser {
   _id: string;
   username: string;
+  fullName: string;
   avatar: string;
 }
 

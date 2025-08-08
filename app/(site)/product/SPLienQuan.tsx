@@ -22,15 +22,13 @@ export default function SPLienQuan({id} : {id:string}) {
     const [wishlistStatus, setWishlistStatus] = useState<{[key: string]: boolean}>({});
     const { user } = useAuth();
 
-    // Fetch danh sách sản phẩm liên quan
     useEffect(() => {
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sp_lien_quan/${id}`)
             .then((res) => res.json())
             .then((data) => setProducts(data))
-            .catch((err) => console.error("Lỗi fetch sp:", err));
+            .catch((err) => console.error("Lỗi tải sản phẩm:", err));
     }, [id]);
     
-    // Fetch wishlist status for all products
         useEffect(() => {
             const fetchWishlist = async () => {
                 const token = localStorage.getItem("token");
@@ -56,7 +54,7 @@ export default function SPLienQuan({id} : {id:string}) {
                             setWishlistStatus({});
                         }
                     } catch (err) {
-                        console.error("Lỗi fetch wishlist:", err);
+                        console.error("Lỗi tải danh sách yêu thích:", err);
                         setWishlistStatus({});
                     }
                 } else {
@@ -65,7 +63,7 @@ export default function SPLienQuan({id} : {id:string}) {
             };
     
             fetchWishlist();
-        }, [user]); // Re-fetch when user state changes
+        }, [user]); 
 
     return (
         <div className="w-full bg-gray-50 py-8">
@@ -154,7 +152,7 @@ export default function SPLienQuan({id} : {id:string}) {
 			<style jsx global>{`
 				.swiper-button-next,
 				.swiper-button-prev {
-					color: #6b7280 !important; /* gray-500 */
+					color: #6b7280 !important;
 				}
 				.swiper-button-next {
 					right: -32px;

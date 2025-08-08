@@ -25,7 +25,6 @@ import './globals.css';
 function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode }) {
   const { user, logout, isLoading, isAuthorized } = useAdminAuth();
 
-  // ! Lấy trạng thái hiện tại sửa bên folder context
   const {
     isSidebarCollapsed,
     toggleSidebar,
@@ -33,7 +32,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
     toggleDarkMode,
   } = useAppContext();
 
-  // ! Lưu trạng thái dropmenu
   const [openCategoriesMenu, setOpenCategoriesMenu] = useState(false);
   const [openCategoriesBlogMenu, setOpenCategoriesBlogMenu] = useState(false);
   const [openProductMenu, setOpenProductMenu] = useState(false);
@@ -45,7 +43,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
   const [openBrandMenu, setOpenBrandMenu] = useState(false);
   const [openPaymentMethod, setOpenPaymentMethod] = useState(false);
 
-  // ! <== Search ==>
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
@@ -58,7 +55,7 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
         const res = await axios.get<SearchResult[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/search?q=${value}`);
         setSearchResults(res.data);
       } catch (err) {
-        console.error('Search error:', err);
+        console.error('Lỗi tìm kiếm:', err);
       }
     } else {
       setSearchResults([]);
@@ -78,7 +75,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
   setSearchTerm('');
   setSearchResults([]);
   };
-  // ! <== End Search ==>
 
   const avatarSrc = user?.avatar ? getAvatarSrc(user.avatar) : null;
 
@@ -90,7 +86,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
   };
 
   useEffect(() => {
-  console.log("isDarkMode:", isDarkMode);
   const html = document.documentElement;
   if (isDarkMode) {
     html.classList.add('dark-mode');
@@ -125,7 +120,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
 
   return (
     <div className={`admin-app-container ${isDarkMode ? 'dark-mode' : ''}`}>
-      {/* SideBar */}
       <div className={`sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
           {!isSidebarCollapsed ? (
@@ -153,7 +147,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
           <div className="mt-0 sidebar-category">
             {/* Trang chủ */}
             {!isSidebarCollapsed && <div className="mb-2 fw-bold category-title">TRANG CHỦ</div>}
-            {/* Trang chủ Link */}
             <Nav.Link as={Link} href="/admin" className="sidebar-item">
               <FaTachometerAlt className="me-2" />
               {!isSidebarCollapsed && <span className="nav-link-text">Bảng điều khiển</span>}

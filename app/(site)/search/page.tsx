@@ -30,10 +30,8 @@ const SearchPage = () => {
     if (query) {
       performSearch();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
-  // Fetch wishlist status for all products
   useEffect(() => {
     const fetchWishlist = async () => {
       const token = localStorage.getItem("token");
@@ -92,7 +90,6 @@ const SearchPage = () => {
     }
   }, [loading, products]);
 
-  // Lọc trùng sản phẩm theo _id trước khi render
   const uniqueProducts = Array.from(new Map(products.map(item => [item._id, item])).values());
   const uniqueSuggestedProducts = Array.from(new Map(suggestedProducts.map(item => [item._id, item])).values());
 
@@ -110,7 +107,6 @@ const SearchPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 mt-30">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             Kết quả tìm kiếm cho &ldquo;{query}&rdquo;
@@ -119,7 +115,6 @@ const SearchPage = () => {
             Tìm thấy {products.length} sản phẩm
           </p>
         </div>
-        {/* Results */}
         <div className="flex flex-col gap-6">
           {loading ? (
             <div className="flex justify-center items-center h-64">

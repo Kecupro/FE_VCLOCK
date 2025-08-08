@@ -18,8 +18,6 @@ export default function Show1SP(props: { sp: IProduct }) {
 
     const [wishlistStatus, setWishlistStatus] = useState<{[key: string]: boolean}>({});
     const { user } = useAuth();
-    
-    // Fetch wishlist status for all products
         useEffect(() => {
             const fetchWishlist = async () => {
             const token = localStorage.getItem("token");
@@ -44,7 +42,7 @@ export default function Show1SP(props: { sp: IProduct }) {
                         setWishlistStatus({});
                     }
                 } catch (err) {
-                    console.error("Lỗi fetch wishlist:", err);
+                    console.error("Lỗi tải danh sách yêu thích:", err);
                     setWishlistStatus({});
                 }
             } else {
@@ -53,7 +51,7 @@ export default function Show1SP(props: { sp: IProduct }) {
         };
     
             fetchWishlist();
-        }, [user]); // Re-fetch when user state changes
+        }, [user]); 
 
     return (
         <div className="relative flex flex-col bg-white rounded shadow hover:shadow-lg transition p-4 group h-full">

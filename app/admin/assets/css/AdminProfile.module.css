@@ -3,17 +3,12 @@
   border-radius: 1rem;
   background-color: var(--card-bg-light);
   margin: 10px 10px 0 10px;
-  height: calc(100vh - 80px);
 }
 
 html.dark-mode .container {
   background-color: var(--card-bg-dark);
 }
 
-.maxWidth {
-  max-width: 1200px;
-  margin: 0 auto;
-}
 
 .header {
   background-color: var(--card-bg-light);

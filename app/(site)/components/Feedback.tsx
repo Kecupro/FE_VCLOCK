@@ -42,8 +42,7 @@ export default function Feedback() {
         }
         
         const data = await response.json();
-        
-        // Ensure data is an array
+  
         if (Array.isArray(data)) {
           setProducts(data);
         } else if (data && Array.isArray(data.products)) {
@@ -51,7 +50,7 @@ export default function Feedback() {
         } else if (data && Array.isArray(data.data)) {
           setProducts(data.data);
         } else {
-          console.warn("API returned unexpected data format:", data);
+          console.warn("API trả về định dạng dữ liệu không mong đợi:", data);
           setProducts([]);
         }
       } catch (error) {
@@ -188,13 +187,11 @@ export default function Feedback() {
                       />
                     </Link>
                     
-                    {/* Rating Badge */}
                     <div className="absolute top-3 left-3 bg-red-600 text-white px-2 py-1 rounded-full text-sm font-bold flex items-center gap-1">
                       <i className="fa-solid fa-star"></i>
                       {product.averageRating}
                     </div>
 
-                    {/* Sale Badge */}
                     {product.sale_price > 0 && (
                       <div className="absolute top-3 right-3 bg-green-600 text-white px-2 py-1 rounded-full text-sm font-bold">
                         -{Math.round(((product.price - product.sale_price) / product.price) * 100)}%
@@ -202,7 +199,6 @@ export default function Feedback() {
                     )}
                   </div>
 
-                  {/* Product Info - Right Side */}
                   <div className="lg:w-1/2 p-6 flex flex-col justify-center">
                     <div className="mb-4">
                       <p className="text-sm text-gray-500 mb-2">{product.brand.name}</p>
@@ -213,7 +209,6 @@ export default function Feedback() {
                       </Link>
                     </div>
                     
-                    {/* Rating */}
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex gap-1">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -226,7 +221,6 @@ export default function Feedback() {
                       <span className="text-sm text-gray-500">({product.reviewCount} đánh giá)</span>
                     </div>
 
-                    {/* Price */}
                     <div className="mb-4">
                       {product.sale_price > 0 ? (
                         <div className="flex items-center gap-3">
@@ -244,7 +238,6 @@ export default function Feedback() {
                       )}
                     </div>
 
-                    {/* Features/Highlights */}
                     <div className="mb-4">
                       <h4 className="font-semibold text-gray-800 mb-2">Điểm nổi bật:</h4>
                       <ul className="space-y-1 text-sm text-gray-600">
@@ -266,14 +259,11 @@ export default function Feedback() {
                         </li>
                       </ul>
                     </div>
-
-                    {/* Add to Cart Button */}
                     <div className="w-full mb-3 flex gap-2">
                       <AddToCart sp={createProductForCart(product)} />
                       <BuyNow sp={createProductForCart(product)} />
                     </div>
 
-                    {/* View Details Link */}
                     <div className="text-center">
                       <Link 
                         href={`/product/${product._id}`}

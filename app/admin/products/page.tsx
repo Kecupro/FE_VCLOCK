@@ -287,8 +287,7 @@ const ProductsPage = () => {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className={styles.pagination}>
+=      <div className={styles.pagination}>
         <div className={styles.paginationInfo}>
           Hiển thị {(currentPage - 1) * limit + 1} đến {Math.min(currentPage * limit, total)} trong {total} sản phẩm
         </div>
@@ -304,7 +303,6 @@ const ProductsPage = () => {
       </div>
     </div>
 
-    {/* Modal */}
     {showModal && (
       <div className={styles.modalOverlay}>
         <div className={styles.modal}>

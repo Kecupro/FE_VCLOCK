@@ -7,7 +7,6 @@ export default function BuyNow({ sp }: { sp: IProduct }) {
   const router = useRouter();
 
   const handleBuyNow = () => {
-    // Xử lý main_image để đảm bảo cấu trúc đúng
     let mainImage: IHinh = {
       _id: "",
       is_main: true,
@@ -31,7 +30,6 @@ export default function BuyNow({ sp }: { sp: IProduct }) {
         mainImage = sp.main_image;
       }
     } else if (sp.images && sp.images.length > 0) {
-      // Fallback: lấy ảnh đầu tiên từ images array
       const firstImage = sp.images[0];
       if (typeof firstImage === 'string') {
         mainImage = {
@@ -59,7 +57,6 @@ export default function BuyNow({ sp }: { sp: IProduct }) {
       quantity: sp.quantity,
     };
 
-    // Thêm vào giỏ hàng (không hiển thị toast)
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
     const existingItem = existingCart.find((i: ICart) => i._id === item._id);
     
@@ -72,13 +69,11 @@ export default function BuyNow({ sp }: { sp: IProduct }) {
       localStorage.setItem("cart", JSON.stringify([...existingCart, item]));
     }
     
-    // Refresh cart từ localStorage
+
     refreshCartFromStorage();
     
-    // Chỉ chọn sản phẩm này để checkout (không phải tất cả sản phẩm trong giỏ hàng)
     setSelectedItems([item._id]);
     
-    // Chuyển đến trang checkout
     router.push('/checkout');
   };
 

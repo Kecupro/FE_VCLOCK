@@ -241,7 +241,6 @@ export default function AdminChat() {
 
   return (
     <div className={styles.container}>
-      {/* Sidebar */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
           <input
@@ -284,7 +283,6 @@ export default function AdminChat() {
         </div>
       </aside>
 
-      {/* Main Chat */}
       <main className={styles.mainChat}>
         <header className={styles.chatHeader}>
           <div className={styles.headerLeft}>
@@ -366,7 +364,6 @@ export default function AdminChat() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Footer */}
         <div className={styles.chatFooter}>
           <div className={styles.inputContainer}>
             <input

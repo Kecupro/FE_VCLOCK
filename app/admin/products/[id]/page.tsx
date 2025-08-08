@@ -37,8 +37,6 @@ const ProductDetailPage: React.FC = () => {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product/${productId}`);
         const data = await res.json();
 
-        console.log("Product data:", data);
-
         const prod: IProduct = data.product || data;
         setProduct(prod);
 
@@ -258,7 +256,6 @@ const ProductDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal xác nhận xóa */}
       {showModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>

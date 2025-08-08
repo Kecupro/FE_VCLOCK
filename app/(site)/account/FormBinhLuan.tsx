@@ -28,7 +28,7 @@ export default function ReviewForm({
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // <-- Gửi token ở đây
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ product_id: productId, rating, comment, order_detail_id: orderDetailId, }),
       });

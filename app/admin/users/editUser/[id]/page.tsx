@@ -141,7 +141,7 @@ const EditUser = () => {
           router.push("/login");
         }
       } catch (error) {
-        console.error("Error fetching current user:", error);
+        console.error("Lỗi khi lấy thông tin người dùng hiện tại:", error);
         router.push("/login");
       }
     };
@@ -343,7 +343,7 @@ const EditUser = () => {
         router.push("/admin/users");
       }, 1500);
     } catch (error) {
-      console.error("Error updating user:", error);
+              console.error("Lỗi khi cập nhật người dùng:", error);
       toast.error(
         error instanceof Error
           ? error.message
