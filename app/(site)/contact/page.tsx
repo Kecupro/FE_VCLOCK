@@ -1,4 +1,5 @@
-'use client';
+"use client";
+
 
 import { useState } from 'react';
 import Image from 'next/image';
@@ -26,7 +27,7 @@ export default function ContactPage() {
     setSubmitStatus('idle');
 
     try {
-      const response = await fetch('http://localhost:3000/api/contact', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

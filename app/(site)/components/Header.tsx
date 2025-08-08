@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -7,8 +8,6 @@ import { useAuth } from "../context/AuthContext";
 import AuthModal from "./AuthModal";
 import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
-
-
 // Thêm interface cho search suggestion
 interface SearchSuggestion {
   name: string;
@@ -140,7 +139,7 @@ const Header = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/api/search/suggestions?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/search/suggestions?q=${encodeURIComponent(query)}`);
       const data = await response.json();
       setSearchSuggestions(data.suggestions || []);
     } catch (error) {

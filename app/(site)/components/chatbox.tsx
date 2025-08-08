@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useState, useRef, useEffect } from "react";
 import { Send, X, MessageCircle } from "lucide-react";
 import { io, Socket } from "socket.io-client";
@@ -11,7 +12,7 @@ let socket: Socket | null = null;
 
 const getSocket = (): Socket => {
   if (!socket) {
-    socket = io('http://localhost:3000', {
+    socket = io(process.env.NEXT_PUBLIC_API_URL, {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
@@ -123,7 +124,7 @@ const conversationIdRef = useRef<string>("guest-conversation");
     const token = localStorage.getItem("token");
     try {
       const res = await axios.get<Message[]>(
-        `http://localhost:3000/api/messages/${conversationIdRef.current}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/messages/${conversationIdRef.current}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -9,7 +8,6 @@ import "swiper/css/pagination";
 import AddToCart from "./AddToCart";
 import BuyNow from "./BuyNow";
 import { IProduct } from "../cautrucdata";
-
 interface TopRatedProduct {
   _id: string;
   name: string;
@@ -38,7 +36,7 @@ export default function Feedback() {
         setLoading(true);
         setError(null);
         
-        const response = await fetch('http://localhost:3000/api/products/top-rated?limit=6');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/top-rated?limit=6`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

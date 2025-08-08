@@ -1,4 +1,5 @@
-'use client';
+"use client";
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useAppContext } from '../../../context/AppContext';
 import Link from 'next/link';
@@ -9,7 +10,6 @@ import Image from 'next/image';
 import { Editor } from '@tinymce/tinymce-react';
 import { Editor as TinyMCEEditor } from 'tinymce';
 import { IBrand } from '@/app/(site)/cautrucdata';
-
 const AddBrand = () => {
   const [formData, setFormData] = useState<IBrand>({
   _id: '',
@@ -162,7 +162,7 @@ const AddBrand = () => {
         formDataToSend.append('image', selectedFile);
       }
 
-      const response = await fetch('http://localhost:3000/api/admin/brand/add', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand/add`, {
         method: 'POST',
         body: formDataToSend,
       });

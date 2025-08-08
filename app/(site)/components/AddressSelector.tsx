@@ -1,5 +1,6 @@
-import { useEffect, useState, useRef } from "react";
 
+
+import { useEffect, useState, useRef } from "react";
 export interface Province {
   code: string;
   name: string;
@@ -84,14 +85,14 @@ export default function AddressSelector({ value, onChange }: {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/provinces")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/provinces`)
       .then(res => res.json())
       .then(setProvinces);
   }, []);
 
   useEffect(() => {
     if (province) {
-      fetch(`http://localhost:3000/api/districts/${province}`)
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/districts/${province}`)
         .then(res => res.json())
         .then(setDistricts);
       // Reset district và ward khi province thay đổi
@@ -108,7 +109,7 @@ export default function AddressSelector({ value, onChange }: {
 
   useEffect(() => {
     if (district) {
-      fetch(`http://localhost:3000/api/wards/${district}`)
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wards/${district}`)
         .then(res => res.json())
         .then(setWards);
       // Reset ward khi district thay đổi

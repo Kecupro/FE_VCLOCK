@@ -1,4 +1,5 @@
-'use client';
+"use client";
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useAppContext } from '../../../context/AppContext';
 import { useRouter } from 'next/navigation';
@@ -6,7 +7,6 @@ import styles from '../../assets/css/add.module.css';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ToastContainer, toast } from 'react-toastify';
-
 const AddCatePro = () => {
   const [status, setStatus] = useState<'Hoạt động' | 'Dừng hoạt động'>('Hoạt động');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -69,7 +69,7 @@ const AddCatePro = () => {
     formData.append('image', selectedFile);
 
     try {
-      const res = await fetch('http://localhost:3000/api/admin/categoryProduct/them', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryProduct/them`, {
         method: 'POST',
         body: formData,
       });

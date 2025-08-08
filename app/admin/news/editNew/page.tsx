@@ -1,4 +1,5 @@
-'use client';
+"use client";
+
 import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from '../../assets/css/add.module.css';
@@ -7,7 +8,6 @@ import { useAppContext } from '../../../context/AppContext';
 import { ToastContainer, toast } from 'react-toastify';
 import { Editor } from '@tinymce/tinymce-react';
 import { ICateNews } from '@/app/(site)/cautrucdata';
-
 const EditNews = () => {
   const [formData, setFormData] = useState({
     title: '',
@@ -35,7 +35,7 @@ const EditNews = () => {
   useEffect(() => {
     const fetchCateNews = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/admin/categoryNews`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryNews`);
         const data = await res.json();
         setCategoriesNews(data.list || []);
       } catch {
@@ -61,7 +61,7 @@ const EditNews = () => {
 
     const fetchData = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/admin/news/${id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/${id}`);
         const data = await res.json();
         const news = data.news;
 
@@ -139,7 +139,7 @@ const EditNews = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/news/sua/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/sua/${id}`, {
         method: 'PUT',
         body,
       });

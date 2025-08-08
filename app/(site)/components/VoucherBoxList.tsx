@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import { FaTicketAlt } from "react-icons/fa";
 import axios from "axios";
@@ -8,8 +7,6 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import { IVoucher } from "../cautrucdata";
-
-
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
 }
@@ -41,7 +38,7 @@ const VoucherBoxList = () => {
     }
     
     try {
-      const res = await axios.get("http://localhost:3000/voucher-user", {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/voucher-user`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -63,7 +60,7 @@ const VoucherBoxList = () => {
   useEffect(() => {
     const fetchVouchers = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/admin/voucher?limit=15");
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher?limit=15`);
         setVouchers((res.data as { list: IVoucher[] }).list || []);
       } catch {
         setVouchers([]);
@@ -91,7 +88,7 @@ const VoucherBoxList = () => {
     setSavingVoucher(voucherId);
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/voucher-user/save",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/voucher-user/save`,
         { voucher_id: voucherId },
         {
           headers: {

@@ -1,10 +1,10 @@
-'use client';
+"use client";
+
 import React, { useEffect, useState } from 'react';
 import styles from '../../assets/css/add.module.css';
 import { useAppContext } from '../../../context/AppContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ToastContainer, toast } from 'react-toastify';
-
 const EditCateNew = () => {
   const [categoryName, setCategoryName] = useState('');
   const [status, setStatus] = useState<'Hoạt động' | 'Dừng hoạt động'>('Hoạt động');
@@ -30,7 +30,7 @@ const EditCateNew = () => {
 
     const fetchData = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/admin/categoryNews/${id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryNews/${id}`);
         const data = await res.json();
         const category = data.categoryNews;
 
@@ -53,7 +53,7 @@ const EditCateNew = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/categoryNews/sua/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryNews/sua/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

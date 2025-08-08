@@ -1,4 +1,5 @@
-'use client';
+"use client";
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useAppContext } from '../../../context/AppContext';
 import Link from 'next/link';
@@ -9,7 +10,6 @@ import Image from 'next/image';
 import { Editor } from '@tinymce/tinymce-react';
 import { Editor as TinyMCEEditor } from 'tinymce';
 import { ICateNews } from '@/app/(site)/cautrucdata';
-
 const AddNew = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [status, setStatus] = useState<'Công khai' | 'Bản nháp'>('Công khai');
@@ -47,7 +47,7 @@ const AddNew = () => {
   useEffect(() => {
       const fetchCateNews = async () => {
         try {
-          const res = await fetch(`http://localhost:3000/api/admin/categoryNews`);
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryNews`);
           const data = await res.json();
           setCategoriesNews(data.list || []);
         } catch {
@@ -76,7 +76,7 @@ const AddNew = () => {
     formData.append('image', selectedFile);
 
     try {
-      const res = await fetch('http://localhost:3000/api/admin/news/them', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/them`, {
         method: 'POST',
         body: formData,
       });

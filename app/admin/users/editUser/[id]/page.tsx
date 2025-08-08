@@ -1,11 +1,11 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAppContext } from '../../../../context/AppContext';
 import { ToastContainer, toast } from "react-toastify";
 import styles from "../../../assets/css/add.module.css";
 import { IUser } from '@/app/(site)/cautrucdata';
-
 const EditUser = () => {
   const router = useRouter();
   const params = useParams();
@@ -128,7 +128,7 @@ const EditUser = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:3000/check-role", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/check-role`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -158,7 +158,7 @@ const EditUser = () => {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-          `http://localhost:3000/api/admin/user/${userId}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/user/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -321,7 +321,7 @@ const EditUser = () => {
       }
 
       const userResponse = await fetch(
-        `http://localhost:3000/api/admin/user/edit/${userId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/user/edit/${userId}`,
         {
           method: "PUT",
           headers: {

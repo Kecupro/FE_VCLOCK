@@ -1,4 +1,5 @@
 "use client";
+
 import { IStats, IProduct } from "../../cautrucdata";
 import { useState, useEffect, useRef   } from "react";
 // import { usePathname } from "next/navigation";
@@ -9,8 +10,6 @@ import Image from "next/image";
 import BuyNow from "../../components/BuyNow";
 import AddToCart from "../../components/AddToCart";
 import { useParams } from 'next/navigation';
-
-
 interface IRawImage { is_main: boolean; image: string , alt?: string; }
 
 export default function ProductDetail() {
@@ -31,7 +30,7 @@ export default function ProductDetail() {
   useEffect(() => {
     if (!id) return;
   
-    fetch(`http://localhost:3000/api/reviews/stats/${id}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/stats/${id}`)
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error("Lỗi fetch stats:", err));
@@ -47,7 +46,7 @@ export default function ProductDetail() {
 
     async function fetchProduct() {
       try {
-        const res = await fetch(`http://localhost:3000/api/product/${id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product/${id}`);
         if (!res.ok) throw new Error("Lấy sản phẩm thất bại");
         const data = await res.json(); 
 

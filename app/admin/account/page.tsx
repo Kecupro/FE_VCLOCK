@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useCallback, useEffect, useState } from "react";
 import {
   User,
@@ -22,7 +23,6 @@ import {
   isBrowser,
 } from "./utils/localStorage";
 import { AdminData, EditData, ApiResponse, UpdateResponse } from "@/app/(site)/cautrucdata";
-
 import { getRoleDisplayName } from "./utils/role";
 import { getAvatarSrc } from "../../utils/avatarUtils";
 
@@ -122,7 +122,7 @@ const AdminProfile = () => {
         const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         const response = await fetch(
-          `http://localhost:3000/api/admin/user/${id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/user/${id}`,
           {
             method: "GET",
             headers: {
@@ -210,7 +210,7 @@ const AdminProfile = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      const response = await fetch("http://localhost:3000/check-role", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/check-role`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -292,7 +292,7 @@ const AdminProfile = () => {
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       const response = await fetch(
-        `http://localhost:3000/api/admin/account/edit/${updatedData._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/account/edit/${updatedData._id}`,
         {
           method: "PUT",
           headers: {

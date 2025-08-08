@@ -3,6 +3,8 @@ type StarRatingProps = {
     className?: string;  // Tùy chọn: thêm class nếu cần
   };
   
+
+
   const StarRating = ({ rating, className = '' }: StarRatingProps) => {
     return (
       <span className={`text-red-500 flex gap-0.5 ${className}`}>

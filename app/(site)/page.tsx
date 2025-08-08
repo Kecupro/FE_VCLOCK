@@ -1,5 +1,6 @@
-// import Image from "next/image";
 "use client";
+
+// import Image from "next/image";
 import Banner from "./components/Banner";
 import Categories from "./components/Categories";
 import ProductNew from "./components/ProductNew";

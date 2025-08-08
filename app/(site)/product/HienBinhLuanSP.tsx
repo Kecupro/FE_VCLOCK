@@ -1,4 +1,3 @@
-"use client";
 
 import { useEffect, useState } from "react";
 import { IReview } from "../cautrucdata";
@@ -16,7 +15,7 @@ export default function HienBinhLuanSP({
 
   const fetchReviews = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/reviews/${productId}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${productId}`);
       const data = await res.json();
       setBlArr(data.reviews || []);
     } catch (err) {

@@ -1,4 +1,6 @@
-'use client';
+"use client";
+
+
 
 import React, { useEffect, useState } from 'react';
 import { Search, Plus, Edit, Trash2 } from 'lucide-react';
@@ -39,7 +41,7 @@ const PaymentMethodPage = () => {
     const fetchPaymentMethods = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/admin/payment-method?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&sort=${sortOption}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/payment-method?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&sort=${sortOption}`
         );
         const data = await res.json();
         
@@ -83,7 +85,7 @@ const PaymentMethodPage = () => {
       if (!deletingId) return;
   
       try {
-        const res = await fetch(`http://localhost:3000/api/admin/payment-method/xoa/${deletingId}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/payment-method/xoa/${deletingId}`, {
           method: 'DELETE',
         });
         const data = await res.json();

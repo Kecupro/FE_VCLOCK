@@ -1,4 +1,3 @@
-"use client";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
@@ -10,7 +9,6 @@ import AddToCart from "./AddToCart";
 import BuyNow from "./BuyNow";
 import WishlistButton from "./WishlistButton";
 import { useAuth } from "../context/AuthContext";
-
 interface WishlistItem {
     _id: string;
     product_id: string;
@@ -30,7 +28,7 @@ export default function ProductSale() {
         setLoading(true);
         setError(null);
         
-        fetch("http://localhost:3000/api/sp_giam_gia")
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sp_giam_gia`)
             .then((res) => {
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
@@ -66,7 +64,7 @@ export default function ProductSale() {
             const token = localStorage.getItem("token");
             if (token) {
                 try {
-                    const res = await fetch("http://localhost:3000/user/wishlist", {
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }

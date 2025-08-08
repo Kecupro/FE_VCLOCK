@@ -1,9 +1,9 @@
-'use client';
+"use client";
+
 import Link from "next/link";
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { INews, ICateNews } from "../cautrucdata";
-
 interface NewsResponse {
   news: INews[];
   currentPage: number;
@@ -59,7 +59,7 @@ export default function News() {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/category-news');
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/category-news`);
       setCategories(response.data as ICateNews[]);
     } catch (err) {
               console.error('Lỗi tải danh mục tin tức:', err);
@@ -70,10 +70,10 @@ export default function News() {
     try {
       setIsTransitioning(true);
       
-      let url = `http://localhost:3000/api/news?page=${currentPage}&limit=6`;
+      let url = `${process.env.NEXT_PUBLIC_API_URL}/api/news?page=${currentPage}&limit=6`;
       
       if (selectedCategory !== 'all') {
-        url = `http://localhost:3000/api/news/category/${selectedCategory}?page=${currentPage}&limit=6`;
+        url = `${process.env.NEXT_PUBLIC_API_URL}/api/news/category/${selectedCategory}?page=${currentPage}&limit=6`;
       }
       
       const response = await axios.get(url);

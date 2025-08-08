@@ -1,8 +1,8 @@
 "use client";
+
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../context/AuthContext";
-
 export default function GoogleSuccess() {
   const router = useRouter();
   const { setUser } = useAuth();
@@ -13,7 +13,7 @@ export default function GoogleSuccess() {
     if (token) {
       localStorage.setItem("token", token);
   
-      fetch("http://localhost:3000/user/profile", {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

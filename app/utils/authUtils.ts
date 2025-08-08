@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Utility functions for authentication
  */
@@ -28,6 +30,8 @@ export const clearAuthData = () => {
  */
 export const isAuthenticated = (): boolean => {
   if (typeof window === 'undefined') return false;
+
+
   const token = localStorage.getItem('token');
   return !!token;
 };

@@ -1,4 +1,6 @@
-'use client';
+"use client";
+
+
 
 import React, { useEffect, useState } from 'react';
 import { Search, Eye, Zap, Truck, CheckCircle, XCircle, Clock, RefreshCw, DollarSign,} from 'lucide-react';
@@ -148,7 +150,7 @@ const OrdersPage = () => {
   const fetchOrdersAndCounts = async () => {
     try {
       const res = await fetch(
-        `http://localhost:3000/api/admin/order?statusFilter=${statusFilter}&paymentStatusFilter=${selectedPaymentStatus || 'all'}&page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&sort=${sortOption}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/order?statusFilter=${statusFilter}&paymentStatusFilter=${selectedPaymentStatus || 'all'}&page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&sort=${sortOption}`
       );
 
       const data = await res.json();
@@ -179,7 +181,7 @@ const OrdersPage = () => {
 
   const updateOrderStatus = async (id: string, newStatus: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/order/suaStatus/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/order/suaStatus/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order_status: newStatus }),
@@ -214,7 +216,7 @@ const OrdersPage = () => {
 
   const updatePaymentStatus = async (id: string, newStatus: string) => {
   try {
-    const res = await fetch(`http://localhost:3000/api/admin/order/suaStatus/${id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/order/suaStatus/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ payment_status: newStatus }),

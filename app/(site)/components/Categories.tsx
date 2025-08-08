@@ -1,4 +1,3 @@
-"use client";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
@@ -6,7 +5,6 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { useEffect, useState  } from "react";
 import { IBrand } from "../cautrucdata";
-
 export default function Categories() {
 	const [brands, setBrands] = useState<IBrand[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -17,7 +15,7 @@ export default function Categories() {
 		setLoading(true);
 		setError(null);
 		
-		fetch("http://localhost:3000/api/brand")
+		fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/brand`)
 			.then((res) => {
 				if (!res.ok) {
 					throw new Error(`HTTP error! status: ${res.status}`);

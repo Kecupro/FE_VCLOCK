@@ -1,4 +1,5 @@
 "use client";
+
 import { useRef, useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { IAddress, IProduct } from "../cautrucdata";
@@ -10,7 +11,6 @@ import { useWishlist } from "../components/WishlistContext";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import { getAvatarSrc } from "../../utils/avatarUtils";
-
 interface WishlistItem {
   _id: string;
   product_id: string;
@@ -117,7 +117,7 @@ function AccountPageContent() {
     if (!token) return;
 
     try {
-      const response = await fetch('http://localhost:3000/user/addresses', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -144,7 +144,7 @@ function AccountPageContent() {
 
     try {
       setIsLoadingWishlist(true);
-      const response = await fetch('http://localhost:3000/user/wishlist', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -196,7 +196,7 @@ function AccountPageContent() {
 
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:3000/user/profile/update', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/profile/update`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -256,7 +256,7 @@ const result = await response.json();
     if (!token) return;
 
     try {
-      const response = await fetch('http://localhost:3000/user/addresses', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -283,7 +283,7 @@ const result = await response.json();
     if (!token) return;
 
     try {
-      const response = await fetch(`http://localhost:3000/user/addresses/${addressId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses/${addressId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -314,7 +314,7 @@ address: address.address
     if (!token || !editingAddressId) return;
 
     try {
-      const response = await fetch(`http://localhost:3000/user/addresses/${editingAddressId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses/${editingAddressId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -347,7 +347,7 @@ address: address.address
     if (!token) return;
 
     try {
-      const response = await fetch(`http://localhost:3000/user/wishlist/${productId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -367,7 +367,7 @@ address: address.address
 //them 
   const handleSetDefaultAddress = async (id: string) => {
     try {
-      await fetch(`http://localhost:3000/api/user/addresses/${id}/set-default`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/addresses/${id}/set-default`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem("token")}`,
@@ -392,7 +392,7 @@ address: address.address
     if (!token) return;
     try {
       setIsLoadingWishlist(true);
-      const response = await fetch('http://localhost:3000/user/wishlist/all', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist/all`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

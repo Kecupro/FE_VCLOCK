@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { Search, Plus, Eye, Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
@@ -7,7 +8,6 @@ import { ToastContainer, toast } from "react-toastify";
 import styles from "../assets/css/all.module.css";
 import { useAppContext } from "../../context/AppContext";
 import { IBrand } from "@/app/(site)/cautrucdata";
-
 const BrandPage = () => {
   const [brands, setBrands] = useState<IBrand[]>([]);
   const [totalBrands, setTotalBrands] = useState(0);
@@ -57,7 +57,7 @@ const BrandPage = () => {
         });
 
         const res = await fetch(
-          `http://localhost:3000/api/admin/brand?${params}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand?${params}`
         );
         const data = await res.json();
         setBrands(data.list);
@@ -89,7 +89,7 @@ const BrandPage = () => {
       });
 
       const res = await fetch(
-        `http://localhost:3000/api/admin/brand?${params}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand?${params}`
       );
       const data = await res.json();
       setBrands(data.list);
@@ -132,7 +132,7 @@ const BrandPage = () => {
 
     try {
       const deleteResponse = await fetch(
-        `http://localhost:3000/api/admin/brand/xoa/${brandToDelete._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand/xoa/${brandToDelete._id}`,
         {
           method: "DELETE",
           headers: {

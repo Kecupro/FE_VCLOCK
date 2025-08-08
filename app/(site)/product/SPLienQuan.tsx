@@ -1,4 +1,3 @@
-"use client";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -10,7 +9,6 @@ import BuyNow from "../components/BuyNow";
 import { useEffect, useState  } from "react";
 import WishlistButton from "../components/WishlistButton";
 import { useAuth } from "../context/AuthContext";
-
 interface WishlistItem {
     _id: string;
     product_id: string;
@@ -26,7 +24,7 @@ export default function SPLienQuan({id} : {id:string}) {
 
     // Fetch danh sách sản phẩm liên quan
     useEffect(() => {
-        fetch(`http://localhost:3000/api/sp_lien_quan/${id}`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sp_lien_quan/${id}`)
             .then((res) => res.json())
             .then((data) => setProducts(data))
             .catch((err) => console.error("Lỗi fetch sp:", err));
@@ -38,7 +36,7 @@ export default function SPLienQuan({id} : {id:string}) {
                 const token = localStorage.getItem("token");
                 if (token) {
                     try {
-                        const res = await fetch("http://localhost:3000/user/wishlist", {
+                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
                             headers: {
                                 'Authorization': `Bearer ${token}`
                             }

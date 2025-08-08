@@ -1,11 +1,11 @@
-'use client';
+"use client";
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { Search, Star} from 'lucide-react';
 import styles from '../assets/css/all.module.css';
 import { useAppContext } from '../../context/AppContext';
 import { IReview } from '@/app/(site)/cautrucdata';
 import { ToastContainer, toast } from 'react-toastify';
-
 const RatingPage = () => {
   const { isDarkMode } = useAppContext();
   const [reviews, setReviews] = useState<IReview[]>([]);
@@ -34,7 +34,7 @@ const RatingPage = () => {
         sortOrder: sortOrder
       });
 
-      const res = await fetch(`http://localhost:3000/api/admin/review?${params}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/review?${params}`);
       const data = await res.json();
       setReviews(data.list);
       setTotalReviews(data.total);

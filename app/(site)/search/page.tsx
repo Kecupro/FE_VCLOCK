@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -7,7 +8,6 @@ import BuyNow from '../components/BuyNow';
 import WishlistButton from '../components/WishlistButton';
 import { IProduct } from '../cautrucdata';
 import { useAuth } from '../context/AuthContext';
-
 interface WishlistItem {
   _id: string;
   product_id: string;
@@ -39,7 +39,7 @@ const SearchPage = () => {
       const token = localStorage.getItem("token");
       if (token) {
         try {
-          const res = await fetch("http://localhost:3000/user/wishlist", {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -72,7 +72,7 @@ const SearchPage = () => {
       const params = new URLSearchParams({
         q: query || ''
       });
-      const response = await fetch(`http://localhost:3000/api/search?${params}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/search?${params}`);
       const data = await response.json();
       setProducts(data.products || []);
     } catch {
@@ -84,7 +84,7 @@ const SearchPage = () => {
 
   useEffect(() => {
     if (!loading && products.length === 0) {
-      fetch(`http://localhost:3000/api/products/top-rated?limit=4`)
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/top-rated?limit=4`)
         .then(res => res.json())
         .then(data => setSuggestedProducts(data || []));
     } else {

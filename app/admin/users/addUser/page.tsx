@@ -1,11 +1,11 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAppContext } from '../../../context/AppContext';
 import { ToastContainer, toast } from "react-toastify";
 import styles from "../../assets/css/add.module.css";
 import { IUser } from '@/app/(site)/cautrucdata';
-
 const AddUser = () => {
   const router = useRouter();
 
@@ -51,7 +51,7 @@ const AddUser = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:3000/check-role", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/check-role`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -199,7 +199,7 @@ const AddUser = () => {
 
       console.log("Sending create data:", createData);
 
-      const response = await fetch("http://localhost:3000/api/admin/user/add", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/user/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

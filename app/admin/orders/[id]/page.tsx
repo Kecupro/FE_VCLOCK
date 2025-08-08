@@ -1,4 +1,6 @@
-'use client';
+"use client";
+
+
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -148,7 +150,7 @@ const OrderDetailPage = () => {
 
   const fetchOrder = React.useCallback(async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/order`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/order`);
       const data = await res.json();
       const found = data.list.find((o: IOrder) => o._id == id);
       setOrder(found);
@@ -159,7 +161,7 @@ const OrderDetailPage = () => {
 
   const fetchOrderDetails = React.useCallback(async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/order/chitiet/${id}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/order/chitiet/${id}`);
       const data = await res.json();
       setDetails(data);
     } catch {
@@ -169,7 +171,7 @@ const OrderDetailPage = () => {
 
   const updateOrderStatus = async (id: string, newStatus: string) => {
   try {
-    const res = await fetch(`http://localhost:3000/api/admin/order/suaStatus/${id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/order/suaStatus/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ order_status: newStatus }),
@@ -190,7 +192,7 @@ const OrderDetailPage = () => {
 
   const updatePaymentStatus = async (id: string, newStatus: string) => {
   try {
-    const res = await fetch(`http://localhost:3000/api/admin/order/suaStatus/${id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/order/suaStatus/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ payment_status: newStatus }),

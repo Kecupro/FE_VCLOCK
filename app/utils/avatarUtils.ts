@@ -1,3 +1,7 @@
+"use client";
+
+
+
 /**
  * Utility function để xử lý đường dẫn avatar
  * Hỗ trợ: Google/Facebook avatar, local uploads, default avatar
@@ -19,6 +23,6 @@ export const getAvatarSrc = (avatar: string | null | undefined): string => {
   }
   
   // Nếu chỉ là tên file, thêm prefix đường dẫn uploads/avatars
-  const baseUrl = `http://localhost:3000/uploads/avatars/${avatar}`;
+  const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/uploads/avatars/${avatar}`;
   return baseUrl;
 }; 

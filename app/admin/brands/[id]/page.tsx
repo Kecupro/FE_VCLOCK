@@ -1,5 +1,6 @@
-// app/admin/brand/[id]/page.tsx
 "use client";
+
+// app/admin/brand/[id]/page.tsx
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Edit, Trash2 } from "lucide-react";
@@ -8,7 +9,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import styles from "../../assets/css/detail.module.css";
 import { useAppContext } from "../../../context/AppContext";
 import { IBrand } from "@/app/(site)/cautrucdata";
-
 const BrandDetailPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
@@ -39,7 +39,7 @@ const BrandDetailPage: React.FC = () => {
         }
         
         const res = await fetch(
-          `http://localhost:3000/api/admin/brand/${brandId}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand/${brandId}`,
           {
             method: 'GET',
             headers: {
@@ -112,7 +112,7 @@ const BrandDetailPage: React.FC = () => {
     try {
       const brandId = Array.isArray(params.id) ? params.id[0] : params.id;
       const deleteResponse = await fetch(
-        `http://localhost:3000/api/admin/brand/xoa/${brandId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand/xoa/${brandId}`,
         {
           method: "DELETE",
           headers: {

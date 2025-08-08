@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,7 +9,6 @@ import { toast } from "react-toastify";
 import * as Dialog from "@radix-ui/react-dialog"; 
 // import { QRCodeSVG } from "qrcode.react";
 import AddressSelector from "../components/AddressSelector";
-
 import { useRouter } from "next/navigation";
 
 function formatCurrency(value: number) {
@@ -65,7 +65,7 @@ export default function CheckoutPage() {
 				return;
 			}
 	
-			const res = await fetch("http://localhost:3000/voucher-user", {
+			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/voucher-user`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				  },
@@ -104,7 +104,7 @@ export default function CheckoutPage() {
 		if (!token) return;
 	
 		try {
-			const response = await fetch('http://localhost:3000/user/addresses', {
+			const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses`, {
 				headers,
 			});
 			if (response.ok) {
@@ -229,7 +229,7 @@ export default function CheckoutPage() {
 	useEffect(() => {
 		const fetchPaymentMethods = async () => {
 			try {
-				const response = await fetch("http://localhost:3000/api/payment-method");
+				const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment-method`);
 				if (!response.ok) {
 					throw new Error("Failed to fetch payment methods");
 				}
@@ -308,7 +308,7 @@ export default function CheckoutPage() {
 		  
 		  if (selectedPayment === "BANK_TRANSFER") {
 			// 👉 BANK_TRANSFER → chỉ tạo payment link, KHÔNG tạo đơn hàng ngay
-			const response = await fetch("http://localhost:3000/create-payment-link", {
+			const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/create-payment-link`, {
 			  method: "POST",
 			  headers: { 
 				"Content-Type": "application/json",
@@ -332,7 +332,7 @@ export default function CheckoutPage() {
 	  
 		  } else {
 			// 👉 COD hoặc các phương thức khác → tạo đơn hàng ngay
-			const res = await fetch("http://localhost:3000/api/checkout", {
+			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/checkout`, {
 			  method: "POST",
 			  headers,
 			  body: JSON.stringify({orderCode, orderData}),  
@@ -408,7 +408,7 @@ export default function CheckoutPage() {
 				if (address.length < 5 || !/^[\p{L}\d\s,.-]+$/u.test(address)) return toast.error("Địa chỉ không hợp lệ.");
 	
 				try {
-					const res = await fetch("http://localhost:3000/checkout/addresses", {
+					const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checkout/addresses`, {
 						method: "POST",
 						headers,
 						body: JSON.stringify(newAddress),

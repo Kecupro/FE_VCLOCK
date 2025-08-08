@@ -1,4 +1,5 @@
-'use client';
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Edit, Trash2 } from "lucide-react";
@@ -8,7 +9,6 @@ import styles from "../../assets/css/detailNews.module.css";
 import { useAppContext } from "../../../context/AppContext";
 import { INews } from "@/app/(site)/cautrucdata";
 import { ToastContainer, toast } from "react-toastify";
-
 const NewsDetailPage = () => {
   const params = useParams();
   const router = useRouter();
@@ -29,7 +29,7 @@ const NewsDetailPage = () => {
       if (!params?.id) return;
 
       try {
-        const res = await fetch(`http://localhost:3000/api/admin/news/${params.id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/${params.id}`);
         const data = await res.json();
         setNews(data.news || data);
       } catch {
@@ -70,7 +70,7 @@ const NewsDetailPage = () => {
   const confirmDelete = async () => {
     if (!deletingId) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/news/xoa/${deletingId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/xoa/${deletingId}`, {
         method: "DELETE",
       });
       const data = await res.json();

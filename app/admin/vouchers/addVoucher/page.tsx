@@ -1,4 +1,5 @@
-'use client';
+"use client";
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useAppContext } from '../../../context/AppContext';
 import Link from 'next/link';
@@ -6,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { ToastContainer, toast } from 'react-toastify';
 import styles from '../../assets/css/add.module.css';
 import 'react-toastify/dist/ReactToastify.css';
-
 const AddVoucher = () => {
   const [discountType, setDiscountType] = useState<'percentage' | 'fixed' | ''>('');
   const [discountValue, setDiscountValue] = useState<number | ''>('');
@@ -91,7 +91,7 @@ const AddVoucher = () => {
   };
 
   try {
-    const res = await fetch('http://localhost:3000/api/admin/voucher/them', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher/them`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

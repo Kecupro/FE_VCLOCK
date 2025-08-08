@@ -1,5 +1,7 @@
 "use client";
 
+
+
 import { useEffect, useState } from "react";
 import { FiSearch, FiVideo, FiTrash2, FiUser, FiCamera, FiSend } from "react-icons/fi";
 import { io } from "socket.io-client";
@@ -9,7 +11,7 @@ import styles from '../assets/css/AdminChat.module.css';
 import { useAppContext } from "../../context/AppContext"
 import Image from "next/image";
 
-const socket = io("http://localhost:3000");
+const socket = io(process.env.NEXT_PUBLIC_API_URL);
 
 interface Message {
   _id?: string;
@@ -64,7 +66,7 @@ export default function AdminChat() {
   const adminAvatar = "/images/avatar-default.png";
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/conversations")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/conversations`)
       .then(res => res.json())
       .then(data => {
         setConversations(data);
@@ -90,7 +92,7 @@ export default function AdminChat() {
   }, [activeConversation]);
 
   const loadMessages = (conversationId: string) => {
-    fetch(`http://localhost:3000/api/messages/${conversationId}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/messages/${conversationId}`)
       .then(res => res.json())
       .then(data => {
         setMessages(data);
@@ -196,7 +198,7 @@ export default function AdminChat() {
     if (!window.confirm("Bạn có chắc chắn muốn xoá cuộc hội thoại này?")) return;
   
     try {
-      const res = await fetch(`http://localhost:3000/api/conversations/${conversationId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/conversations/${conversationId}`, {
         method: "DELETE",
       });
   

@@ -1,4 +1,5 @@
-'use client';
+"use client";
+
 
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
@@ -60,7 +61,7 @@ export default function NewsDetail() {
 
   const fetchNewsDetail = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/news/${params.id}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/news/${params.id}`);
       setNews(response.data as INews);
     } catch (error) {
               console.error('Lỗi tải chi tiết tin tức:', error);
@@ -74,7 +75,7 @@ export default function NewsDetail() {
     
     try {
       hasIncrementedView.current = true;
-      const response = await axios.post(`http://localhost:3000/api/news/${params.id}/increment-view`);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/news/${params.id}/increment-view`);
       
       // Type assertion để xử lý response.data
       const responseData = response.data as { success?: boolean; message?: string; views?: number };

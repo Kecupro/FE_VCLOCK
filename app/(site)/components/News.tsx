@@ -1,4 +1,3 @@
-'use client';
 
 import { useEffect, useState } from 'react';
 import Link from "next/link";
@@ -8,8 +7,6 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { Navigation, Autoplay } from 'swiper/modules';
-
-
 export default function News() {
   const [newsList, setNewsList] = useState<INews[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +19,7 @@ export default function News() {
   const fetchNews = async () => {
     try {
 
-      const response = await axios.get<{ news: INews[]; currentPage: number; totalPages: number; totalNews: number }>('http://localhost:3000/api/news?page=1&limit=6');
+      const response = await axios.get<{ news: INews[]; currentPage: number; totalPages: number; totalNews: number }>(`${process.env.NEXT_PUBLIC_API_URL}/api/news?page=1&limit=6`);
       setNewsList(response.data.news);
       } catch (error: unknown) {
               console.error('❌ Lỗi tải tin tức:', error);

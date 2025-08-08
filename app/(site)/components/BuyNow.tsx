@@ -1,4 +1,3 @@
-"use client";
 import { ICart, IProduct, IHinh } from "../cautrucdata";
 import { useCart } from "./CartContext";
 import { useRouter } from "next/navigation";

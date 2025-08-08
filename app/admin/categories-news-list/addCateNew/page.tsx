@@ -1,4 +1,5 @@
-'use client';
+"use client";
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useAppContext } from '../../../context/AppContext';
 import Link from 'next/link';
@@ -6,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import styles from '../../assets/css/add.module.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 const AddCateNew = () => {
   const [status, setStatus] = useState<'Hoạt động' | 'Dừng hoạt động'>('Hoạt động');
   const nameRef = useRef<HTMLInputElement>(null);
@@ -35,7 +35,7 @@ const AddCateNew = () => {
     };
 
     try {
-      const res = await fetch('http://localhost:3000/api/admin/categoryNews/them', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryNews/them`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

@@ -1,5 +1,7 @@
 "use client";
 
+
+
 import React, { useState, useEffect } from "react";
 import { Search, Plus, Eye, Edit, Trash2 } from "lucide-react";
 import styles from "../assets/css/all.module.css";
@@ -42,7 +44,7 @@ const NewsPage = () => {
     const fetchNews = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/admin/news?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&statusFilter=${statusFilter}&categoryFilter=${encodeURIComponent(categoryFilter)}&sort=${sortOption}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/news?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&statusFilter=${statusFilter}&categoryFilter=${encodeURIComponent(categoryFilter)}&sort=${sortOption}`
         );
         const data = await res.json();
         setNews(data.list);
@@ -58,7 +60,7 @@ const NewsPage = () => {
   useEffect(() => {
     const fetchCateNews = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/admin/categoryNews`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryNews`);
         const data = await res.json();
         setCategoriesNews(data.list || []);
       } catch {
@@ -76,7 +78,7 @@ const NewsPage = () => {
   const confirmDelete = async () => {
     if (!deletingId) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/news/xoa/${deletingId}`, { method: "DELETE" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/xoa/${deletingId}`, { method: "DELETE" });
       const data = await res.json();
       if (res.ok) {
         toast.success("Xóa thành công!");

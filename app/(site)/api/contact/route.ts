@@ -1,11 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
 
+
+import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
     // Sửa URL để tránh vòng lặp vô hạn - gọi trực tiếp đến server backend
-    const response = await fetch('http://localhost:3000/contact', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

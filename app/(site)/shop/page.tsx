@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -10,8 +11,6 @@ import { IBrand } from "../cautrucdata";
 import { FaThLarge } from 'react-icons/fa';
 import { toast } from "react-toastify";
 import Image from "next/image";
-
-
 // Định nghĩa type cho item trong wishlist
 interface WishlistItem {
   _id: string;
@@ -73,7 +72,7 @@ function ShopPageContent() {
 
   // Fetch categories
   useEffect(() => {
-    fetch(`http://localhost:3000/api/category`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/category`)
       .then((res) => res.json())
       .then((data: { name: string }[]) => {
         if (Array.isArray(data) && data.length > 0) {
@@ -84,7 +83,7 @@ function ShopPageContent() {
 
   // Fetch brands
   useEffect(() => {
-    fetch(`http://localhost:3000/api/brand`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/brand`)
       .then((res) => res.json())
       .then((data: IBrand[]) => setBrands(data));
   }, []);
@@ -106,7 +105,7 @@ function ShopPageContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/product/price-range')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product/price-range`)
       .then(res => res.json())
       .then(data => {
         if (typeof data.minPrice === 'number' && typeof data.maxPrice === 'number') {
@@ -159,7 +158,7 @@ function ShopPageContent() {
       params.append('sort', sort);
     }
 
-    const url = `http://localhost:3000/api/sp_filter?${params.toString()}`;
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/sp_filter?${params.toString()}`;
 
     fetch(url)
       .then((res) => res.json())
@@ -176,7 +175,7 @@ function ShopPageContent() {
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
     if (token) {
-      fetch(`http://localhost:3000/user/wishlist`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => {
@@ -204,7 +203,7 @@ function ShopPageContent() {
   }, []);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/products/top-rated?limit=4`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/top-rated?limit=4`)
       .then(res => res.json())
       .then(data => setBestSellers(data));
   }, []);
