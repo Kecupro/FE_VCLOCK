@@ -1,8 +1,8 @@
 "use client";
 
-
 import { useState } from 'react';
 import Image from 'next/image';
+import { toast } from 'react-toastify';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -21,13 +21,67 @@ export default function ContactPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Validation function
+  const validateForm = () => {
+    const { name, email, phone, message } = formData;
+
+    if (!name.trim()) {
+      toast.error("Vui lòng nhập họ tên");
+      return false;
+    }
+
+    if (name.trim().length < 2) {
+      toast.error("Họ tên phải có ít nhất 2 ký tự");
+      return false;
+    }
+
+    if (!email.trim()) {
+      toast.error("Vui lòng nhập email");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      toast.error("Email không hợp lệ");
+      return false;
+    }
+
+    if (!phone.trim()) {
+      toast.error("Vui lòng nhập số điện thoại");
+      return false;
+    }
+
+    const phoneRegex = /^(\+84|84|0)[3|5|7|8|9][0-9]{8}$/;
+    if (!phoneRegex.test(phone.trim())) {
+      toast.error("Số điện thoại không hợp lệ");
+      return false;
+    }
+
+    if (!message.trim()) {
+      toast.error("Vui lòng nhập nội dung tin nhắn");
+      return false;
+    }
+
+    if (message.trim().length < 10) {
+      toast.error("Nội dung tin nhắn phải có ít nhất 10 ký tự");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contact`, {
+      const response = await fetch(`http://localhost:3000/api/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,14 +95,17 @@ export default function ContactPage() {
         setSubmitStatus('success');
         setSubmitMessage(data.message);
         setFormData({ name: '', email: '', phone: '', company: '', message: '' });
+        toast.success(data.message || 'Gửi tin nhắn thành công!');
       } else {
         setSubmitStatus('error');
         setSubmitMessage(data.message || 'Có lỗi xảy ra khi gửi tin nhắn.');
+        toast.error(data.message || 'Có lỗi xảy ra khi gửi tin nhắn.');
       }
     } catch (error) {
-              console.error('Lỗi form liên hệ:', error);
+      console.error('Lỗi form liên hệ:', error);
       setSubmitStatus('error');
       setSubmitMessage('Có lỗi xảy ra khi kết nối đến server.');
+      toast.error('Có lỗi xảy ra khi kết nối đến server.');
     } finally {
       setIsSubmitting(false);
     }

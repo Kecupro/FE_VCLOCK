@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
+import OptimizedImage from "./OptimizedImage";
 
 const AdPopup = () => {
   const [show, setShow] = useState(false);
@@ -24,9 +25,11 @@ const AdPopup = () => {
         >
           <FaTimes size={22} />
         </button>
-        <img
+        <OptimizedImage
           src="/images/ads/qchome.png"
           alt="Quảng cáo"
+          width={480}
+          height={480}
           className="w-full h-full object-cover rounded-xl"
         />
       </div>

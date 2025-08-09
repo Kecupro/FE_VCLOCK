@@ -10,6 +10,7 @@ import { INews, ICateNews } from "@/app/(site)/cautrucdata";
 import Link from "next/link";
 import Image from "next/image";
 import { ToastContainer, toast } from "react-toastify";
+import { getNewsImageUrl } from "@/app/utils/imageUtils";
 
 const NewsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,7 +45,7 @@ const NewsPage = () => {
     const fetchNews = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/news?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&statusFilter=${statusFilter}&categoryFilter=${encodeURIComponent(categoryFilter)}&sort=${sortOption}`
+          `http://localhost:3000/api/admin/news?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&statusFilter=${statusFilter}&categoryFilter=${encodeURIComponent(categoryFilter)}&sort=${sortOption}`
         );
         const data = await res.json();
         setNews(data.list);
@@ -60,7 +61,7 @@ const NewsPage = () => {
   useEffect(() => {
     const fetchCateNews = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryNews`);
+        const res = await fetch(`http://localhost:3000/api/admin/categoryNews`);
         const data = await res.json();
         setCategoriesNews(data.list || []);
       } catch {
@@ -78,7 +79,7 @@ const NewsPage = () => {
   const confirmDelete = async () => {
     if (!deletingId) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/xoa/${deletingId}`, { method: "DELETE" });
+      const res = await fetch(`http://localhost:3000/api/admin/news/xoa/${deletingId}`, { method: "DELETE" });
       const data = await res.json();
       if (res.ok) {
         toast.success("Xóa thành công!");
@@ -186,7 +187,7 @@ const NewsPage = () => {
               {filteredNews.map((item, index) => (
                 <tr key={item._id} className={styles.tableRow}>
                   <td>{(currentPage - 1) * limit + index + 1}</td>
-                  <td><Image src={item.image ? `/images/news/${item.image}` : `/images/logo/logoV.png`} alt={item.title} width={80} height={80} style={{ objectFit: "cover" }} /></td>
+                  <td><Image src={getNewsImageUrl(item.image) || `/images/logo/logoV.png`} alt={item.title} width={80} height={80} style={{ objectFit: "cover" }} unoptimized={getNewsImageUrl(item.image)?.startsWith('http')} /></td>
                   <td style={{ maxWidth: 200, wordBreak: "break-word" }}>{item.title}</td>
                   <td>{item.categorynews_id?.name || "Không có danh mục"}</td>
                   <td>{ new Date(item.created_at).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })}</td>

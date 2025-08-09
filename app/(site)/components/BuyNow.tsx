@@ -1,6 +1,7 @@
 import { ICart, IProduct, IHinh } from "../cautrucdata";
 import { useCart } from "./CartContext";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function BuyNow({ sp }: { sp: IProduct }) {
   const { setSelectedItems, refreshCartFromStorage } = useCart();
@@ -60,9 +61,23 @@ export default function BuyNow({ sp }: { sp: IProduct }) {
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
     const existingItem = existingCart.find((i: ICart) => i._id === item._id);
     
+    // Auto-adjust quantity for buy now
     if (existingItem) {
+      let newQuantity = existingItem.so_luong + item.so_luong;
+      
+      // Auto-cap at 10 for buy now
+      if (newQuantity > 10) {
+        newQuantity = 10;
+      }
+      
+      // Still check stock availability
+      if (newQuantity > sp.quantity) {
+        toast.error(`Chỉ còn ${sp.quantity} sản phẩm trong kho`);
+        return;
+      }
+      
       const updatedCart = existingCart.map((i: ICart) =>
-        i._id === item._id ? { ...i, so_luong: i.so_luong + item.so_luong } : i
+        i._id === item._id ? { ...i, so_luong: newQuantity } : i
       );
       localStorage.setItem("cart", JSON.stringify(updatedCart));
     } else {

@@ -9,6 +9,8 @@ import AddToCart from "./AddToCart";
 import BuyNow from "./BuyNow";
 import WishlistButton from "./WishlistButton";
 import { useAuth } from "../context/AuthContext";
+import OptimizedImage from "./OptimizedImage";
+import { getProductImageUrl } from '@/app/utils/imageUtils';
 interface WishlistItem {
     _id: string;
     product_id: string;
@@ -28,7 +30,7 @@ export default function ProductSale() {
         setLoading(true);
         setError(null);
         
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sp_giam_gia`)
+        fetch(`http://localhost:3000/api/sp_giam_gia`)
             .then((res) => {
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
@@ -62,7 +64,7 @@ export default function ProductSale() {
             const token = localStorage.getItem("token");
             if (token) {
                 try {
-                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
+                    const res = await fetch(`http://localhost:3000/user/wishlist`, {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
@@ -160,9 +162,11 @@ export default function ProductSale() {
                             <SwiperSlide key={sp._id || idx}>
                                 <div className="relative flex flex-col bg-white rounded shadow hover:shadow-lg transition p-4 group h-full">
                                     <Link href={`/product/${slug}`} className="flex-shrink-0 flex items-center justify-center h-48 mb-3 overflow-hidden">
-                                        <img
-                                            src={`/images/product/${sp.main_image?.image}`}
+                                        <OptimizedImage
+                                            src={getProductImageUrl(sp.main_image?.image)}
                                             alt={sp.name}
+                                            width={200}
+                                            height={192}
                                             className="max-w-full max-h-full object-contain group-hover:scale-110 transition duration-300"
                                         />
                                     </Link>
@@ -181,9 +185,16 @@ export default function ProductSale() {
                                     <div className="mt-auto flex flex-col">
                                         {sp.sale_price > 0 ? (
                                             <>
-                                                <span className="text-[14px] w-10 text-center font-bold text-gray-500 absolute top-2 left-2 bg-red-600 text-white px-1 py-2 rounded-sm z-10">
-                                                    -{Math.round(((sp.price - sp.sale_price) / sp.price) * 100)}%
-                                                </span>
+                                                <div className="absolute top-0 left-0 z-10">
+                                                    <div className="relative">
+                                                        {/* Bookmark ribbon style */}
+                                                        <div className="bg-gradient-to-r from-red-600 to-red-500 text-white text-[11px] font-bold px-2 py-1.5 min-w-[45px] text-center shadow-lg">
+                                                            -{Math.round(((sp.price - sp.sale_price) / sp.price) * 100)}%
+                                                        </div>
+                                                        {/* Bookmark tail - tạo hình tam giác ở dưới */}
+                                                        <div className="absolute left-1/2 top-full transform -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-l-transparent border-r-transparent border-t-red-700"></div>
+                                                    </div>
+                                                </div>
                                                 <div className="flex flex-wrap items-center gap-1">
                                                     <span className="text-gray-600 font-normal line-through text-sm">
                                                         {sp.price.toLocaleString("vi-VN")}đ

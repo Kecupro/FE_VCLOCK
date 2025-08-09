@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import OptimizedImage from "./OptimizedImage";
 
 const slides = [
   {
@@ -42,9 +43,11 @@ export default function Banner() {
           key={idx}
           className={`absolute inset-0 transition-opacity duration-700 ${idx === current ? "opacity-100 z-10" : "opacity-0 z-0"}`}
         >
-          <img
+          <OptimizedImage
             src={slide.image}
             alt={slide.title}
+            width={1200}
+            height={750}
             className={`w-full h-full object-cover ${idx === current ? "animate-zoom" : ""}`}
           />
           <div className="absolute inset-0 bg-opacity-10  bg-black/50 backdrop-blur-sm opacity-30"></div>

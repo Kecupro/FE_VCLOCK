@@ -10,6 +10,7 @@ import { useRef } from 'react';
 import styles from '../assets/css/AdminChat.module.css';
 import { useAppContext } from "../../context/AppContext"
 import Image from "next/image";
+import { getAvatarImageUrl } from "@/app/utils/imageUtils";
 
 const socket = io(process.env.NEXT_PUBLIC_API_URL);
 
@@ -60,13 +61,14 @@ export default function AdminChat() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const user_img_default = "/images/avatar-default.png";
   const currentAdminId = "admin-id";
   const adminAvatar = "/images/avatar-default.png";
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/conversations`)
+    fetch(`http://localhost:3000/api/conversations`)
       .then(res => res.json())
       .then(data => {
         setConversations(data);
@@ -92,7 +94,7 @@ export default function AdminChat() {
   }, [activeConversation]);
 
   const loadMessages = (conversationId: string) => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/messages/${conversationId}`)
+    fetch(`http://localhost:3000/api/messages/${conversationId}`)
       .then(res => res.json())
       .then(data => {
         setMessages(data);
@@ -198,7 +200,7 @@ export default function AdminChat() {
     if (!window.confirm("Bạn có chắc chắn muốn xoá cuộc hội thoại này?")) return;
   
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/conversations/${conversationId}`, {
+      const res = await fetch(`http://localhost:3000/api/conversations/${conversationId}`, {
         method: "DELETE",
       });
   
@@ -239,6 +241,40 @@ export default function AdminChat() {
 
   const currentConv = conversations.find(c => c.conversationId == activeConversation);
 
+  // Lọc cuộc hội thoại theo từ khóa tìm kiếm
+  const filteredConversations = conversations.filter(conv => {
+    const userName = conv.participants[0]?.userName || "";
+    const lastMessage = conv.lastMessage || "";
+    return userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           lastMessage.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
+  // Hàm format ngày tháng năm đầy đủ
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) {
+      return `Hôm qua ${date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`;
+    } else if (diffDays <= 7) {
+      return date.toLocaleDateString('vi-VN', { 
+        weekday: 'short', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    } else {
+      return date.toLocaleDateString('vi-VN', { 
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    }
+  };
+
   return (
     <div className={styles.container}>
       <aside className={styles.sidebar}>
@@ -247,39 +283,47 @@ export default function AdminChat() {
             type="text"
             placeholder="Tìm kiếm cuộc hội thoại..."
             className={styles.searchInput}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <div className={styles.conversationsList}>
-          {conversations.map((conv, idx) => (
-            <div
-              key={idx}
-              onClick={() => handleSelectConversation(conv.conversationId)}
-              className={`${styles.conversationItem} ${conv.conversationId == activeConversation ? styles.active : ""}`}
-            >
-              <div className={styles.avatarContainer}>
-                <Image
-                  src={conv.participants[0]?.userAvatar || user_img_default}
-                  alt="avatar"
-                  className={styles.avatar}
-                  width={40}
-                  height={40}
-                  unoptimized
-                />
-                <div className={styles.onlineIndicator}></div>
-              </div>
-              <div className={styles.conversationContent}>
-                <div className={styles.conversationName}>
-                  {conv.participants[0]?.userName || "Người dùng"}
+          {filteredConversations.length > 0 ? (
+            filteredConversations.map((conv, idx) => (
+              <div
+                key={idx}
+                onClick={() => handleSelectConversation(conv.conversationId)}
+                className={`${styles.conversationItem} ${conv.conversationId == activeConversation ? styles.active : ""}`}
+              >
+                <div className={styles.avatarContainer}>
+                  <Image
+                    src={getAvatarImageUrl(conv.participants[0]?.userAvatar) || user_img_default}
+                    alt="avatar"
+                    className={styles.avatar}
+                    width={40}
+                    height={40}
+                    unoptimized
+                  />
+                  <div className={styles.onlineIndicator}></div>
                 </div>
-                <div className={styles.lastMessage}>
-                  {conv.lastMessage}
+                <div className={styles.conversationContent}>
+                  <div className={styles.conversationName}>
+                    {conv.participants[0]?.userName || "Người dùng"}
+                  </div>
+                  <div className={styles.lastMessage}>
+                    {conv.lastMessage}
+                  </div>
+                </div>
+                <div className={styles.timestamp}>
+                  {formatDateTime(conv.lastTime)}
                 </div>
               </div>
-              <div className={styles.timestamp}>
-                {new Date(conv.lastTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </div>
+            ))
+          ) : (
+            <div className={styles.noResults}>
+              {searchTerm ? "Không tìm thấy cuộc hội thoại nào" : "Chưa có cuộc hội thoại nào"}
             </div>
-          ))}
+          )}
         </div>
       </aside>
 
@@ -287,7 +331,7 @@ export default function AdminChat() {
         <header className={styles.chatHeader}>
           <div className={styles.headerLeft}>
             <Image
-              src={currentConv?.participants[0]?.userAvatar || user_img_default}
+              src={getAvatarImageUrl(currentConv?.participants[0]?.userAvatar) || user_img_default}
               alt="avatar"
               className={styles.headerAvatar}
               width={40}
@@ -316,7 +360,7 @@ export default function AdminChat() {
         <div className={styles.messagesContainer}>
           {messages.map((msg, idx) => {
             const isAdmin = msg.senderId == currentAdminId;
-            const avatarUrl = isAdmin ? adminAvatar : (msg.senderAvatar || user_img_default);
+            const avatarUrl = isAdmin ? adminAvatar : (getAvatarImageUrl(msg.senderAvatar) || user_img_default);
 
             return (
               <div 
@@ -355,7 +399,13 @@ export default function AdminChat() {
                     </a>
                   )}
                   <div className={styles.messageTime}>
-                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(msg.createdAt).toLocaleDateString('vi-VN', { 
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
                   </div>
                 </div>
               </div>
@@ -378,6 +428,13 @@ export default function AdminChat() {
             <label htmlFor="upload-image" className={styles.uploadButton}>
               <FiCamera />
             </label>
+            <input
+              id="upload-image"
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={(e) => setSelectedImage(e.target.files?.[0] || null)}
+            />
 
             <button
               onClick={handleSend}

@@ -49,18 +49,20 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     e.preventDefault();
     setError("");
     
-    if (!username) {
+    if (!username.trim()) {
         setError("Tên tài khoản không được để trống");
+        toast.error("Tên tài khoản không được để trống");
         return;
     }
     if (!password) {
         setError("Mật khẩu không được để trống");
+        toast.error("Mật khẩu không được để trống");
         return;
     }
 
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
+      const response = await fetch(`http://localhost:3000/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,45 +108,71 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     e.preventDefault();
     setError("");
     
-    if (!username) {
+    if (!username.trim()) {
         setError("Tên tài khoản không được để trống");
+        toast.error("Tên tài khoản không được để trống");
         return;
     }
-    if (username.length < 3) {
+    if (username.trim().length < 3) {
         setError("Tên tài khoản phải có ít nhất 3 ký tự");
+        toast.error("Tên tài khoản phải có ít nhất 3 ký tự");
+        return;
+    }
+    if (username.trim().length > 20) {
+        setError("Tên tài khoản không được quá 20 ký tự");
+        toast.error("Tên tài khoản không được quá 20 ký tự");
+        return;
+    }
+    // Kiểm tra ký tự hợp lệ cho username
+    if (!/^[a-zA-Z0-9._]+$/.test(username.trim())) {
+        setError("Tên tài khoản chỉ được chứa chữ, số, dấu chấm và gạch dưới");
+        toast.error("Tên tài khoản chỉ được chứa chữ, số, dấu chấm và gạch dưới");
         return;
     }
     
-    if (!email) {
+    if (!email.trim()) {
         setError("Email không được để trống");
+        toast.error("Email không được để trống");
         return;
     }
-    if (!/\S+@\S+\.\S+/.test(email)) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
         setError("Email không hợp lệ");
+        toast.error("Email không hợp lệ");
         return;
     }
     
     if (!password) {
         setError("Mật khẩu không được để trống");
+        toast.error("Mật khẩu không được để trống");
         return;
     }
     if (password.length < 6) {
         setError("Mật khẩu phải có ít nhất 6 ký tự");
+        toast.error("Mật khẩu phải có ít nhất 6 ký tự");
+        return;
+    }
+    // Kiểm tra mật khẩu có chứa chữ cái và số
+    if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) {
+        setError("Mật khẩu phải chứa ít nhất 1 chữ cái và 1 số");
+        toast.error("Mật khẩu phải chứa ít nhất 1 chữ cái và 1 số");
         return;
     }
 
     if (!confirmPassword) {
         setError("Vui lòng xác nhận mật khẩu");
+        toast.error("Vui lòng xác nhận mật khẩu");
         return;
     }
     if (password !== confirmPassword) {
         setError("Mật khẩu không khớp");
+        toast.error("Mật khẩu không khớp");
         return;
     }
 
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
+      const response = await fetch(`http://localhost:3000/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -183,14 +211,21 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     e.preventDefault();
     setError("");
 
-    if (!otp || otp.length !== 6) {
+    if (!otp || otp.trim().length !== 6) {
       setError("Mã OTP phải có 6 chữ số.");
+      toast.error("Mã OTP phải có 6 chữ số.");
+      return;
+    }
+    // Kiểm tra OTP chỉ chứa số
+    if (!/^\d{6}$/.test(otp.trim())) {
+      setError("Mã OTP chỉ được chứa số.");
+      toast.error("Mã OTP chỉ được chứa số.");
       return;
     }
 
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/verify-email`, {
+      const response = await fetch(`http://localhost:3000/verify-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp }),
@@ -223,13 +258,20 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const handleRequestPasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!email) {
+    if (!email.trim()) {
       setError("Vui lòng nhập email của bạn.");
+      toast.error("Vui lòng nhập email của bạn.");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError("Email không hợp lệ");
+      toast.error("Email không hợp lệ");
       return;
     }
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/request-password-reset`, {
+      const response = await fetch(`http://localhost:3000/request-password-reset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -253,13 +295,46 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    
+    if (!otp || otp.length !== 6) {
+      setError("Mã OTP phải có 6 chữ số.");
+      toast.error("Mã OTP phải có 6 chữ số.");
+      return;
+    }
+    
+    if (!password) {
+      setError("Mật khẩu không được để trống");
+      toast.error("Mật khẩu không được để trống");
+      return;
+    }
+    
+    if (password.length < 6) {
+      setError("Mật khẩu phải có ít nhất 6 ký tự");
+      toast.error("Mật khẩu phải có ít nhất 6 ký tự");
+      return;
+    }
+    
+    // Kiểm tra mật khẩu có chứa chữ cái và số
+    if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) {
+      setError("Mật khẩu phải chứa ít nhất 1 chữ cái và 1 số");
+      toast.error("Mật khẩu phải chứa ít nhất 1 chữ cái và 1 số");
+      return;
+    }
+    
+    if (!confirmPassword) {
+      setError("Vui lòng xác nhận mật khẩu");
+      toast.error("Vui lòng xác nhận mật khẩu");
+      return;
+    }
+    
     if (password !== confirmPassword) {
       setError("Mật khẩu mới không khớp.");
+      toast.error("Mật khẩu mới không khớp.");
       return;
     }
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reset-password`, {
+      const response = await fetch(`http://localhost:3000/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp, newPassword: password }),
@@ -382,7 +457,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   type="button"
                   className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition text-sm"
                   onClick={() => {
-                    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+                    window.location.href = `http://localhost:3000/auth/google`;
                   }}
                 >
                   <i className="fa-brands fa-google text-red-600"></i>
@@ -392,7 +467,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   type="button"
                   className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition text-sm"
                   onClick={() => {
-                    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`;
+                    window.location.href = `http://localhost:3000/auth/facebook`;
                   }}
                 >
                   <i className="fa-brands fa-facebook-f text-blue-600"></i>

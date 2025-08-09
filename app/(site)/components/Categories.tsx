@@ -5,6 +5,9 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { useEffect, useState  } from "react";
 import { IBrand } from "../cautrucdata";
+import OptimizedImage from "./OptimizedImage";
+import { getBrandImageUrl } from '@/app/utils/imageUtils';
+
 export default function Categories() {
 	const [brands, setBrands] = useState<IBrand[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -14,7 +17,7 @@ export default function Categories() {
 		setLoading(true);
 		setError(null);
 		
-		fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/brand`)
+		fetch(`http://localhost:3000/api/brand`)
 			.then((res) => {
 				if (!res.ok) {
 					throw new Error(`HTTP error! status: ${res.status}`);
@@ -110,9 +113,11 @@ export default function Categories() {
 									href={`/shop?brand=${encodeURIComponent(cat.name)}`}
 									className="flex flex-col items-center text-center bg-white rounded shadow hover:shadow-lg transition group w-full h-full"
 								>
-									<img
-										src={`/images/brand/${cat.image}`}
+									<OptimizedImage
+										src={getBrandImageUrl(cat.image)}
 										alt={cat.name}
+										width={200}
+										height={200}
 										className="w-full h-full object-contain mb-3 transition-transform duration-700 group-hover:-translate-y-2"
 									/>
 									<div className="w-full px-2 py-2 transition-all duration-300 group-hover:bg-gray-900 group-hover:text-white group-hover:-translate-y-2">

@@ -12,6 +12,8 @@ interface OptimizedImageProps {
   fill?: boolean;
   priority?: boolean;
   fallbackSrc?: string;
+  style?: React.CSSProperties;
+  onError?: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
 }
 
 export default function OptimizedImage({
@@ -22,7 +24,9 @@ export default function OptimizedImage({
   className,
   fill = false,
   priority = false,
-  fallbackSrc = '/images/avatar-default.png'
+  fallbackSrc = '/images/avatar-default.png',
+  style,
+  onError
 }: OptimizedImageProps) {
   const [imgSrc, setImgSrc] = useState(src);
   const [hasError, setHasError] = useState(false);
@@ -44,7 +48,8 @@ export default function OptimizedImage({
         className={className}
         priority={priority}
         unoptimized={isExternalImage}
-        onError={handleError}
+        onError={onError || handleError}
+        style={style}
       />
     );
   }
@@ -58,7 +63,8 @@ export default function OptimizedImage({
       className={className}
       priority={priority}
       unoptimized={isExternalImage}
-      onError={handleError}
+      onError={onError || handleError}
+      style={style}
     />
   );
 } 

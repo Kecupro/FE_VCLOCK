@@ -8,6 +8,8 @@ import "swiper/css/pagination";
 import AddToCart from "./AddToCart";
 import BuyNow from "./BuyNow";
 import { IProduct } from "../cautrucdata";
+import OptimizedImage from "./OptimizedImage";
+import { getProductImageUrl } from '@/app/utils/imageUtils';
 interface TopRatedProduct {
   _id: string;
   name: string;
@@ -36,7 +38,7 @@ export default function Feedback() {
         setLoading(true);
         setError(null);
         
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/top-rated?limit=6`);
+        const response = await fetch(`http://localhost:3000/api/products/top-rated?limit=6`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -180,9 +182,11 @@ export default function Feedback() {
                   {/* Product Image - Left Side */}
                   <div className="lg:w-1/2 relative h-64 lg:h-auto overflow-hidden">
                     <Link href={`/product/${product._id}`}>
-                      <img
-                        src={`/images/product/${product.main_image?.image}`}
+                      <OptimizedImage
+                        src={getProductImageUrl(product.main_image?.image)}
                         alt={product.main_image?.alt || product.name}
+                        width={400}
+                        height={300}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                       />
                     </Link>
@@ -193,8 +197,15 @@ export default function Feedback() {
                     </div>
 
                     {product.sale_price > 0 && (
-                      <div className="absolute top-3 right-3 bg-green-600 text-white px-2 py-1 rounded-full text-sm font-bold">
-                        -{Math.round(((product.price - product.sale_price) / product.price) * 100)}%
+                      <div className="absolute top-3 right-3">
+                        <div className="relative">
+                          {/* Bookmark ribbon style */}
+                          <div className="bg-gradient-to-r from-red-600 to-red-500 text-white text-[11px] font-bold px-2 py-1.5 min-w-[45px] text-center shadow-lg rounded-t-md">
+                            -{Math.round(((product.price - product.sale_price) / product.price) * 100)}%
+                          </div>
+                          {/* Bookmark tail - tạo hình tam giác ở dưới */}
+                          <div className="absolute left-1/2 top-full transform -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[6px] border-l-transparent border-r-transparent border-t-red-700"></div>
+                        </div>
                       </div>
                     )}
                   </div>

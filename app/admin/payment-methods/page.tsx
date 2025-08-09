@@ -10,6 +10,7 @@ import styles from '../assets/css/all.module.css';
 import { useAppContext } from '../../context/AppContext';
 import { IPaymentMethod } from '@/app/(site)/cautrucdata';
 import { ToastContainer, toast } from 'react-toastify';
+import { getPaymentMethodImageUrl } from '@/app/utils/imageUtils';
 
 const PaymentMethodPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,7 +42,7 @@ const PaymentMethodPage = () => {
     const fetchPaymentMethods = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/payment-method?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&sort=${sortOption}`
+          `http://localhost:3000/api/admin/payment-method?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&sort=${sortOption}`
         );
         const data = await res.json();
         
@@ -85,7 +86,7 @@ const PaymentMethodPage = () => {
       if (!deletingId) return;
   
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/payment-method/xoa/${deletingId}`, {
+        const res = await fetch(`http://localhost:3000/api/admin/payment-method/xoa/${deletingId}`, {
           method: 'DELETE',
         });
         const data = await res.json();
@@ -185,10 +186,12 @@ const PaymentMethodPage = () => {
                   <td>{(currentPage - 1) * limit + index + 1}</td>
                   <td>
                     <Image
-                      src={`/images/payment-Method/${method.icon_url || '/images/logo/logoV.png'}`}
+                      src={getPaymentMethodImageUrl(method.icon_url) || `/images/logo/logoV.png`}
                       alt={method.name}
                       width={40}
                       height={40}
+                      style={{ objectFit: "cover" }}
+                      unoptimized={getPaymentMethodImageUrl(method.icon_url)?.startsWith('http')}
                     />
                   </td>
                   <td>{method.name}</td>

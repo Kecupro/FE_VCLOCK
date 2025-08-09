@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ICart, IAddress, IPaymentMethod, IVoucher } from "../cautrucdata";
@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import * as Dialog from "@radix-ui/react-dialog"; 
 import AddressSelector from "../components/AddressSelector";
 import { useRouter } from "next/navigation";
+import OptimizedImage from "../components/OptimizedImage";
 
 function formatCurrency(value: number) {
 	return value.toLocaleString("vi-VN") + "đ";
@@ -41,10 +42,10 @@ export default function CheckoutPage() {
 
 	  const router = useRouter();
 
-	  const headers = {
+	  const headers = useMemo(() => ({
 		"Content-Type": "application/json",
 		...(token && { "Authorization": `Bearer ${token}` }),
-	  };
+	  }), [token]);
 	  useEffect(() => {
 		const storedToken = localStorage.getItem("token");
 		setToken(storedToken);
@@ -63,7 +64,7 @@ export default function CheckoutPage() {
 				return;
 			}
 	
-			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/voucher-user`, {
+			const res = await fetch(`http://localhost:3000/voucher-user`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				  },
@@ -91,18 +92,12 @@ export default function CheckoutPage() {
 		}, []);	  
 
 
-	useEffect(() => {
-		if (token) {
-			fetchAddresses();
-		}
-	}, [token]);
-
-	  const fetchAddresses = async () => {
+	  const fetchAddresses = useCallback(async () => {
 		const token = localStorage.getItem("token");
 		if (!token) return;
 	
 		try {
-			const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses`, {
+			const response = await fetch(`http://localhost:3000/user/addresses`, {
 				headers,
 			});
 			if (response.ok) {
@@ -116,7 +111,18 @@ export default function CheckoutPage() {
 		} catch (error) {
 			console.error("Lỗi tải địa chỉ:", error);
 		}
-	};
+	}, [headers]);
+
+	const getLatestAddress = useCallback(() => {
+		if (addresses.length === 0) return null;
+		return [...addresses].sort((a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime())[0];
+	  }, [addresses]);
+
+	useEffect(() => {
+		if (token) {
+			fetchAddresses();
+		}
+	}, [token, fetchAddresses]);
 	
 
 	useEffect(() => {
@@ -131,14 +137,7 @@ export default function CheckoutPage() {
 				if (latest) setSelectedAddressId(latest._id);
 			}
 		}
-	}, [addresses, selectedAddressId, showNewAddressForm]);
-	
-
-
-	const getLatestAddress = () => {
-		if (addresses.length === 0) return null;
-		return [...addresses].sort((a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime())[0];
-	  };
+	}, [addresses, selectedAddressId, showNewAddressForm, getLatestAddress]);
 	  
 	  const handleChangeAddressClick = () => {
 		setIsSubmittingAddress(true); // Bắt đầu loading
@@ -152,7 +151,9 @@ export default function CheckoutPage() {
 	  
 
 
-	const subtotal = (cartItems: ICart[]) => {
+	const [originalTotal, setOriginalTotal] = useState<number>(0); 
+
+	const subtotal = useCallback((cartItems: ICart[]) => {
 		const sum = cartItems.reduce(
 		  (acc, item) =>
 			acc + (item.sale_price > 0 ? item.sale_price : item.price) * item.so_luong,
@@ -160,10 +161,8 @@ export default function CheckoutPage() {
 		);
 		setTotal(sum);
 		if (originalTotal !== sum) setOriginalTotal(sum);
-	  };
+	  }, [originalTotal]);
 	
-
-	const [originalTotal, setOriginalTotal] = useState<number>(0); 
 
 	const finalTotal = useMemo(() => {
 		if (!selectedVoucher) return originalTotal;
@@ -203,7 +202,7 @@ export default function CheckoutPage() {
 		  setCart(filteredCart);
 		  subtotal(filteredCart);
 		}
-	  }, []);	  
+	  }, [subtotal]);	  
 
 
 
@@ -227,7 +226,7 @@ export default function CheckoutPage() {
 	useEffect(() => {
 		const fetchPaymentMethods = async () => {
 			try {
-				const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment-method`);
+				const response = await fetch(`http://localhost:3000/api/payment-method`);
 				if (!response.ok) {
 					throw new Error("Failed to fetch payment methods");
 				}
@@ -304,7 +303,7 @@ export default function CheckoutPage() {
 		  }
 		  
 		  if (selectedPayment === "BANK_TRANSFER") {
-			const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/create-payment-link`, {
+			const response = await fetch(`http://localhost:3000/create-payment-link`, {
 			  method: "POST",
 			  headers: { 
 				"Content-Type": "application/json",
@@ -327,7 +326,7 @@ export default function CheckoutPage() {
 			}
 	  
 		  } else {
-			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/checkout`, {
+			const res = await fetch(`http://localhost:3000/api/checkout`, {
 			  method: "POST",
 			  headers,
 			  body: JSON.stringify({orderCode, orderData}),  
@@ -403,7 +402,7 @@ export default function CheckoutPage() {
 				if (address.length < 5 || !/^[\p{L}\d\s,.-]+$/u.test(address)) return toast.error("Địa chỉ không hợp lệ.");
 	
 				try {
-					const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checkout/addresses`, {
+					const res = await fetch(`http://localhost:3000/checkout/addresses`, {
 						method: "POST",
 						headers,
 						body: JSON.stringify(newAddress),
@@ -893,7 +892,13 @@ export default function CheckoutPage() {
 								<div className="mt-3 text-sm text-gray-700">
 									Vui lòng quét mã QR bên dưới để thanh toán:
 									<div className="mt-2">
-										<img src="/placeholder-qr.png" alt="QR code" className="h-32 w-32" />
+										<OptimizedImage 
+											src="/placeholder-qr.png" 
+											alt="QR code" 
+											width={128}
+											height={128}
+											className="h-32 w-32" 
+										/>
 									</div>
 								</div>
 							)}

@@ -10,6 +10,7 @@ import styles from "../../assets/css/detailPro.module.css";
 import { useAppContext } from '../../../context/AppContext';
 import { IProduct } from '@/app/(site)/cautrucdata';
 import { ToastContainer, toast } from "react-toastify";
+import { getProductImageUrl } from '@/app/utils/imageUtils';
 
 const ProductDetailPage: React.FC = () => {
   const params = useParams();
@@ -23,7 +24,7 @@ const ProductDetailPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
 
   const productId = params?.id as string;
-  const baseImageUrl = "/images/product/";
+  // const baseImageUrl = "/images/product/"; // Replaced with utility function
 
   useEffect(() => {
     document.documentElement.classList.toggle(styles['dark-mode'], isDarkMode);
@@ -34,7 +35,7 @@ const ProductDetailPage: React.FC = () => {
       try {
         setLoading(true);
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product/${productId}`);
+        const res = await fetch(`http://localhost:3000/api/admin/product/${productId}`);
         const data = await res.json();
 
         const prod: IProduct = data.product || data;
@@ -43,9 +44,9 @@ const ProductDetailPage: React.FC = () => {
         const mainImage = prod.images?.find(img => img.is_main)?.image || '';
         const subImages = prod.images
           ?.filter(img => !img.is_main)
-          .map(img => baseImageUrl + img.image) || [];
+          .map(img => getProductImageUrl(img.image)) || [];
 
-        setMainImageUrl(mainImage ? baseImageUrl + mainImage : '');
+        setMainImageUrl(mainImage ? getProductImageUrl(mainImage) : '');
         setSubImageUrls(subImages);
 
       } catch {
@@ -72,7 +73,7 @@ const ProductDetailPage: React.FC = () => {
     if (!product) return;
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product/xoa/${product._id}`, {
+      const res = await fetch(`http://localhost:3000/api/admin/product/xoa/${product._id}`, {
         method: 'DELETE',
       });
 

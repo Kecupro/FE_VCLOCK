@@ -1,11 +1,13 @@
 "use client";
 
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { INews } from '../../cautrucdata';
+import OptimizedImage from '../../components/OptimizedImage';
+import { getNewsImageUrl } from '@/app/utils/imageUtils';
 
 export default function NewsDetail() {
   const params = useParams();
@@ -13,14 +15,16 @@ export default function NewsDetail() {
   const [loading, setLoading] = useState(true);
   const hasIncrementedView = useRef(false);
 
-  useEffect(() => {
-    if (params?.id) {
-      fetchNewsDetail();
-      if (!hasIncrementedView.current && !hasViewedInSession(params.id as string)) {
-        incrementView();
-      }
+  const fetchNewsDetail = useCallback(async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/news/${params.id}`);
+      setNews(response.data as INews);
+    } catch (error) {
+              console.error('Lỗi tải chi tiết tin tức:', error);
+    } finally {
+      setLoading(false);
     }
-  }, [params?.id]);
+  }, [params.id]);
 
   const cleanupOldSession = () => {
     if (typeof window === 'undefined') return;
@@ -35,16 +39,16 @@ export default function NewsDetail() {
     }
   };
 
-  const hasViewedInSession = (newsId: string): boolean => {
+  const hasViewedInSession = useCallback((newsId: string): boolean => {
     if (typeof window === 'undefined') return false;
     
     cleanupOldSession();
     
     const viewedNews = JSON.parse(localStorage.getItem('viewedNews') || '[]');
     return viewedNews.includes(newsId);
-  };
+  }, []);
 
-  const markAsViewed = (newsId: string) => {
+  const markAsViewed = useCallback((newsId: string) => {
     if (typeof window === 'undefined') return;
     
     cleanupOldSession();
@@ -54,25 +58,14 @@ export default function NewsDetail() {
       viewedNews.push(newsId);
       localStorage.setItem('viewedNews', JSON.stringify(viewedNews));
     }
-  };
+  }, []);
 
-  const fetchNewsDetail = async () => {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/news/${params.id}`);
-      setNews(response.data as INews);
-    } catch (error) {
-              console.error('Lỗi tải chi tiết tin tức:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const incrementView = async () => {
+  const incrementView = useCallback(async () => {
     if (hasIncrementedView.current) return;
     
     try {
       hasIncrementedView.current = true;
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/news/${params.id}/increment-view`);
+      const response = await axios.post(`http://localhost:3000/api/news/${params.id}/increment-view`);
       
       const responseData = response.data as { success?: boolean; message?: string; views?: number };
       
@@ -87,7 +80,16 @@ export default function NewsDetail() {
               console.error('Lỗi tăng lượt xem:', error);
       hasIncrementedView.current = false;
     }
-  };
+  }, [params.id, news, markAsViewed]);
+
+  useEffect(() => {
+    if (params?.id) {
+      fetchNewsDetail();
+      if (!hasIncrementedView.current && !hasViewedInSession(params.id as string)) {
+        incrementView();
+      }
+    }
+  }, [params?.id, fetchNewsDetail, hasViewedInSession, incrementView]);
 
   if (loading) {
     return (
@@ -122,9 +124,11 @@ export default function NewsDetail() {
           <article className="bg-white rounded-lg shadow-lg overflow-hidden">
             {news.image && (
               <div className="w-full h-96">
-                <img
-                  src={`/images/news/${news.image}`}
+                <OptimizedImage
+                  src={getNewsImageUrl(news.image)}
                   alt={news.title}
+                  width={800}
+                  height={384}
                   className="w-full h-full object-cover"
                 />
               </div>

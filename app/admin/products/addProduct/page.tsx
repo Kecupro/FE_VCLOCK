@@ -46,7 +46,7 @@ const AddProduct = () => {
   useEffect(() => {
         const fetchCateNews = async () => {
           try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryProduct`);
+            const res = await fetch(`http://localhost:3000/api/admin/categoryProduct`);
             const data = await res.json();
             setCategories(data.list || []);
           } catch {
@@ -59,7 +59,7 @@ const AddProduct = () => {
   useEffect(() => {
         const fetchCateNews = async () => {
           try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand`);
+            const res = await fetch(`http://localhost:3000/api/admin/brand`);
             const data = await res.json();
             setBrands(data.list || []);
           } catch {
@@ -147,7 +147,7 @@ const AddProduct = () => {
     });
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product/them`, {
+      const res = await fetch(`http://localhost:3000/api/admin/product/them`, {
         method: 'POST',
         body: formData,
       });

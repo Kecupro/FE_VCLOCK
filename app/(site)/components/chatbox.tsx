@@ -6,6 +6,7 @@ import { Send, X, MessageCircle } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import OptimizedImage from "./OptimizedImage";
 
 let socket: Socket | null = null;
 
@@ -116,7 +117,7 @@ const conversationIdRef = useRef<string>("guest-conversation");
     const token = localStorage.getItem("token");
     try {
       const res = await axios.get<Message[]>(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/messages/${conversationIdRef.current}`,
+        `http://localhost:3000/api/messages/${conversationIdRef.current}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -189,7 +190,13 @@ const conversationIdRef = useRef<string>("guest-conversation");
                         maxHeight: '24px'
                       }}
                     >
-                      <img src={adminAvatar} alt="Admin" className="w-full h-full object-cover" />
+                      <OptimizedImage 
+                        src={adminAvatar} 
+                        alt="Admin" 
+                        width={24}
+                        height={24}
+                        className="w-full h-full object-cover" 
+                      />
                     </div>
                   )}
 
@@ -198,7 +205,31 @@ const conversationIdRef = useRef<string>("guest-conversation");
                       isCurrentUser ? "bg-red-500 text-white ml-auto" : "bg-gray-200 text-gray-800"
                     }`}
                   >
-                    <div>{msg.text}</div>
+                    {msg.text && <div>{msg.text}</div>}
+                    {msg.image && (
+                      <div className="mt-1">
+                        <OptimizedImage
+                          src={msg.image}
+                          alt="Hình ảnh"
+                          width={200}
+                          height={150}
+                          className="rounded-lg max-w-full h-auto cursor-pointer"
+                          style={{ maxWidth: '200px', height: 'auto' }}
+                        />
+                      </div>
+                    )}
+                    {msg.file && (
+                      <div className="mt-1">
+                        <a 
+                          href={msg.file} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className={`text-blue-500 underline hover:text-blue-700 ${isCurrentUser ? 'text-blue-200 hover:text-blue-100' : ''}`}
+                        >
+                          📎 Tải file
+                        </a>
+                      </div>
+                    )}
                     <div className="text-[11px] text-black-300 mt-1 text-left">
                       {new Date(msg.createdAt).toLocaleTimeString("vi-VN", {
                         hour: "2-digit",
@@ -217,7 +248,13 @@ const conversationIdRef = useRef<string>("guest-conversation");
                         maxHeight: '24px'
                       }}
                     >
-                      <img src={msg.senderAvatar || defaultUserAvatar} alt="User" className="w-full h-full object-cover" />
+                      <OptimizedImage 
+                        src={msg.senderAvatar || defaultUserAvatar} 
+                        alt="User" 
+                        width={24}
+                        height={24}
+                        className="w-full h-full object-cover" 
+                      />
                     </div>
                   )}
                 </div>

@@ -9,6 +9,7 @@ import Image from "next/image";
 import BuyNow from "../../components/BuyNow";
 import AddToCart from "../../components/AddToCart";
 import { useParams } from 'next/navigation';
+import { getProductImageUrl } from '@/app/utils/imageUtils';
 interface IRawImage { is_main: boolean; image: string , alt?: string; }
 
 export default function ProductDetail() {
@@ -29,7 +30,7 @@ export default function ProductDetail() {
   useEffect(() => {
     if (!id) return;
   
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/stats/${id}`)
+    fetch(`http://localhost:3000/api/reviews/stats/${id}`)
       .then(res => res.json())
       .then(data => setStats(data))
               .catch(err => console.error("Lỗi tải thống kê:", err));
@@ -40,14 +41,14 @@ export default function ProductDetail() {
 
     async function fetchProduct() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product/${id}`);
+        const res = await fetch(`http://localhost:3000/api/product/${id}`);
         if (!res.ok) throw new Error("Lấy sản phẩm thất bại");
         const data = await res.json(); 
 
         const imgObjects = [...data.images].sort(
           (a: IRawImage, b: IRawImage) => (b.is_main ? 1 : 0) - (a.is_main ? 1 : 0)
         ).map((i: IRawImage) => ({
-          image: `/images/product/${i.image}`,
+          image: getProductImageUrl(i.image),
           alt: i.alt || data.name
         }));
         
@@ -161,9 +162,14 @@ export default function ProductDetail() {
               <span className="text-gray-400 line-through text-lg">
                 {product.price.toLocaleString("vi-VN")}đ
               </span>
-              <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-              {Math.round(((product.price - product.sale_price) / product.price) * 100)}%
-              </span>
+              <div className="relative inline-block">
+                {/* Bookmark ribbon style */}
+                <div className="bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-t-md relative shadow-lg">
+                  -{Math.round(((product.price - product.sale_price) / product.price) * 100)}%
+                  {/* Bookmark tail - tạo hình tam giác ở dưới */}
+                  <div className="absolute left-1/2 top-full transform -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[4px] border-l-transparent border-r-transparent border-t-red-700"></div>
+                </div>
+              </div>
             </>
 						)}
 

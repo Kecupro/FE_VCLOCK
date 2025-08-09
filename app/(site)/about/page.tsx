@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import OptimizedImage from '../components/OptimizedImage';
 
 export const dynamic = 'force-dynamic';
 
@@ -98,7 +99,13 @@ export default function AboutPage() {
             <div className={`bg-slate-50 rounded-xl shadow-md p-6 flex flex-col items-center text-center hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ${
               isVisible.mission ? 'animate-slide-up' : ''
             }`} style={{ animationDelay: '0.2s' }}>
-              <img src='https://png.pngtree.com/png-clipart/20230822/original/pngtree-target-with-dart-in-bulleye-icon-picture-image_8182392.png' alt='Sứ mệnh' className='w-24 h-24 object-contain rounded-full mb-4' />
+              <OptimizedImage 
+                src='https://png.pngtree.com/png-clipart/20230822/original/pngtree-target-with-dart-in-bulleye-icon-picture-image_8182392.png' 
+                alt='Sứ mệnh' 
+                width={96}
+                height={96}
+                className='w-24 h-24 object-contain rounded-full mb-4' 
+              />
               <h3 className='font-semibold text-xl mb-2 text-gray-700'>Sứ Mệnh</h3>
               <p className='text-gray-600'>
                 Mang đến cho khách hàng những sản phẩm đồng hồ chính hãng, chất lượng cao cùng dịch vụ tận tâm, chuyên nghiệp.
@@ -107,7 +114,13 @@ export default function AboutPage() {
             <div className={`bg-slate-50 rounded-xl shadow-md p-6 flex flex-col items-center text-center hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ${
               isVisible.mission ? 'animate-slide-up' : ''
             }`} style={{ animationDelay: '0.4s' }}>
-              <img src='https://quindio.gov.co/medios/imagenes/CONTRATACION.png' alt='Giá trị' className='w-24 h-24 object-contain rounded-full mb-4' />
+              <OptimizedImage 
+                src='https://quindio.gov.co/medios/imagenes/CONTRATACION.png' 
+                alt='Giá trị' 
+                width={96}
+                height={96}
+                className='w-24 h-24 object-contain rounded-full mb-4' 
+              />
               <h3 className='font-semibold text-xl mb-2 text-gray-700'>Giá Trị Cốt Lõi</h3>
               <p className='text-gray-600'>
                 Uy tín – Chất lượng – Đổi mới – Khách hàng là trung tâm của mọi hoạt động.
@@ -116,7 +129,13 @@ export default function AboutPage() {
             <div className={`bg-slate-50 rounded-xl shadow-md p-6 flex flex-col items-center text-center hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ${
               isVisible.mission ? 'animate-slide-up' : ''
             }`} style={{ animationDelay: '0.6s' }}>
-              <img src='https://icones.pro/wp-content/uploads/2021/05/icone-oeil-beurre-rouge-300x300.png' alt='Tầm nhìn' className='w-24 h-24 object-contain rounded-full mb-4' />
+              <OptimizedImage 
+                src='https://icones.pro/wp-content/uploads/2021/05/icone-oeil-beurre-rouge-300x300.png' 
+                alt='Tầm nhìn' 
+                width={96}
+                height={96}
+                className='w-24 h-24 object-contain rounded-full mb-4' 
+              />
               <h3 className='font-semibold text-xl mb-2 text-gray-700'>Tầm Nhìn</h3>
               <p className='text-gray-600'>
                 Trở thành thương hiệu đồng hồ hàng đầu Việt Nam, vươn tầm quốc tế.
@@ -182,9 +201,11 @@ export default function AboutPage() {
             <div className={`${
               isVisible.whyChoose ? 'animate-slide-right' : ''
             }`}>
-             <img 
+             <OptimizedImage 
                 src='/images/mixed/tt1.png' 
                 alt='Lý do chọn V-CLOCK' 
+                width={400}
+                height={300}
                 className='rounded-2xl object-cover w-full h-auto md:h-full hover:scale-105 transition-transform duration-500'
                 style={{
                   boxShadow: '0 10px 40px rgb(255, 24, 24)'

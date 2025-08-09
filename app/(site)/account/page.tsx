@@ -11,6 +11,7 @@ import { useWishlist } from "../components/WishlistContext";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import { getAvatarSrc } from "../../utils/avatarUtils";
+import { getProductImageUrl } from '@/app/utils/imageUtils';
 interface WishlistItem {
   _id: string;
   product_id: string;
@@ -102,7 +103,7 @@ function AccountPageContent() {
     if (user?.avatar) {
       setAvatar(memoizedAvatar);
     }
-  }, [memoizedAvatar]);
+  }, [memoizedAvatar, user?.avatar]);
 
 
   useEffect(() => {
@@ -114,7 +115,7 @@ function AccountPageContent() {
     if (!token) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses`, {
+      const response = await fetch(`http://localhost:3000/user/addresses`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -141,7 +142,7 @@ function AccountPageContent() {
 
     try {
       setIsLoadingWishlist(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
+      const response = await fetch(`http://localhost:3000/user/wishlist`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -185,15 +186,38 @@ function AccountPageContent() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
+    // Validation
+    if (!editForm.fullName.trim()) {
+      toast.error("Vui lòng nhập họ tên");
+      return;
+    }
+
+    if (editForm.fullName.trim().length < 2) {
+      toast.error("Họ tên phải có ít nhất 2 ký tự");
+      return;
+    }
+
+    if (editForm.fullName.trim().length > 50) {
+      toast.error("Họ tên không được quá 50 ký tự");
+      return;
+    }
+
+    // Check if fullName contains valid characters
+    const nameRegex = /^[a-zA-ZÀ-ỹ\s]+$/;
+    if (!nameRegex.test(editForm.fullName.trim())) {
+      toast.error("Họ tên chỉ được chứa chữ cái và khoảng trắng");
+      return;
+    }
+
     const formData = new FormData();
-    formData.append('fullname', editForm.fullName);
+    formData.append('fullname', editForm.fullName.trim());
     if (selectedAvatarFile) {
       formData.append('avatar', selectedAvatarFile);
     }
 
     try {
       setIsLoading(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/profile/update`, {
+      const response = await fetch(`http://localhost:3000/user/profile/update`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -250,7 +274,7 @@ const result = await response.json();
     if (!token) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses`, {
+      const response = await fetch(`http://localhost:3000/user/addresses`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -277,7 +301,7 @@ const result = await response.json();
     if (!token) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses/${addressId}`, {
+      const response = await fetch(`http://localhost:3000/user/addresses/${addressId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -308,7 +332,7 @@ address: address.address
     if (!token || !editingAddressId) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses/${editingAddressId}`, {
+      const response = await fetch(`http://localhost:3000/user/addresses/${editingAddressId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -341,7 +365,7 @@ address: address.address
     if (!token) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist/${productId}`, {
+      const response = await fetch(`http://localhost:3000/user/wishlist/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -361,7 +385,7 @@ address: address.address
 
   const handleSetDefaultAddress = async (id: string) => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/addresses/${id}/set-default`, {
+      await fetch(`http://localhost:3000/api/user/addresses/${id}/set-default`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem("token")}`,
@@ -386,7 +410,7 @@ address: address.address
     if (!token) return;
     try {
       setIsLoadingWishlist(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist/all`, {
+      const response = await fetch(`http://localhost:3000/user/wishlist/all`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -830,7 +854,7 @@ type="submit"
                       <div key={item._id} className="group bg-white rounded-lg border border-gray-200 overflow-hidden hover:border-red-300 transition-all duration-200 max-w-[180px] mx-auto">
                         <div className="relative h-24 bg-white flex items-center justify-center">
                         <Image
-                          src={item.product.main_image ? `/images/product/${item.product.main_image}` : '/sp1.png'}
+                          src={item.product.main_image ? getProductImageUrl(item.product.main_image.image) : '/sp1.png'}
                           alt={item.product.name}
                           width={100}
                           height={100}

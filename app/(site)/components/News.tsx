@@ -7,6 +7,8 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { Navigation, Autoplay } from 'swiper/modules';
+import OptimizedImage from './OptimizedImage';
+import { getNewsImageUrl } from '@/app/utils/imageUtils';
 export default function News() {
   const [newsList, setNewsList] = useState<INews[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +21,7 @@ export default function News() {
   const fetchNews = async () => {
     try {
 
-      const response = await axios.get<{ news: INews[]; currentPage: number; totalPages: number; totalNews: number }>(`${process.env.NEXT_PUBLIC_API_URL}/api/news?page=1&limit=6`);
+      const response = await axios.get<{ news: INews[]; currentPage: number; totalPages: number; totalNews: number }>(`http://localhost:3000/api/news?page=1&limit=6`);
       setNewsList(response.data.news);
       } catch (error: unknown) {
               console.error('❌ Lỗi tải tin tức:', error);
@@ -90,13 +92,13 @@ export default function News() {
           {newsList.slice(0, 6).map((news) => (
             <SwiperSlide key={news._id}>
               <div className="relative group rounded overflow-hidden shadow hover:shadow-lg transition h-100 flex flex-col justify-end">
-                <img
-                  src={`/images/news/${news.image}`}
+                <OptimizedImage
+                  src={getNewsImageUrl(news.image)}
                   alt={news.title}
+                  width={400}
+                  height={300}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  onError={(e) => {
-                    e.currentTarget.src = '/images/news/default-news.jpg';
-                  }}
+                  fallbackSrc={getNewsImageUrl('default-news.jpg')}
                 />
                 <div className="absolute inset-0 bg-black/30 group-hover:bg-black/5 transition"></div>
                 <div className="relative z-10 p-6 bg-black bg-black/10 backdrop-blur-sm flex flex-col justify-end min-h-[140px]">

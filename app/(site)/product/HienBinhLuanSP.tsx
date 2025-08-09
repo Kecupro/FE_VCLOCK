@@ -1,8 +1,9 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { IReview } from "../cautrucdata";
 import StarRating from "../components/StarRating";
 import { getAvatarSrc } from "../../utils/avatarUtils";
+import OptimizedImage from "../components/OptimizedImage";
 
 export default function HienBinhLuanSP({
   productId,
@@ -14,9 +15,9 @@ export default function HienBinhLuanSP({
   const [bl_arr, setBlArr] = useState<IReview[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${productId}`);
+      const res = await fetch(`http://localhost:3000/api/reviews/${productId}`);
       const data = await res.json();
       setBlArr(data.reviews || []);
     } catch (err) {
@@ -25,12 +26,12 @@ export default function HienBinhLuanSP({
     } finally {
       setLoading(false);
     }
-  };
+  }, [productId]);
 
   useEffect(() => {
     fetchReviews();
     if (onRefetchReady) onRefetchReady(fetchReviews); 
-  }, [productId]);
+  }, [productId, fetchReviews, onRefetchReady]);
 
   if (loading) return <p>Đang tải bình luận...</p>;
 
@@ -51,9 +52,11 @@ export default function HienBinhLuanSP({
               maxHeight: '40px'
             }}
           >
-            <img
+            <OptimizedImage
               src={bl.user_id?.avatar ? getAvatarSrc(bl.user_id.avatar) : "/images/avatar-default.png"}
               alt={bl.user_id?.fullName || bl.user_id?.username || "User"}
+              width={40}
+              height={40}
               className="w-full h-full object-cover"
             />
           </div>

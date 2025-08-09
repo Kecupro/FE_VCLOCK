@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { INews, ICateNews } from "../cautrucdata";
+import OptimizedImage from "../components/OptimizedImage";
+import { getNewsImageUrl } from '@/app/utils/imageUtils';
 interface NewsResponse {
   news: INews[];
   currentPage: number;
@@ -43,35 +45,14 @@ export default function News() {
     fetchCategories();
   }, []);
 
-  const debouncedFetchNews = useCallback(() => {
-    const timeoutId = setTimeout(() => {
-      fetchNews();
-    }, 50);
-
-    return () => clearTimeout(timeoutId);
-  }, [currentPage, selectedCategory]);
-
-  useEffect(() => {
-    debouncedFetchNews();
-  }, [currentPage, selectedCategory]);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/category-news`);
-      setCategories(response.data as ICateNews[]);
-    } catch (err) {
-              console.error('Lỗi tải danh mục tin tức:', err);
-    }
-  };
-
-  const fetchNews = async () => {
+  const fetchNews = useCallback(async () => {
     try {
       setIsTransitioning(true);
       
-      let url = `${process.env.NEXT_PUBLIC_API_URL}/api/news?page=${currentPage}&limit=6`;
+      let url = `http://localhost:3000/api/news?page=${currentPage}&limit=6`;
       
       if (selectedCategory !== 'all') {
-        url = `${process.env.NEXT_PUBLIC_API_URL}/api/news/category/${selectedCategory}?page=${currentPage}&limit=6`;
+        url = `http://localhost:3000/api/news/category/${selectedCategory}?page=${currentPage}&limit=6`;
       }
       
       const response = await axios.get(url);
@@ -86,6 +67,27 @@ export default function News() {
     } finally {
       setLoading(false);
       setIsTransitioning(false);
+    }
+  }, [currentPage, selectedCategory]);
+
+  const debouncedFetchNews = useCallback(() => {
+    const timeoutId = setTimeout(() => {
+      fetchNews();
+    }, 50);
+
+    return () => clearTimeout(timeoutId);
+  }, [fetchNews]);
+
+  useEffect(() => {
+    debouncedFetchNews();
+  }, [currentPage, selectedCategory, debouncedFetchNews]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/category-news`);
+      setCategories(response.data as ICateNews[]);
+    } catch (err) {
+              console.error('Lỗi tải danh mục tin tức:', err);
     }
   };
 
@@ -186,9 +188,11 @@ export default function News() {
                     className="flex items-center gap-3 group hover:bg-gray-50 rounded-lg p-2 transition-all duration-200"
                   >
                     <div className="relative w-16 h-16 flex-shrink-0">
-                      <img
-                        src={`/images/news/${post.image}`}
+                      <OptimizedImage
+                        src={getNewsImageUrl(post.image || undefined)}
                         alt={post.title}
+                        width={64}
+                        height={64}
                         className="w-full h-full object-cover rounded-lg"
                       />
                     </div>
@@ -235,9 +239,11 @@ export default function News() {
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
                       <div className="relative h-48 overflow-hidden">
-                        <img
-                          src={`/images/news/${news.image}`}
+                        <OptimizedImage
+                          src={getNewsImageUrl(news.image || undefined)}
                           alt={news.title}
+                          width={400}
+                          height={300}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute top-2 left-2 bg-black border border-white text-white text-xs px-2 py-1 rounded">

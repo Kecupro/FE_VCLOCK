@@ -8,6 +8,7 @@ import { useAuth } from "../context/AuthContext";
 import AuthModal from "./AuthModal";
 import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
+import TypewriterPlaceholder from "./TypewriterPlaceholder";
 interface SearchSuggestion {
   name: string;
   type: string;
@@ -17,6 +18,7 @@ const Height = 40;
 
 import { getAvatarSrc } from '../../utils/avatarUtils';
 import { clearAuthData } from '../../utils/authUtils';
+import NotificationBell from './NotificationBell';
 
 function AvatarImage({ avatar, alt, size = 32, className = "" }: { avatar?: string | null, alt?: string, size?: number, className?: string }) {
   const [imgSrc, setImgSrc] = useState(getAvatarSrc(avatar));
@@ -66,6 +68,20 @@ const Header = () => {
   const hasRefreshed = useRef(false);
   const router = useRouter();
   const pathname = usePathname();
+
+  const searchSuggestionsText = [
+    "Bạn muốn tìm gì...?",
+    "Đồng hồ Bulova ...",
+    "Đồng hồ Omega...",
+    "Đồng hồ nam...",
+    "Đồng hồ nữ...",
+    "Đồng hồ thể thao...",
+    "Đồng hồ cơ...",
+    "Đồng hồ cao cấp...",
+    "Đồng hồ giá rẻ...",
+    "Đồng hồ chống nước...",
+    "Đồng hồ Breguet..."
+  ];
 
   useEffect(() => {
     const handleAuthStateChange = () => {
@@ -135,7 +151,7 @@ const Header = () => {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/search/suggestions?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`http://localhost:3000/api/search/suggestions?q=${encodeURIComponent(query)}`);
       const data = await response.json();
       setSearchSuggestions(data.suggestions || []);
     } catch (error) {
@@ -225,6 +241,7 @@ const Header = () => {
               <b>Hotline: </b>(+84) 313-728-397
             </span>
           </div>
+          {user && <NotificationBell />}
           <div className="login-register hidden md:block md:w-auto relative">
             {user ? (
               <div
@@ -453,19 +470,30 @@ const Header = () => {
             }}
           >
             <div className="relative flex items-center group">
-            <input
-              type="text"
-              placeholder="Tìm kiếm sản phẩm..."
-                className="pl-10 pr-10 py-2 w-64 rounded-full border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-red-500 focus:shadow-lg group-focus-within:shadow-lg group-focus-within:border-red-500 transition-all duration-200"
-              value={searchValue}
-              onChange={e => {
-                setSearchValue(e.target.value);
-                setShowSuggestions(true);
-              }}
-              onFocus={() => setShowSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            <div className="relative w-full">
+              <input
+                type="text"
+                placeholder=""
+                className="pl-10 pr-10 py-2 w-74 rounded-full border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-red-500 focus:shadow-lg group-focus-within:shadow-lg group-focus-within:border-red-500 transition-all duration-200"
+                value={searchValue}
+                onChange={e => {
+                  setSearchValue(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 style={{ boxShadow: '0 2px 8px 0 rgba(0,0,0,0.04)' }}
-            />
+              />
+              {!searchValue && (
+                <div className="absolute left-10 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                  <TypewriterPlaceholder 
+                    suggestions={searchSuggestionsText}
+                    typingSpeed={80}
+                    pauseTime={2000}
+                  />
+                </div>
+              )}
+            </div>
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-500 transition-all duration-200">
                 <i className="fa-solid fa-magnifying-glass"></i>
               </span>

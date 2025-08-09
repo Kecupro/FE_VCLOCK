@@ -8,6 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import styles from "../assets/css/all.module.css";
 import { useAppContext } from "../../context/AppContext";
 import { IBrand } from "@/app/(site)/cautrucdata";
+import { getBrandImageUrl } from "@/app/utils/imageUtils";
 const BrandPage = () => {
   const [brands, setBrands] = useState<IBrand[]>([]);
   const [totalBrands, setTotalBrands] = useState(0);
@@ -57,7 +58,7 @@ const BrandPage = () => {
         });
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand?${params}`
+          `http://localhost:3000/api/admin/brand?${params}`
         );
         const data = await res.json();
         setBrands(data.list);
@@ -89,7 +90,7 @@ const BrandPage = () => {
       });
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand?${params}`
+        `http://localhost:3000/api/admin/brand?${params}`
       );
       const data = await res.json();
       setBrands(data.list);
@@ -132,7 +133,7 @@ const BrandPage = () => {
 
     try {
       const deleteResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand/xoa/${brandToDelete._id}`,
+        `http://localhost:3000/api/admin/brand/xoa/${brandToDelete._id}`,
         {
           method: "DELETE",
           headers: {
@@ -257,21 +258,14 @@ const BrandPage = () => {
                   <td>{(currentPage - 1) * limit + index + 1}</td>
                   <td>{brand.name}</td>
                   <td className={styles.tableCell}>
-                    {brand.image ? (
-                      <Image
-                        src={`/images/brand/${brand.image}`}
-                        alt={brand.image}
-                        width={90}
-                        height={50}
-                      />
-                    ) : (
-                      <Image
-                        src={`/images/logo/logoV.png`}
-                        alt={(brand.image || "avatar") as string}
-                        width={80}
-                        height={60}
-                      />
-                    )}
+                    <Image
+                      src={getBrandImageUrl(brand.image) || `/images/logo/logoV.png`}
+                      alt={brand.name}
+                      width={90}
+                      height={50}
+                      style={{ objectFit: "cover" }}
+                      unoptimized={getBrandImageUrl(brand.image)?.startsWith('http')}
+                    />
                   </td>
                   <td
                     style={{

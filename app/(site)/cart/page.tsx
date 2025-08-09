@@ -124,6 +124,7 @@ export default function CartPage() {
                             <input
                               type="number"
                               min={1}
+                              max={10}
                               value={item.so_luong}
                               onChange={(e) => {
                                 const val = parseInt(e.target.value);
@@ -132,7 +133,10 @@ export default function CartPage() {
                                 const product = cart.find((p) => p._id === item._id);
                                 if (!product) return;
 
-                                if (val > product.quantity) {
+                                if (val > 10) {
+                                  toast.error("Số lượng tối đa cho mỗi sản phẩm là 10.");
+                                  updateQuantity(item._id, 10);
+                                } else if (val > product.quantity) {
                                   toast.error(`Số lượng hàng không đủ. Chỉ còn ${product.quantity} sản phẩm.`);
                                   updateQuantity(item._id, product.quantity); 
                                 } else {
@@ -150,7 +154,9 @@ export default function CartPage() {
 
                             <button
                               onClick={() => {
-                                if (item.so_luong < item.quantity) {
+                                if (item.so_luong >= 10) {
+                                  toast.error("Số lượng tối đa cho mỗi sản phẩm là 10.");
+                                } else if (item.so_luong < item.quantity) {
                                   updateQuantity(item._id, item.so_luong + 1);
                                 } else {
                                   toast.error("Số lượng không hợp lệ hoặc đã đạt giới hạn tối đa.");

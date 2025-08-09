@@ -1,5 +1,6 @@
 import { ICart, IProduct, IHinh } from "../cautrucdata";
 import { useCart } from "./CartContext";
+import { toast } from "react-toastify";
 
 export default function AddToCart({ sp }: { sp: IProduct }) {
   const { addToCart } = useCart();
@@ -56,7 +57,22 @@ export default function AddToCart({ sp }: { sp: IProduct }) {
       quantity: sp.quantity,
     };
 
-    addToCart(item); 
+    // Check if adding this item would exceed limits
+    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const existingItem = existingCart.find((i: ICart) => i._id === sp._id);
+    const currentQuantityInCart = existingItem ? existingItem.so_luong : 0;
+    
+    if (currentQuantityInCart + 1 > 10) {
+      toast.error("Số lượng tối đa cho mỗi sản phẩm là 10");
+      return;
+    }
+    
+    if (currentQuantityInCart + 1 > sp.quantity) {
+      toast.error(`Chỉ còn ${sp.quantity} sản phẩm trong kho`);
+      return;
+    }
+
+    addToCart(item);
   };
 
   return (

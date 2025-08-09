@@ -53,7 +53,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders?user_id=${user_id}`);
+        const res = await fetch(`http://localhost:3000/api/orders?user_id=${user_id}`);
         const data: IOrder[] = await res.json();
         const mapped = (data || []).map((order: IOrder) => ({
           ...order,
@@ -65,7 +65,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
         const detailMap: Record<string, IOrderDetail[]> = {};
         await Promise.all(
           mapped.map(async (order) => {
-            const detailRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/order-details/${order._id}`);
+            const detailRes = await fetch(`http://localhost:3000/api/order-details/${order._id}`);
             const details: IOrderDetail[] = await detailRes.json();
             detailMap[order._id] = details;
           })
@@ -85,7 +85,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
       const token = localStorage.getItem("token");
       if (!token) return;
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reviews/user`, {
+        const res = await fetch(`http://localhost:3000/reviews/user`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -106,7 +106,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
 
   const handleCancelOrder = async (order_id: string) => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cancel-order/${order_id}`, {
+      await fetch(`http://localhost:3000/api/cancel-order/${order_id}`, {
         method: "PUT",
       });
       setOrders((prev) =>
@@ -123,7 +123,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
 
   const handleReturnOrder = async (order_id: string, reason: string) => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/return-order/${order_id}`, {
+    const res = await fetch(`http://localhost:3000/api/return-order/${order_id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -384,7 +384,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
                   </div>
             )}
 
-            <hr className="my-4" />
+            <hr className="my-4  text-gray-200" />
 
             <div className="space-y-4">
               {selectedDetails.map((item) => (
@@ -399,7 +399,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
                   <div className="flex-1">
                     <Link
                       href={`/product/${item.product_id._id}`}
-                      className="text-sm font-medium text-blue-600 hover:underline"
+                      className="text-sm font-medium text-gray-800 hover:underline"
                     >
                       {item.product_id.name}
                     </Link>
@@ -411,12 +411,12 @@ export default function OrderCard({ user_id }: OrderCardProps) {
                     {selectedOrder?.order_status === "daGiaoHang" && (
                       reviewedDetails[item._id] ? (
                         <div className="mt-2 text-sm text-green-600">
-                          <i className="fa-solid fa-star text-yellow-400"></i> Bạn đã đánh giá ({reviewedDetails[item._id]}/5)
+                          <i className="fa-solid fa-star text-red-500"></i> Bạn đã đánh giá ({reviewedDetails[item._id]}/5)
                         </div>
                       ) : (
                         <Dialog.Root>
                           <Dialog.Trigger asChild>
-                            <button className="mt-2 inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 hover:underline transition">
+                            <button className="mt-2 inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-700 hover:underline transition">
                               <i className="fa-regular fa-pen-to-square"></i> Đánh giá sản phẩm
                             </button>
                           </Dialog.Trigger>
@@ -449,7 +449,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
               ))}
             </div>
 
-            <hr className="my-4" />
+            <hr className="my-4 text-gray-200" />
             <div className="text-right text-lg font-bold text-red-600">
               Tổng: {(selectedOrder?.total_amount ?? 0).toLocaleString("vi-VN")}₫
               </div>

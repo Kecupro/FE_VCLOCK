@@ -34,10 +34,10 @@ const RatingPage = () => {
         sortOrder: sortOrder
       });
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/review?${params}`);
+      const res = await fetch(`http://localhost:3000/api/admin/review?${params}`);
       const data = await res.json();
-      setReviews(data.list);
-      setTotalReviews(data.total);
+      setReviews(data.list || []);
+      setTotalReviews(data.total || 0);
     } catch {
     } finally {
       setLoading(false);
