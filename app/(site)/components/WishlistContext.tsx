@@ -41,7 +41,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/user/wishlist`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -70,7 +70,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/user/wishlist`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -100,7 +100,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/user/wishlist/${productId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist/${productId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -125,7 +125,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/user/wishlist/${productId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

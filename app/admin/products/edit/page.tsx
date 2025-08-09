@@ -48,12 +48,12 @@ const EditProduct = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const res = await fetch(`http://localhost:3000/api/admin/categoryProduct`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryProduct`);
       const data = await res.json();
       setCategories(data.list || []);
     };
     const fetchBrands = async () => {
-      const res = await fetch(`http://localhost:3000/api/admin/brand`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand`);
       const data = await res.json();
       setBrands(data.list || []);
     };
@@ -69,7 +69,7 @@ const EditProduct = () => {
   const fetchProduct = async () => {
     try {
       const res = await fetch(`
-        http://localhost:3000/api/admin/product/${productId}`);
+        ${process.env.NEXT_PUBLIC_API_URL}/api/admin/product/${productId}`);
       const data = await res.json();
       const p = data;
 
@@ -188,7 +188,7 @@ const EditProduct = () => {
     subImages.forEach((file) => formData.append(`sub_images`, file));
 
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/product/sua/${productId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product/sua/${productId}`, {
         method: 'PUT',
         body: formData
       }); 

@@ -68,7 +68,7 @@ export default function AdminChat() {
   const adminAvatar = "/images/avatar-default.png";
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/conversations`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/conversations`)
       .then(res => res.json())
       .then(data => {
         setConversations(data);
@@ -94,7 +94,7 @@ export default function AdminChat() {
   }, [activeConversation]);
 
   const loadMessages = (conversationId: string) => {
-    fetch(`http://localhost:3000/api/messages/${conversationId}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/messages/${conversationId}`)
       .then(res => res.json())
       .then(data => {
         setMessages(data);
@@ -200,7 +200,7 @@ export default function AdminChat() {
     if (!window.confirm("Bạn có chắc chắn muốn xoá cuộc hội thoại này?")) return;
   
     try {
-      const res = await fetch(`http://localhost:3000/api/conversations/${conversationId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/conversations/${conversationId}`, {
         method: "DELETE",
       });
   

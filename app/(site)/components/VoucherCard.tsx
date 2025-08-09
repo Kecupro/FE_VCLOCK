@@ -31,7 +31,7 @@ const VoucherList: React.FC<Props> = ({ user_id }) => {
           return;
         }
 
-        const res = await fetch(`http://localhost:3000/voucher-user`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/voucher-user`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

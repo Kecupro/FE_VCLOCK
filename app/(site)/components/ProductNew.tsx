@@ -30,7 +30,7 @@ export default function ProductNew() {
         setLoading(true);
         setError(null);
         
-        fetch(`http://localhost:3000/api/sp_moi`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sp_moi`)
             .then((res) => {
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
@@ -64,7 +64,7 @@ export default function ProductNew() {
             const token = localStorage.getItem("token");
             if (token) {
                 try {
-                    const res = await fetch(`http://localhost:3000/user/wishlist`, {
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }

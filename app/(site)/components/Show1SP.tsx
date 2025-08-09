@@ -25,7 +25,7 @@ export default function Show1SP(props: { sp: IProduct }) {
             const token = localStorage.getItem("token");
             if (token) {
                 try {
-                    const res = await fetch(`http://localhost:3000/user/wishlist`, {
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
