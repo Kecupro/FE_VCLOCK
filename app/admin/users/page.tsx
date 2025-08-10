@@ -121,7 +121,7 @@ const UsersPage = () => {
           return;
         }
 
-        const response = await fetch(`http://localhost:3000/check-role`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/check-role`, {
           method: 'GET',
           headers: createAuthHeaders(),
         });
@@ -202,7 +202,7 @@ const UsersPage = () => {
         params.append('status', statusFilter);
       }
 
-      const apiUrl = `http://localhost:3000/api/admin/user?${params.toString()}`;
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/admin/user?${params.toString()}`;
       
       const response = await fetch(apiUrl, {
         method: 'GET',
@@ -386,7 +386,7 @@ const UsersPage = () => {
       }
 
       const deleteResponse = await fetch(
-        `http://localhost:3000/api/admin/user/delete/${userToDelete._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/user/delete/${userToDelete._id}`,
         {
           method: "DELETE",
           headers: createAuthHeaders(),

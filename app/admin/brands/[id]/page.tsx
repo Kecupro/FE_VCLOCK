@@ -38,7 +38,7 @@ const BrandDetailPage: React.FC = () => {
         }
         
         const res = await fetch(
-          `http://localhost:3000/api/admin/brand/${brandId}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand/${brandId}`,
           {
             method: 'GET',
             headers: {
@@ -111,7 +111,7 @@ const BrandDetailPage: React.FC = () => {
     try {
       const brandId = Array.isArray(params.id) ? params.id[0] : params.id;
       const deleteResponse = await fetch(
-        `http://localhost:3000/api/admin/brand/xoa/${brandId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand/xoa/${brandId}`,
         {
           method: "DELETE",
           headers: {

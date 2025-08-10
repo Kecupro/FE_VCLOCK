@@ -40,7 +40,7 @@ const VouchersPage = () => {
     const fetchVouchers = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/admin/voucher?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&statusFilter=${statusFilter}&sort=${sortOption}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher?page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&statusFilter=${statusFilter}&sort=${sortOption}`
         );
         const data = await res.json();
         let filteredList = data.list || [];
@@ -95,7 +95,7 @@ const VouchersPage = () => {
   const confirmDelete = async () => {
     if (!deletingId) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/voucher/xoa/${deletingId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher/xoa/${deletingId}`, {
         method: "DELETE",
       });
       const data = await res.json();

@@ -34,7 +34,7 @@ const RatingPage = () => {
         sortOrder: sortOrder
       });
 
-      const res = await fetch(`http://localhost:3000/api/admin/review?${params}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/review?${params}`);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
