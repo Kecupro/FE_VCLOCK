@@ -11,6 +11,7 @@ import {
   FaClipboardList, FaUsers, FaBuilding, FaNewspaper, FaBox,
 } from 'react-icons/fa';
 import Image from 'next/image';
+import { getProductImageUrl } from '@/app/utils/imageUtils';
 
 export default function AdminDashboardPage() {
 
@@ -482,11 +483,19 @@ export default function AdminDashboardPage() {
             {topSellingProducts.map(product => (
               <div key={product._id} className="mb-3 d-flex align-items-center">
                 <Image
-                  src={`/images/product/${product.main_image.image}`}
+                  src={product.main_image ? 
+                    (typeof product.main_image === 'string' ? 
+                      getProductImageUrl(product.main_image) : 
+                      getProductImageUrl(product.main_image.image)
+                    ) : '/sp1.png'}
                   alt={product.name}
                   width={60}
                   height={60}
                   style={{ objectFit: 'cover', marginRight: '12px', borderRadius: '8px' }}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/sp1.png';
+                  }}
                 />
                 <div>
                   <h6 className="mb-1">{product.name}</h6>
@@ -506,11 +515,19 @@ export default function AdminDashboardPage() {
             {inventoryProducts.map(product => (
               <div key={product._id} className="mb-3 d-flex align-items-center">
                 <Image
-                  src={`/images/product/${product.main_image.image}`}
+                  src={product.main_image ? 
+                    (typeof product.main_image === 'string' ? 
+                      getProductImageUrl(product.main_image) : 
+                      getProductImageUrl(product.main_image.image)
+                    ) : '/sp1.png'}
                   alt={product.name}
                   width={60}
                   height={60}
                   style={{ objectFit: 'cover', marginRight: '12px', borderRadius: '8px' }}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/sp1.png';
+                  }}
                 />
                 <div>
                   <h6 className="mb-1">{product.name}</h6>

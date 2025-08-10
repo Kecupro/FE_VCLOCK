@@ -8,6 +8,7 @@ import styles from '../../assets/css/addPro.module.css';
 import Image from 'next/image';
 import { Editor } from '@tinymce/tinymce-react';
 import { ICategory, IBrand, IHinh } from '@/app/(site)/cautrucdata';
+import { getProductImageUrl } from '@/app/utils/imageUtils';
 const EditProduct = () => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
@@ -93,12 +94,12 @@ const EditProduct = () => {
       const mainImgObj = (p.images || []).find((img: IHinh) => img.is_main);
       setExistingMainImage(
         mainImgObj?.image
-          ? `/images/product/${mainImgObj.image}`
+          ? getProductImageUrl(mainImgObj.image)
           : ''
       );
       const subImgs = (p.images || [])
         .filter((img: IHinh) => !img.is_main)
-        .map((img: IHinh) => `/images/product/${img.image}`);
+        .map((img: IHinh) => getProductImageUrl(img.image));
 
       setExistingSubImages(subImgs);
 
@@ -455,6 +456,10 @@ const EditProduct = () => {
                     width={300}
                     height={200}
                     className={styles.image}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/placeholder-image.png';
+                    }}
                   />
                 ) : (
                   <p>Chưa có ảnh</p>
@@ -489,13 +494,36 @@ const EditProduct = () => {
               />
             </div>
 
+            {/* Hiển thị ảnh phụ hiện có */}
             {existingSubImages.length > 0 && (
               <div className={styles.subImagePreviewList}>
+                <h4 className={styles.subImageTitle}>Ảnh phụ hiện có:</h4>
                 {existingSubImages.map((url, index) => (
                   <Image
-                    key={index}
+                    key={`existing-${index}`}
                     src={url}
                     alt={`Ảnh phụ hiện có ${index + 1}`}
+                    width={100}
+                    height={100}
+                    className={styles.previewImage}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/placeholder-image.png';
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Hiển thị ảnh phụ mới được chọn */}
+            {subImages.length > 0 && (
+              <div className={styles.subImagePreviewList}>
+                <h4 className={styles.subImageTitle}>Ảnh phụ mới:</h4>
+                {subImages.map((file, index) => (
+                  <Image
+                    key={`new-${index}`}
+                    src={URL.createObjectURL(file)}
+                    alt={`Ảnh phụ mới ${index + 1}`}
                     width={100}
                     height={100}
                     className={styles.previewImage}

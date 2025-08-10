@@ -35,10 +35,15 @@ const RatingPage = () => {
       });
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/review?${params}`);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       const data = await res.json();
       setReviews(data.list || []);
       setTotalReviews(data.total || 0);
-    } catch {
+    } catch (error) {
+      console.error("Lỗi khi fetch reviews:", error);
+      toast.error("Lỗi khi tải danh sách đánh giá!");
     } finally {
       setLoading(false);
     }

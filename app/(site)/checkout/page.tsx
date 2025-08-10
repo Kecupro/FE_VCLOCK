@@ -10,6 +10,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import AddressSelector from "../components/AddressSelector";
 import { useRouter } from "next/navigation";
 import OptimizedImage from "../components/OptimizedImage";
+import AuthModal from "../components/AuthModal";
 
 function formatCurrency(value: number) {
 	return value.toLocaleString("vi-VN") + "đ";
@@ -24,6 +25,7 @@ export default function CheckoutPage() {
 	const [cart, setCart] = useState<ICart[]>([]);
   	const [total, setTotal] = useState(0);
   	const { user } = useAuth();
+	const [showAuthModal, setShowAuthModal] = useState(false);
 	const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
 	const [selectedPayment, setSelectedPayment] = useState("COD");	  
 	const [addresses, setAddresses] = useState<IAddress[]>([]);
@@ -55,41 +57,42 @@ export default function CheckoutPage() {
 	const [vouchers, setVouchers] = useState<IVoucher[]>([]);
 	const [selectedVoucher, setSelectedVoucher] = useState<IVoucher | null>(null);
 		
-	  useEffect(() => {
-		const fetchVouchers = async () => {
-		  try {
-			const token = localStorage.getItem("token");
-			if (!token) {
-				setVouchers([]);
-				return;
-			}
+	  const fetchVouchers = useCallback(async () => {
+		try {
+		  const token = localStorage.getItem("token");
+		  if (!token) {
+			setVouchers([]);
+			return;
+		  }
 	
-			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/voucher-user`, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				  },
-			});
+		  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/voucher-user`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			  },
+		  });
 	
-			if (res.ok) {
-				const data: IVoucher[] = await res.json();
-				if (Array.isArray(data)) {
-					const unusedVouchers = data.filter(
-						(v) => !v.used && new Date(v.end_date) > new Date()
-					);
-					setVouchers(unusedVouchers);
-				} else {
-					setVouchers([]);
-				}
+		  if (res.ok) {
+			const data: IVoucher[] = await res.json();
+			if (Array.isArray(data)) {
+				const unusedVouchers = data.filter(
+					(v) => !v.used && new Date(v.end_date) > new Date()
+				);
+				setVouchers(unusedVouchers);
 			} else {
 				setVouchers([]);
 			}
+		  } else {
+			setVouchers([]);
+		  }
 		  		} catch (err) {
 			console.error("Lỗi khi tải voucher:", err);
 			setVouchers([]);
 		  }
-		};
+		}, []);
+
+	useEffect(() => {
 		fetchVouchers();
-		}, []);	  
+	}, [fetchVouchers]);	  
 
 
 	  const fetchAddresses = useCallback(async () => {
@@ -123,6 +126,22 @@ export default function CheckoutPage() {
 			fetchAddresses();
 		}
 	}, [token, fetchAddresses]);
+
+	// Lắng nghe sự kiện auth_success từ Google/Facebook OAuth
+	useEffect(() => {
+		const handleAuthSuccess = (event: CustomEvent) => {
+			const { returnUrl } = event.detail;
+			if (returnUrl === '/checkout') {
+				const newToken = localStorage.getItem("token");
+				setToken(newToken);
+				fetchVouchers();
+				fetchAddresses();
+				toast.success("Đăng nhập thành công! Bạn có thể tiếp tục thanh toán!");
+			}
+		};
+		window.addEventListener('auth_success', handleAuthSuccess as EventListener);
+		return () => window.removeEventListener('auth_success', handleAuthSuccess as EventListener);
+	}, [fetchVouchers, fetchAddresses]);
 	
 
 	useEffect(() => {
@@ -278,12 +297,20 @@ export default function CheckoutPage() {
 };	
 	
 	const submitOrder = async (addressId?: string) => {
+		// Kiểm tra đăng nhập trước khi đặt hàng
+		if (!user) {
+			toast.error("Vui lòng đăng nhập để tiếp tục thanh toán!");
+			setShowAuthModal(true);
+			return;
+		}
+
 		const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
 		const selectedCartItems = cart.filter(item => selectedIds.includes(item._id));
 		const selectedPaymentObj = paymentMethods.find(p => p.code === selectedPayment);
 
 		const orderCode = Math.floor(100000 + Math.random() * 900000);
 		const orderData = {
+		  user_id: user._id,
 		  cart: selectedCartItems,
 		  total_amount: finalTotal,
 		  note: form.note || "",
@@ -292,7 +319,7 @@ export default function CheckoutPage() {
 		  payment_method_id: selectedPaymentObj?._id,
 		  ...(addressId || selectedAddressId 
 			? { address_id: addressId || selectedAddressId }
-			: { new_address: form }), // Cho khách hàng chưa đăng nhập
+			: { new_address: form }),
 		};
 	  
 		try {
@@ -367,16 +394,8 @@ export default function CheckoutPage() {
 	
 
 			if (!user) {
-				const { name, address, phone } = form;
-				if (!name || !address || !phone) {
-					toast.error("Vui lòng điền đầy đủ thông tin người nhận.");
-					return;
-				}
-				if (name.length < 2 || !/^[\p{L}\d\s,.'-]+$/u.test(name)) return toast.error("Tên người nhận không hợp lệ.");
-				if (!/^\d{10,11}$/.test(phone)) return toast.error("Số điện thoại không hợp lệ.");
-				if (address.length < 5 || !/^[\p{L}\d\s,.-]+$/u.test(address)) return toast.error("Địa chỉ không hợp lệ.");
-	
-				await submitOrder();
+				toast.error("Vui lòng đăng nhập để tiếp tục thanh toán!");
+				setShowAuthModal(true);
 				return;
 			}
 	
@@ -914,6 +933,20 @@ export default function CheckoutPage() {
 						</button>
 					</div>
 			</form>
+
+			{/* AuthModal */}
+			<AuthModal
+				isOpen={showAuthModal}
+				onClose={() => setShowAuthModal(false)}
+				preventRedirect={true}
+				onLoginSuccess={() => {
+					const newToken = localStorage.getItem("token");
+					setToken(newToken);
+					fetchVouchers();
+					fetchAddresses();
+					toast.info("Bạn có thể tiếp tục thanh toán!");
+				}}
+			/>
 		</main>
 	);
 }

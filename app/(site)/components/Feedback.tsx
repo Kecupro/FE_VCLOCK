@@ -91,8 +91,12 @@ export default function Feedback() {
       main_image: {
         _id: product._id,
         is_main: true,
-        image: product.main_image.image,
-        alt: product.main_image.alt,
+        image: typeof product.main_image === 'string' ? 
+          product.main_image : 
+          product.main_image.image,
+        alt: typeof product.main_image === 'string' ? 
+          product.name : 
+          product.main_image.alt,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },

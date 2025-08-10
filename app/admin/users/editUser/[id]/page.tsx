@@ -463,7 +463,6 @@ const EditUser = () => {
             value={formData.email}
             onChange={handleInputChange}
             disabled
-            style={{ backgroundColor: "var(--card-bg-dark)" }}
           />
         </div>
 

@@ -390,8 +390,15 @@ export default function OrderCard({ user_id }: OrderCardProps) {
               {selectedDetails.map((item) => (
                 <div key={item._id} className="flex gap-3 items-start border-b pb-3">
                   <Image
-                    src={`/images/product/${item.product_id.main_image.image}`}
-                    alt={item.product_id.main_image.alt || item.product_id.name}
+                    src={item.product_id.main_image ? 
+                      (typeof item.product_id.main_image === 'string' ? 
+                        `/images/product/${item.product_id.main_image}` : 
+                        `/images/product/${item.product_id.main_image.image}`
+                      ) : '/sp1.png'}
+                    alt={typeof item.product_id.main_image === 'string' ? 
+                      item.product_id.name : 
+                      (item.product_id.main_image.alt || item.product_id.name)
+                    }
                     width={60}
                     height={60}
                     className="rounded border object-cover"

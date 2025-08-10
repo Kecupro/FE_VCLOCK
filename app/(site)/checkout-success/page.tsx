@@ -30,7 +30,7 @@ function CheckoutSuccessContent() {
         <div className="flex justify-center mb-4 text-green-500">
           <CheckCircle size={64} />
         </div>
-        <h2 className="text-2xl font-semibold mb-2">Thanh toán thành công</h2>
+        <h2 className="text-2xl font-semibold mb-2">Đặt hàng thành công</h2>
         {orderCode && (
           <p className="text-gray-600 mb-4">
             Mã đơn hàng: <strong>{orderCode}</strong>

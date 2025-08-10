@@ -78,7 +78,11 @@ export default function CartPage() {
                         <div className="w-full sm:w-20 h-20 flex-shrink-0">
                           <Link href={`/product/${item._id}`} className="relative w-full h-full">
                               <Image
-                                src={`/images/product/${item.main_image.image}`}
+                                src={item.main_image ? 
+                                  (typeof item.main_image === 'string' ? 
+                                    `/images/product/${item.main_image}` : 
+                                    `/images/product/${item.main_image.image}`
+                                  ) : '/sp1.png'}
                                 alt={item.name}
                                 className="w-full h-full object-contain rounded-lg bg-gray-50"
                                 width={80}

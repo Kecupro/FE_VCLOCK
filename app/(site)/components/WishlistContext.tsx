@@ -154,7 +154,9 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', handleStorageChange);
+    }
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [fetchWishlistCount]);
 

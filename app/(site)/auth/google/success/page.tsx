@@ -26,7 +26,21 @@ export default function GoogleSuccess() {
             key: 'user',
             newValue: JSON.stringify(user)
           }));
-          router.push("/"); 
+          
+          // Kiểm tra preventRedirect
+          const preventRedirect = localStorage.getItem('auth_prevent_redirect');
+          const returnUrl = localStorage.getItem('auth_return_url');
+          
+          if (preventRedirect === 'true' && returnUrl) {
+            localStorage.removeItem('auth_prevent_redirect');
+            localStorage.removeItem('auth_return_url');
+            window.dispatchEvent(new CustomEvent('auth_success', {
+              detail: { user, returnUrl }
+            }));
+            router.push(returnUrl);
+          } else {
+            router.push("/");
+          }
         })
         .catch((error) => {
           console.error("Lỗi tải thông tin người dùng:", error);

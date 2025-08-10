@@ -5,9 +5,11 @@ import { toast } from "react-toastify";
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  preventRedirect?: boolean;
+  onLoginSuccess?: () => void;
 }
 
-const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
+const AuthModal = ({ isOpen, onClose, preventRedirect = false, onLoginSuccess }: AuthModalProps) => {
   const { setUser } = useAuth();
   const [authView, setAuthView] = useState("login");
   const [email, setEmail] = useState("");
@@ -81,13 +83,21 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         setUser(data.user); 
         onClose();
         setError("");
-            toast.success('Đăng nhập thành công!');
-            router.refresh();
-      
-        if (data.user.role === '1' || data.user.role === '2') {
-          router.push('/admin');
-        } else {
-          router.push('/');
+        toast.success('Đăng nhập thành công!');
+        
+        // Gọi callback nếu có
+        if (onLoginSuccess) {
+          onLoginSuccess();
+        }
+        
+        // Chỉ redirect nếu không preventRedirect
+        if (!preventRedirect) {
+          router.refresh();
+          if (data.user.role === '1' || data.user.role === '2') {
+            router.push('/admin');
+          } else {
+            router.push('/');
+          }
         }
       } else {
             const errorMsg = data.message || 'Đăng nhập thất bại';
@@ -457,6 +467,10 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   type="button"
                   className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition text-sm"
                   onClick={() => {
+                    if (preventRedirect) {
+                      localStorage.setItem('auth_prevent_redirect', 'true');
+                      localStorage.setItem('auth_return_url', window.location.pathname);
+                    }
                     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
                   }}
                 >
@@ -467,6 +481,10 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   type="button"
                   className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition text-sm"
                   onClick={() => {
+                    if (preventRedirect) {
+                      localStorage.setItem('auth_prevent_redirect', 'true');
+                      localStorage.setItem('auth_return_url', window.location.pathname);
+                    }
                     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`;
                   }}
                 >

@@ -241,10 +241,16 @@ const ProductsPage = () => {
                   <div className={styles.lineclamp2}>{product.name}</div>
                 </td>
                 <td>
-                  {product.main_image?.image ? (
+                  {product.main_image ? (
                     <Image
-                      src={getProductImageUrl(product.main_image.image)}
-                      alt={product.main_image.alt || product.name}
+                      src={typeof product.main_image === 'string' ? 
+                        getProductImageUrl(product.main_image) : 
+                        getProductImageUrl(product.main_image.image)
+                      }
+                      alt={typeof product.main_image === 'string' ? 
+                        product.name : 
+                        (product.main_image.alt || product.name)
+                      }
                       width={80}
                       height={80}
                       style={{ objectFit: 'cover' }}
@@ -288,7 +294,7 @@ const ProductsPage = () => {
         </table>
       </div>
 
-=      <div className={styles.pagination}>
+      <div className={styles.pagination}>
         <div className={styles.paginationInfo}>
           Hiển thị {(currentPage - 1) * limit + 1} đến {Math.min(currentPage * limit, total)} trong {total} sản phẩm
         </div>

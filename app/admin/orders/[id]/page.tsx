@@ -363,10 +363,16 @@ const OrderDetailPage = () => {
                           return (
                             <tr key={idx}>
                               <td>
-                                {product_id?.main_image?.image ? (
+                                {product_id?.main_image ? (
                                   <Image
-                                    src={`/images/product/${product_id.main_image.image}`}
-                                    alt={product_id.main_image.alt || 'Ảnh sản phẩm'}
+                                    src={typeof product_id.main_image === 'string' ? 
+                                      `/images/product/${product_id.main_image}` : 
+                                      `/images/product/${product_id.main_image.image}`
+                                    }
+                                    alt={typeof product_id.main_image === 'string' ? 
+                                      'Ảnh sản phẩm' : 
+                                      (product_id.main_image.alt || 'Ảnh sản phẩm')
+                                    }
                                     width={80}                                    
                                     height={80}
                                     className={styles.imageOrderDetail}

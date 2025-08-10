@@ -232,8 +232,11 @@ const SearchPage = () => {
                       <Link href={`/product/${product._id}`} className="flex-shrink-0 flex items-center justify-center h-48 mb-3 overflow-hidden">
                         <OptimizedImage
                           src={
-                            product.main_image?.image
-                              ? getProductImageUrl(product.main_image.image)
+                            product.main_image
+                              ? (typeof product.main_image === 'string' 
+                                  ? getProductImageUrl(product.main_image)
+                                  : getProductImageUrl(product.main_image.image)
+                                )
                               : product.images && product.images.length > 0
                                 ? getProductImageUrl(product.images[0].image)
                                 : '/images/avatar-default.png'
@@ -326,8 +329,11 @@ const SearchPage = () => {
                             <Link href={`/product/${product._id}`} className="flex-shrink-0 flex items-center justify-center h-48 mb-3 overflow-hidden">
                               <OptimizedImage
                                 src={
-                                  product.main_image?.image
-                                    ? getProductImageUrl(product.main_image.image)
+                                  product.main_image
+                                    ? (typeof product.main_image === 'string' 
+                                        ? getProductImageUrl(product.main_image)
+                                        : getProductImageUrl(product.main_image.image)
+                                      )
                                     : product.images && product.images.length > 0
                                       ? getProductImageUrl(product.images[0].image)
                                       : '/images/avatar-default.png'

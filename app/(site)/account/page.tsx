@@ -854,7 +854,11 @@ type="submit"
                       <div key={item._id} className="group bg-white rounded-lg border border-gray-200 overflow-hidden hover:border-red-300 transition-all duration-200 max-w-[180px] mx-auto">
                         <div className="relative h-24 bg-white flex items-center justify-center">
                         <Image
-                          src={item.product.main_image ? getProductImageUrl(item.product.main_image.image) : '/sp1.png'}
+                          src={item.product.main_image ? 
+                            (typeof item.product.main_image === 'string' ? 
+                              getProductImageUrl(item.product.main_image) : 
+                              getProductImageUrl(item.product.main_image.image)
+                            ) : '/sp1.png'}
                           alt={item.product.name}
                           width={100}
                           height={100}

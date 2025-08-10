@@ -774,7 +774,7 @@ const UsersPage = () => {
             </div>
             <div className={styles.modalFooter}>
               <button
-                className={styles.cancelButton}
+                className={styles.modalcancelButton}
                 onClick={handleDeleteCancel}
                 disabled={isDeleting}
               >
