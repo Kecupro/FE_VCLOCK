@@ -1,9 +1,9 @@
 .container {
-  padding: 0px 10px 0px 10px;
+  padding: 0px 8px 0px 8px;
 }
 
 .title {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--text-color-light);
   margin: 0;
@@ -38,7 +38,7 @@ html.dark-mode .card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
+  padding: 8px 0;
 }
 
 html.dark-mode .title {
@@ -96,7 +96,7 @@ html.dark-mode .title {
 }
 
 .filters {
-  padding: 10px 13px 5px 13px;
+  padding: 8px 10px 3px 10px;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -112,9 +112,9 @@ html.dark-mode .filters {
 
 .filterRow {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: flex-end;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
 }
 
 .filterGroup,
@@ -126,10 +126,10 @@ html.dark-mode .filters {
 
 .label {
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: #374151;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 html.dark-mode .label {
@@ -493,14 +493,14 @@ html.dark-mode .brandDescription {
 }
 
 .actionButton {
-  padding: 6px;
+  padding: 4px;
   background: transparent;
   display: flex;
   align-items: center;
   border: none;
   color: #6b7280;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 3px;
   transition: all 0.2s ease;
 }
 
@@ -676,7 +676,7 @@ html.dark-mode .paginationButtonInactive:hover,
 .table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: auto;
+  table-layout: fixed;
 }
 
 .tableHeader {
@@ -692,17 +692,18 @@ html.dark-mode .tableHeader {
 }
 
 .table th, .table td { 
-  padding: 4px 1px;
+  padding: 3px 2px;
   text-align: center;
   vertical-align: middle;
   border-bottom: 1px solid var(--border-color-light);
-  max-width: 200px;
+  max-width: 150px;
   word-wrap: break-word;
   word-break: break-word;
   overflow-wrap: break-word;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: normal;
+  white-space: nowrap;
+  font-size: 13px;
 }
 
 .cell {
@@ -729,7 +730,9 @@ html.dark-mode .tableHeader {
 }
 
 .table th{
-  padding: 7px 1px;
+  padding: 5px 2px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 html.dark-mode .table th, .table td {
@@ -739,6 +742,68 @@ html.dark-mode .table th, .table td {
 .table th:last-child, .table td:last-child {
   padding: 4px 4px;
   max-width: 100px;
+}
+
+/* Column widths for products table */
+.table th:nth-child(1), .table td:nth-child(1) { /* STT */
+  width: 50px;
+  min-width: 50px;
+}
+
+.table th:nth-child(2), .table td:nth-child(2) { /* Tên */
+  width: 150px;
+  min-width: 150px;
+  max-width: 150px;
+}
+
+.table th:nth-child(3), .table td:nth-child(3) { /* Hình ảnh */
+  width: 80px;
+  min-width: 80px;
+}
+
+.table th:nth-child(4), .table td:nth-child(4) { /* Giá */
+  width: 100px;
+  min-width: 100px;
+}
+
+.table th:nth-child(5), .table td:nth-child(5) { /* Giảm giá */
+  width: 100px;
+  min-width: 100px;
+}
+
+.table th:nth-child(6), .table td:nth-child(6) { /* Số lượng */
+  width: 80px;
+  min-width: 80px;
+}
+
+.table th:nth-child(7), .table td:nth-child(7) { /* Lượt xem */
+  width: 80px;
+  min-width: 80px;
+}
+
+.table th:nth-child(8), .table td:nth-child(8) { /* Thương hiệu */
+  width: 120px;
+  min-width: 120px;
+}
+
+.table th:nth-child(9), .table td:nth-child(9) { /* Danh mục */
+  width: 120px;
+  min-width: 120px;
+}
+
+.table th:nth-child(10), .table td:nth-child(10) { /* Đã bán */
+  width: 80px;
+  min-width: 80px;
+}
+
+.table th:nth-child(11), .table td:nth-child(11) { /* Trạng thái */
+  width: 100px;
+  min-width: 100px;
+}
+
+.table th:nth-child(12), .table td:nth-child(12) { /* Hành động */
+  width: 120px;
+  min-width: 120px;
 }
 
 html.dark-mode .tableHeader,

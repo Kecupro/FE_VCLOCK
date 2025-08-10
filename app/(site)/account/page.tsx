@@ -115,7 +115,7 @@ function AccountPageContent() {
     if (!token) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses`, {
+      const response = await fetch(`http://localhost:3000/user/addresses`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -142,7 +142,7 @@ function AccountPageContent() {
 
     try {
       setIsLoadingWishlist(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
+      const response = await fetch(`http://localhost:3000/user/wishlist`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -217,7 +217,7 @@ function AccountPageContent() {
 
     try {
       setIsLoading(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/profile/update`, {
+      const response = await fetch(`http://localhost:3000/user/profile/update`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -273,14 +273,70 @@ const result = await response.json();
     const token = localStorage.getItem("token");
     if (!token) return;
 
+    const { receiver_name, phone, address } = newAddress;
+    
+    // Kiểm tra đầy đủ thông tin
+    if (!receiver_name.trim()) {
+      toast.error("Vui lòng nhập tên người nhận!");
+      return;
+    }
+    if (!phone.trim()) {
+      toast.error("Vui lòng nhập số điện thoại!");
+      return;
+    }
+    if (!address.trim()) {
+      toast.error("Vui lòng nhập địa chỉ giao hàng!");
+      return;
+    }
+    
+    // Kiểm tra đã chọn đủ 3 dropdown (tỉnh, huyện, xã)
+    const addressParts = address.split(', ');
+    if (addressParts.length < 3) {
+      toast.error("Vui lòng chọn đầy đủ địa chỉ!");
+      return;
+    }
+    
+    // Kiểm tra đã nhập số nhà/tên đường
+    const streetAddress = addressParts.slice(0, -3).join(', ').trim();
+    if (!streetAddress) {
+      toast.error("Vui lòng nhập số nhà và tên đường!");
+      return;
+    }
+    
+    // Kiểm tra định dạng
+    if (receiver_name.trim().length < 2) {
+      toast.error("Tên người nhận phải có ít nhất 2 ký tự!");
+      return;
+    }
+    if (!/^[\p{L}\s]+$/u.test(receiver_name.trim())) {
+      toast.error("Tên người nhận chỉ được chứa chữ cái và khoảng trắng!");
+      return;
+    }
+    if (!/^[0-9]{10,11}$/.test(phone.trim())) {
+      toast.error("Số điện thoại phải có 10-11 chữ số!");
+      return;
+    }
+    if (address.trim().length < 6) {
+      toast.error("Địa chỉ phải có ít nhất 6 ký tự!");
+      return;
+    }
+    if (!/^[\p{L}\d\s,.-]+$/u.test(address.trim())) {
+      toast.error("Địa chỉ chứa ký tự không hợp lệ!");
+      return;
+    }
+
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses`, {
+      const response = await fetch(`http://localhost:3000/user/addresses`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(newAddress)
+        body: JSON.stringify({
+          receiver_name: receiver_name.trim(),
+          phone: phone.trim(),
+          address: address.trim()
+        })
       });
 
       if (response.ok) {
@@ -288,9 +344,14 @@ const result = await response.json();
         setAddresses([...addresses, data]);
         setNewAddress({ receiver_name: '', phone: '', address: '' });
         setIsAddingAddress(false);
+        toast.success("Thêm địa chỉ mới thành công!");
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || "Lỗi khi thêm địa chỉ!");
       }
     } catch (error) {
       console.error("Lỗi thêm địa chỉ:", error);
+      toast.error("Đã xảy ra lỗi. Vui lòng thử lại sau!");
     }
   };
 
@@ -301,7 +362,7 @@ const result = await response.json();
     if (!token) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses/${addressId}`, {
+      const response = await fetch(`http://localhost:3000/user/addresses/${addressId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -310,9 +371,14 @@ const result = await response.json();
 
       if (response.ok) {
         setAddresses(addresses.filter(addr => addr._id !== addressId));
+        toast.success("Xóa địa chỉ thành công!");
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || "Lỗi khi xóa địa chỉ!");
       }
     } catch (error) {
       console.error("Lỗi xóa địa chỉ:", error);
+      toast.error("Đã xảy ra lỗi. Vui lòng thử lại sau!");
     }
   };
 
@@ -331,17 +397,69 @@ address: address.address
     const token = localStorage.getItem("token");
     if (!token || !editingAddressId) return;
 
+    const { receiver_name, phone, address } = newAddress;
+    
+    // Kiểm tra đầy đủ thông tin
+    if (!receiver_name.trim()) {
+      toast.error("Vui lòng nhập tên người nhận!");
+      return;
+    }
+    if (!phone.trim()) {
+      toast.error("Vui lòng nhập số điện thoại!");
+      return;
+    }
+    if (!address.trim()) {
+      toast.error("Vui lòng nhập địa chỉ giao hàng!");
+      return;
+    }
+    
+    // Kiểm tra đã chọn đủ 3 dropdown (tỉnh, huyện, xã)
+    const addressParts = address.split(', ');
+    if (addressParts.length < 3) {
+      toast.error("Vui lòng chọn đầy đủ địa chỉ!");
+      return;
+    }
+    
+    // Kiểm tra đã nhập số nhà/tên đường
+    const streetAddress = addressParts.slice(0, -3).join(', ').trim();
+    if (!streetAddress) {
+      toast.error("Vui lòng nhập số nhà và tên đường!");
+      return;
+    }
+    
+    // Kiểm tra định dạng
+    if (receiver_name.trim().length < 2) {
+      toast.error("Tên người nhận phải có ít nhất 2 ký tự!");
+      return;
+    }
+    if (!/^[\p{L}\s]+$/u.test(receiver_name.trim())) {
+      toast.error("Tên người nhận chỉ được chứa chữ cái và khoảng trắng!");
+      return;
+    }
+    if (!/^[0-9]{10,11}$/.test(phone.trim())) {
+      toast.error("Số điện thoại phải có 10-11 chữ số!");
+      return;
+    }
+    if (address.trim().length < 6) {
+      toast.error("Địa chỉ phải có ít nhất 6 ký tự!");
+      return;
+    }
+    if (!/^[\p{L}\d\s,.-]+$/u.test(address.trim())) {
+      toast.error("Địa chỉ chứa ký tự không hợp lệ!");
+      return;
+    }
+
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses/${editingAddressId}`, {
+      const response = await fetch(`http://localhost:3000/user/addresses/${editingAddressId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          receiver_name: newAddress.receiver_name,
-          phone: newAddress.phone,
-          address: newAddress.address
+          receiver_name: receiver_name.trim(),
+          phone: phone.trim(),
+          address: address.trim()
         })
       });
 
@@ -353,9 +471,14 @@ address: address.address
         setNewAddress({ receiver_name: '', phone: '', address: '' });
         setIsEditingAddress(false);
         setEditingAddressId(null);
+        toast.success("Cập nhật địa chỉ thành công!");
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || "Lỗi khi cập nhật địa chỉ!");
       }
     } catch (error) {
       console.error("Lỗi cập nhật địa chỉ:", error);
+      toast.error("Đã xảy ra lỗi. Vui lòng thử lại sau!");
     }
   };
 
@@ -365,7 +488,7 @@ address: address.address
     if (!token) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist/${productId}`, {
+      const response = await fetch(`http://localhost:3000/user/wishlist/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -385,7 +508,7 @@ address: address.address
 
   const handleSetDefaultAddress = async (id: string) => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/addresses/${id}/set-default`, {
+      await fetch(`http://localhost:3000/api/user/addresses/${id}/set-default`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem("token")}`,
@@ -410,7 +533,7 @@ address: address.address
     if (!token) return;
     try {
       setIsLoadingWishlist(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist/all`, {
+      const response = await fetch(`http://localhost:3000/user/wishlist/all`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -637,27 +760,29 @@ className="bg-gray-600 text-sm text-white px-6 py-2 rounded-lg font-semibold hov
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 <div>
                         <label className="block text-gray-700 text-sm font-medium mb-2">Tên người nhận</label>
-                        <input
-                          type="text"
-                          value={newAddress.receiver_name}
-                          onChange={(e) => setNewAddress({...newAddress, receiver_name: e.target.value})}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                          placeholder="Ví dụ: Nguyễn Văn A"
-                          required
-                        />
+                                                 <input
+                           type="text"
+                           value={newAddress.receiver_name}
+                           onChange={(e) => setNewAddress({...newAddress, receiver_name: e.target.value})}
+                           className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+                           placeholder="Ví dụ: Nguyễn Văn A"
+                           required={false}
+                         />
                       </div>
                       <div>
                         <label className="block text-gray-700 text-sm font-medium mb-2">Số điện thoại</label>
-                       <input
-                          type="tel"
-                          pattern="^0[35789][0-9]{8}$"
-                          title="Số điện thoại phải có 10 chữ số và bắt đầu bằng 03, 05, 07, 08 hoặc 09"
-                          required
-                          value={newAddress.phone}
-                          onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                          placeholder="Ví dụ: 0901234567"
-                        />
+                                               <input
+                           type="tel"
+                           value={newAddress.phone}
+                           onChange={(e) => {
+                             // Chỉ cho phép nhập số
+                             const value = e.target.value.replace(/[^0-9]/g, '');
+                             setNewAddress({ ...newAddress, phone: value });
+                           }}
+                           className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+                           placeholder="Ví dụ: 0901234567"
+                           required={false}
+                         />
 
                       </div>
                       <div className="md:col-span-2">
@@ -696,35 +821,37 @@ className="bg-gray-600 text-sm text-white px-6 py-2 rounded-lg font-semibold hov
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-gray-700 text-sm font-medium mb-2">Tên người nhận</label>
-                        <input
-                          type="text"
-                          value={newAddress.receiver_name}
-                          onChange={(e) => setNewAddress({...newAddress, receiver_name: e.target.value})}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                          required
-                        />
+                                                 <input
+                           type="text"
+                           value={newAddress.receiver_name}
+                           onChange={(e) => setNewAddress({...newAddress, receiver_name: e.target.value})}
+                           className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+                           required={false}
+                         />
                       </div>
                       <div>
                         <label className="block text-gray-700 text-sm font-medium mb-2">Số điện thoại</label>
-                        <input
-                          type="tel"
-                          pattern="^0[35789][0-9]{8}$"
-                          title="Số điện thoại phải có 10 chữ số và bắt đầu bằng 03, 05, 07, 08 hoặc 09"
-                          required
-                          value={newAddress.phone}
-                          onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                        />
+                                                 <input
+                           type="tel"
+                           value={newAddress.phone}
+                           onChange={(e) => {
+                             // Chỉ cho phép nhập số
+                             const value = e.target.value.replace(/[^0-9]/g, '');
+                             setNewAddress({...newAddress, phone: value});
+                           }}
+                           className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+                           required={false}
+                         />
                       </div>
                       <div className="md:col-span-2">
                         <label className="block text-gray-700 text-sm font-medium mb-2">Địa chỉ</label>
-                        <input
-                          type="text"
-                          value={newAddress.address}
-                          onChange={(e) => setNewAddress({...newAddress, address: e.target.value})}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                          required
-                        />
+                                                 <input
+                           type="text"
+                           value={newAddress.address}
+                           onChange={(e) => setNewAddress({...newAddress, address: e.target.value})}
+                           className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+                           required={false}
+                         />
                       </div>
                     </div>
                     <div className="flex justify-end space-x-4 mt-6">

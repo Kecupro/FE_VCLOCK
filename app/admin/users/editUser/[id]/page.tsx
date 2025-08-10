@@ -128,7 +128,7 @@ const EditUser = () => {
           return;
         }
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/check-role`, {
+        const response = await fetch(`http://localhost:3000/check-role`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -158,7 +158,7 @@ const EditUser = () => {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/user/${userId}`,
+          `http://localhost:3000/api/admin/user/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -321,7 +321,7 @@ const EditUser = () => {
       }
 
       const userResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/user/edit/${userId}`,
+        `http://localhost:3000/api/admin/user/edit/${userId}`,
         {
           method: "PUT",
           headers: {

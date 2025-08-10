@@ -17,7 +17,7 @@ export default function Categories() {
 		setLoading(true);
 		setError(null);
 		
-		fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/brand`)
+		fetch(`http://localhost:3000/api/brand`)
 			.then((res) => {
 				if (!res.ok) {
 					throw new Error(`HTTP error! status: ${res.status}`);

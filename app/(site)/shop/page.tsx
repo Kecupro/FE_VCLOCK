@@ -74,7 +74,7 @@ function ShopPageContent() {
 
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/category`)
+    fetch(`http://localhost:3000/api/category`)
       .then((res) => res.json())
       .then((data: { name: string }[]) => {
         if (Array.isArray(data) && data.length > 0) {
@@ -85,7 +85,7 @@ function ShopPageContent() {
 
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/brand`)
+    fetch(`http://localhost:3000/api/brand`)
       .then((res) => res.json())
       .then((data: IBrand[]) => setBrands(data));
   }, []);
@@ -107,7 +107,7 @@ function ShopPageContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product/price-range`)
+    fetch(`http://localhost:3000/api/product/price-range`)
       .then(res => res.json())
       .then(data => {
         if (typeof data.minPrice === 'number' && typeof data.maxPrice === 'number') {
@@ -157,7 +157,7 @@ function ShopPageContent() {
       params.append('sort', sort);
     }
 
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/sp_filter?${params.toString()}`;
+    const url = `http://localhost:3000/api/sp_filter?${params.toString()}`;
 
     fetch(url)
       .then((res) => res.json())
@@ -174,7 +174,7 @@ function ShopPageContent() {
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
     if (token) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
+      fetch(`http://localhost:3000/user/wishlist`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => {
@@ -202,7 +202,7 @@ function ShopPageContent() {
   }, []);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/top-rated?limit=4`)
+    fetch(`http://localhost:3000/api/products/top-rated?limit=4`)
       .then(res => res.json())
       .then(data => setBestSellers(data));
   }, []);

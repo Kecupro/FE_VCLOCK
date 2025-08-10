@@ -65,7 +65,7 @@ export default function CheckoutPage() {
 			return;
 		  }
 	
-		  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/voucher-user`, {
+		  const res = await fetch(`http://localhost:3000/voucher-user`, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			  },
@@ -100,7 +100,7 @@ export default function CheckoutPage() {
 		if (!token) return;
 	
 		try {
-			const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses`, {
+			const response = await fetch(`http://localhost:3000/user/addresses`, {
 				headers,
 			});
 			if (response.ok) {
@@ -245,7 +245,7 @@ export default function CheckoutPage() {
 	useEffect(() => {
 		const fetchPaymentMethods = async () => {
 			try {
-				const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment-method`);
+				const response = await fetch(`http://localhost:3000/api/payment-method`);
 				if (!response.ok) {
 					throw new Error("Failed to fetch payment methods");
 				}
@@ -330,7 +330,7 @@ export default function CheckoutPage() {
 		  }
 		  
 		  if (selectedPayment === "BANK_TRANSFER") {
-			const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/create-payment-link`, {
+			const response = await fetch(`http://localhost:3000/create-payment-link`, {
 			  method: "POST",
 			  headers: { 
 				"Content-Type": "application/json",
@@ -353,7 +353,7 @@ export default function CheckoutPage() {
 			}
 	  
 		  } else {
-			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/checkout`, {
+			const res = await fetch(`http://localhost:3000/api/checkout`, {
 			  method: "POST",
 			  headers,
 			  body: JSON.stringify({orderCode, orderData}),  
@@ -394,52 +394,133 @@ export default function CheckoutPage() {
 	
 
 			if (!user) {
-				toast.error("Vui lòng đăng nhập để tiếp tục thanh toán!");
-				setShowAuthModal(true);
+				// Kiểm tra thông tin địa chỉ cho user chưa đăng nhập
+				const { name, phone, address } = form;
+				
+				// Kiểm tra đầy đủ thông tin
+				if (!name.trim()) {
+					toast.error("Vui lòng nhập tên người nhận!");
+					return;
+				}
+				if (!phone.trim()) {
+					toast.error("Vui lòng nhập số điện thoại!");
+					return;
+				}
+				if (!address.trim()) {
+					toast.error("Vui lòng nhập địa chỉ giao hàng!");
+					return;
+				}
+				
+				// Kiểm tra định dạng
+				if (name.trim().length < 2) {
+					toast.error("Tên người nhận phải có ít nhất 2 ký tự!");
+					return;
+				}
+				if (!/^[\p{L}\s]+$/u.test(name.trim())) {
+					toast.error("Tên người nhận chỉ được chứa chữ cái và khoảng trắng!");
+					return;
+				}
+				if (!/^[0-9]{10,11}$/.test(phone.trim())) {
+					toast.error("Số điện thoại phải có 10-11 chữ số!");
+					return;
+				}
+				if (address.trim().length < 6) {
+					toast.error("Địa chỉ phải có ít nhất 6 ký tự!");
+					return;
+				}
+				if (!/^[\p{L}\d\s,.-]+$/u.test(address.trim())) {
+					toast.error("Địa chỉ chứa ký tự không hợp lệ!");
+					return;
+				}
+				
+				// Tiếp tục với đặt hàng cho user chưa đăng nhập
+				await submitOrder();
 				return;
 			}
 	
 
 			if (!selectedAddressId && !showNewAddressForm) {
-				toast.error("Vui lòng chọn hoặc thêm địa chỉ.");
+				toast.error("Vui lòng chọn địa chỉ giao hàng hoặc thêm địa chỉ mới!");
 				return;
 			}
 	
 			if (selectedAddressId && showNewAddressForm) {
-				toast.error("Vui lòng chỉ chọn 1 trong 2: địa chỉ cũ hoặc nhập mới.");
+				toast.error("Vui lòng chỉ chọn 1 trong 2: địa chỉ cũ hoặc thêm địa chỉ mới!");
 				return;
 			}
 	
 			if (showNewAddressForm) {
 				const { receiver_name, phone, address } = newAddress;
-				if (!receiver_name || !phone || !address) {
-					toast.error("Vui lòng điền đầy đủ địa chỉ mới.");
+				
+				// Kiểm tra đầy đủ thông tin
+				if (!receiver_name.trim()) {
+					toast.error("Vui lòng nhập tên người nhận!");
 					return;
 				}
-				if (receiver_name.length < 2 || !/^[\p{L}\d\s,.'-]+$/u.test(receiver_name)) return toast.error("Tên người nhận không hợp lệ.");
-				if (!/^\d{10,11}$/.test(phone)) return toast.error("Số điện thoại không hợp lệ.");
-				if (address.length < 5 || !/^[\p{L}\d\s,.-]+$/u.test(address)) return toast.error("Địa chỉ không hợp lệ.");
+				if (!phone.trim()) {
+					toast.error("Vui lòng nhập số điện thoại!");
+					return;
+				}
+				if (!address.trim()) {
+					toast.error("Vui lòng chọn địa chỉ giao hàng!");
+					return;
+				}
+				
+				// Kiểm tra định dạng
+				if (receiver_name.trim().length < 2) {
+					toast.error("Tên người nhận phải có ít nhất 2 ký tự!");
+					return;
+				}
+				if (!/^[\p{L}\s]+$/u.test(receiver_name.trim())) {
+					toast.error("Tên người nhận chỉ được chứa chữ cái và khoảng trắng!");
+					return;
+				}
+				if (!/^[0-9]{10,11}$/.test(phone.trim())) {
+					toast.error("Số điện thoại phải có 10-11 chữ số!");
+					return;
+				}
+				// Kiểm tra đã chọn đủ 3 dropdown (tỉnh, huyện, xã)
+				const addressParts = address.split(', ');
+				if (addressParts.length < 3) {
+					toast.error("Vui lòng chọn đầy đủ địa chỉ!");
+					return;
+				}
+				
+				// Kiểm tra đã nhập số nhà/tên đường
+				const streetAddress = addressParts.slice(0, -3).join(', ').trim();
+				if (!streetAddress) {
+					toast.error("Vui lòng nhập số nhà và tên đường!");
+					return;
+				}
+				if (address.trim().length < 6) {
+					toast.error("Địa chỉ phải có ít nhất 6 ký tự!");
+					return;
+				}
+				if (!/^[\p{L}\d\s,.-]+$/u.test(address.trim())) {
+					toast.error("Địa chỉ chứa ký tự không hợp lệ!");
+					return;
+				}
 	
 				try {
-					const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checkout/addresses`, {
+					const res = await fetch(`http://localhost:3000/checkout/addresses`, {
 						method: "POST",
 						headers,
 						body: JSON.stringify(newAddress),
 					});
 					const data = await res.json();
 					if (data.success) {
-						toast.success("Đã thêm địa chỉ mới.");
+						toast.success("Thêm địa chỉ mới thành công!");
 						setAddresses(prev => [...prev, data.address]);
 						setSelectedAddressId(data.address._id);
 						setShowNewAddressForm(false);
 		
 						await submitOrder(data.address._id);
 					} else {
-						toast.error(data.message || "Lỗi khi thêm địa chỉ.");
+						toast.error(data.message || "Lỗi khi thêm địa chỉ!");
 					}
 				} catch (err) {
 					console.error("Lỗi thêm địa chỉ:", err);
-					toast.error("Vui lòng thử lại sau.");
+					toast.error("Đã xảy ra lỗi. Vui lòng thử lại sau!");
 				}
 	
 			} else {
@@ -496,6 +577,7 @@ export default function CheckoutPage() {
 								value={form.name}
 								onChange={handleChange}
 								className="w-full p-3 border border-gray-300 rounded"
+								required={false}
 								/>
 							</div>
 
@@ -506,8 +588,13 @@ export default function CheckoutPage() {
 								type="tel"
 								placeholder="Số điện thoại"
 								value={form.phone}
-								onChange={handleChange}
+								onChange={(e) => {
+									// Chỉ cho phép nhập số
+									const value = e.target.value.replace(/[^0-9]/g, '');
+									setForm(prev => ({ ...prev, phone: value }));
+								}}
 								className="w-full p-3 border border-gray-300 rounded"
+								required={false}
 								/>
 							</div>
 

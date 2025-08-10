@@ -91,7 +91,7 @@ const AddVoucher = () => {
   };
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher/them`, {
+    const res = await fetch(`http://localhost:3000/api/admin/voucher/them`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

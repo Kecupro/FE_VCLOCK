@@ -39,7 +39,7 @@ const VoucherDetailPage = () => {
     const fetchVoucherDetail = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher/${params?.id}`
+          `http://localhost:3000/api/admin/voucher/${params?.id}`
         );
         const data = await res.json();
         setVoucher(data.voucher || data);
@@ -84,7 +84,7 @@ const VoucherDetailPage = () => {
   const confirmDelete = async () => {
     if (!deletingId) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher/xoa/${deletingId}`, {
+      const res = await fetch(`http://localhost:3000/api/admin/voucher/xoa/${deletingId}`, {
         method: "DELETE",
       });
       const data = await res.json();

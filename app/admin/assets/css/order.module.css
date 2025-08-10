@@ -1,9 +1,9 @@
 .container {
-  padding: 0px 10px 20px 10px;
+  padding: 0px 8px 16px 8px;
 }
 
 .title {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--text-color-light);
   margin: 0;
@@ -31,7 +31,7 @@ html.dark-mode .card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
+  padding: 8px 0;
 }
 
 .addButton,
@@ -81,7 +81,7 @@ html.dark-mode .card {
 }
 
 .filters {
-  padding: 13px;
+  padding: 10px;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -97,9 +97,9 @@ html.dark-mode .filters {
 
 .filterRow {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: flex-end;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
 }
 
 .filterGroup,
@@ -111,10 +111,10 @@ html.dark-mode .filters {
 
 .label {
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: #374151;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 html.dark-mode .label {
@@ -578,7 +578,7 @@ html.dark-mode .paginationButtonInactive:hover,
 .table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: auto;
+  table-layout: fixed;
 }
 
 .tableHeader {
@@ -594,21 +594,24 @@ html.dark-mode .tableHeader {
 }
 
 .table th, .table td { 
-  padding: 4px 1px;
+  padding: 3px 2px;
   text-align: center;
   vertical-align: middle;
   border-bottom: 1px solid var(--border-color-light);
-  max-width: 200px;
+  max-width: 150px;
   word-wrap: break-word;
   word-break: break-word;
   overflow-wrap: break-word;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: normal;
+  white-space: nowrap;
+  font-size: 13px;
 }
 
 .table th{
-  padding: 7px 1px;
+  padding: 5px 2px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 html.dark-mode .table th, .table td {
@@ -617,6 +620,54 @@ html.dark-mode .table th, .table td {
 
 .table th:last-child, .table td:last-child {
   padding: 4px 4px;
+}
+
+/* Column widths */
+.table th:nth-child(1), .table td:nth-child(1) { /* STT */
+  width: 60px;
+  min-width: 60px;
+}
+
+.table th:nth-child(2), .table td:nth-child(2) { /* Người dùng */
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+}
+
+.table th:nth-child(3), .table td:nth-child(3) { /* Hình ảnh */
+  width: 80px;
+  min-width: 80px;
+}
+
+.table th:nth-child(4), .table td:nth-child(4) { /* Sản phẩm */
+  width: 150px;
+  min-width: 150px;
+  max-width: 150px;
+}
+
+.table th:nth-child(5), .table td:nth-child(5) { /* Tổng */
+  width: 100px;
+  min-width: 100px;
+}
+
+.table th:nth-child(6), .table td:nth-child(6) { /* Ngày mua */
+  width: 100px;
+  min-width: 100px;
+}
+
+.table th:nth-child(7), .table td:nth-child(7) { /* Thanh toán */
+  width: 120px;
+  min-width: 120px;
+}
+
+.table th:nth-child(8), .table td:nth-child(8) { /* Trạng thái */
+  width: 120px;
+  min-width: 120px;
+}
+
+.table th:nth-child(9), .table td:nth-child(9) { /* Hành động */
+  width: 200px;
+  min-width: 200px;
 }
 
 html.dark-mode .tableHeader,
@@ -881,15 +932,15 @@ html.dark-mode .cancelButton:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 5px 10px;
+  gap: 4px;
+  padding: 4px 8px;
   border-radius: 9999px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   transition: all 0.2s ease-in-out;
   border: 1px solid;
   background-color: transparent;
-  max-width: 200px;
+  max-width: 160px;
 }
 
 .statusIconText {
@@ -900,11 +951,11 @@ html.dark-mode .cancelButton:hover {
 }
 
 .badgeButton {
-  padding: 6px 10px;
-  margin: 4px 4px 0 0;
+  padding: 4px 8px;
+  margin: 2px 2px 0 0;
   border: none;
-  border-radius: 6px;
-  font-size: 13px;
+  border-radius: 4px;
+  font-size: 11px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;

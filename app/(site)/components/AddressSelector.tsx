@@ -80,14 +80,14 @@ export default function AddressSelector({ value, onChange }: {
   }, []);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/provinces`)
+    fetch(`http://localhost:3000/api/provinces`)
       .then(res => res.json())
       .then(setProvinces);
   }, []);
 
   useEffect(() => {
     if (province) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/districts/${province}`)
+      fetch(`http://localhost:3000/api/districts/${province}`)
         .then(res => res.json())
         .then(setDistricts);
       setDistrict('');
@@ -103,7 +103,7 @@ export default function AddressSelector({ value, onChange }: {
 
   useEffect(() => {
     if (district) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wards/${district}`)
+      fetch(`http://localhost:3000/api/wards/${district}`)
         .then(res => res.json())
         .then(setWards);
       setWard('');
@@ -272,7 +272,9 @@ export default function AddressSelector({ value, onChange }: {
       <input
         type="text"
         placeholder="Số nhà, tên đường (VD: 123 Lý Thường Kiệt, Block A2)"
-        className="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400"
+        className={`w-full rounded-lg border px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 ${
+          street.trim() === '' ? 'border-red-300 focus:border-red-400' : 'border-gray-300 focus:border-red-400'
+        }`}
         value={street}
         onChange={(e) => {
           e.preventDefault();
@@ -283,7 +285,13 @@ export default function AddressSelector({ value, onChange }: {
             e.preventDefault();
           }
         }}
+        onBlur={() => {
+          if (street.trim() === '') {
+            // Có thể thêm validation ở đây nếu cần
+          }
+        }}
       />
+   
     </div>
   );
 }

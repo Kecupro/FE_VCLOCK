@@ -45,7 +45,7 @@ const ProductsPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryProduct`);
+        const res = await fetch(`http://localhost:3000/api/admin/categoryProduct`);
         const data = await res.json();
         setCategories(data.list || []);
       } catch {
@@ -58,7 +58,7 @@ const ProductsPage = () => {
   useEffect(() => {
     const fetchBrands = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand`);
+        const res = await fetch(`http://localhost:3000/api/admin/brand`);
         const data = await res.json();
         setBrands(data.list || []);
       } catch {
@@ -80,7 +80,7 @@ const ProductsPage = () => {
           categoryFilter,
           sort: sortOption
         });
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product?${params}`);
+        const res = await fetch(`http://localhost:3000/api/admin/product?${params}`);
         const data = await res.json();
         setProducts(data.list || []);
         setTotal(data.total || 0);
@@ -108,7 +108,7 @@ const ProductsPage = () => {
   const confirmDelete = async () => {
     if (!deletingId) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product/xoa/${deletingId}`, { method: "DELETE" });
+      const res = await fetch(`http://localhost:3000/api/admin/product/xoa/${deletingId}`, { method: "DELETE" });
       const data = await res.json();
       if (res.ok) {
         toast.success("Xóa thành công!");
@@ -141,7 +141,7 @@ const ProductsPage = () => {
       <h1 className={styles.title}>Sản phẩm</h1>
               <Link href="/admin/products/addProduct">
         <button className={styles.addButton}>
-          <Plus size={16} /> Thêm sản phẩm
+          <Plus size={14} /> Thêm sản phẩm
         </button>
       </Link>
     </div>
@@ -151,7 +151,7 @@ const ProductsPage = () => {
         <div className={styles.filterGroup}>
           <label className={styles.label}>Tìm kiếm</label>
           <div style={{ position: 'relative' }}>
-            <Search className={styles.searchIcon} size={16} />
+            <Search className={styles.searchIcon} size={14} />
             <input
               type="text"
               placeholder="Tìm tên sản phẩm..."
@@ -237,8 +237,8 @@ const ProductsPage = () => {
             {products.map((product, index) => (
               <tr key={product._id} className={styles.tableRow}>
                 <td>{(currentPage - 1) * limit + index + 1}</td>
-                <td className={styles.cell}>
-                  <div className={styles.lineclamp2}>{product.name}</div>
+                <td style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={product.name}>
+                  {product.name}
                 </td>
                 <td>
                   {product.main_image ? (
@@ -251,8 +251,8 @@ const ProductsPage = () => {
                         product.name : 
                         (product.main_image.alt || product.name)
                       }
-                      width={80}
-                      height={80}
+                      width={60}
+                      height={60}
                       style={{ objectFit: 'cover' }}
                     />
                   ) : (
@@ -263,8 +263,10 @@ const ProductsPage = () => {
                 <td>{formatCurrency(product.sale_price)}</td>
                 <td>{product.quantity}</td>
                 <td>{product.views}</td>
-                <td>{typeof product.brand_id == 'object' && 'name' in product.brand_id ? product.brand_id.name : '---'}</td>
-                <td>
+                <td style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={typeof product.brand_id == 'object' && 'name' in product.brand_id ? product.brand_id.name : '---'}>
+                  {typeof product.brand_id == 'object' && 'name' in product.brand_id ? product.brand_id.name : '---'}
+                </td>
+                <td style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={Array.isArray(product.categories) && product.categories.length > 0 ? product.categories.map((c) => c.name).join(', ') : '---'}>
                   {Array.isArray(product.categories) && product.categories.length > 0
                     ? product.categories.map((c) => c.name).join(', ')
                     : '---'}
@@ -278,13 +280,13 @@ const ProductsPage = () => {
                 <td>
                   <div className={styles.actions}>
                     <Link href={`/admin/products/${product._id}`}>
-                      <button className={styles.actionButton}><Eye size={16} /></button>
+                      <button className={styles.actionButton}><Eye size={14} /></button>
                     </Link>
                     <Link href={`/admin/products/edit?id=${product._id}`}>
-                      <button className={styles.actionButton}><Edit size={16} /></button>
+                      <button className={styles.actionButton}><Edit size={14} /></button>
                     </Link>
                     <button className={styles.actionButton} onClick={() => handleDeleteClick(product._id)}>
-                      <Trash2 size={16} />
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </td>

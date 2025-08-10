@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = localStorage.getItem("token");
     
     if (token) {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/profile`, {
+      const res = await fetch(`http://localhost:3000/user/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {

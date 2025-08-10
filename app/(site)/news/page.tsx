@@ -49,10 +49,10 @@ export default function News() {
     try {
       setIsTransitioning(true);
       
-      let url = `${process.env.NEXT_PUBLIC_API_URL}/api/news?page=${currentPage}&limit=6`;
+      let url = `http://localhost:3000/api/news?page=${currentPage}&limit=6`;
       
       if (selectedCategory !== 'all') {
-        url = `${process.env.NEXT_PUBLIC_API_URL}/api/news/category/${selectedCategory}?page=${currentPage}&limit=6`;
+        url = `http://localhost:3000/api/news/category/${selectedCategory}?page=${currentPage}&limit=6`;
       }
       
       const response = await axios.get(url);
@@ -84,7 +84,7 @@ export default function News() {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/category-news`);
+      const response = await axios.get(`http://localhost:3000/api/category-news`);
       setCategories(response.data as ICateNews[]);
     } catch (err) {
               console.error('Lỗi tải danh mục tin tức:', err);

@@ -113,10 +113,10 @@ const OrdersPage = () => {
   };
 
   const paymentStatusIcons: Record<string, React.ReactNode> = {
-    chuaThanhToan: <Clock size={18} />,
-    thanhToan: <CheckCircle size={18} />,
-    choHoanTien: <RefreshCw size={18}/>,
-    hoanTien: <DollarSign size={18} />,
+    chuaThanhToan: <Clock size={14} />,
+    thanhToan: <CheckCircle size={14} />,
+    choHoanTien: <RefreshCw size={14}/>,
+    hoanTien: <DollarSign size={14} />,
   };
 
   const reverseStatusMap = Object.fromEntries(
@@ -124,13 +124,13 @@ const OrdersPage = () => {
   );
 
   const statusConfigs = {
-    'Chờ xử lý': { icon: <Clock size={14} />, className: styles.statuschoXuLy },
-    'Đang xử lý': { icon: <Zap size={14} />, className: styles.statusdangXuLy },
-    'Đang giao hàng': { icon: <Truck size={14} />, className: styles.statusdangGiaoHang },
-    'Đã giao hàng': { icon: <CheckCircle size={14} />, className: styles.statusdaGiaoHang },
-    'Đã hủy': { icon: <XCircle size={14} />, className: styles.statusdaHuy },
-    'Hoàn trả': { icon: <RefreshCw size={14} />, className: styles.statushoanTra },
-    'Hoàn thành': { icon: <CheckCircle size={14} />, className: styles.statushoanThanh },
+    'Chờ xử lý': { icon: <Clock size={12} />, className: styles.statuschoXuLy },
+    'Đang xử lý': { icon: <Zap size={12} />, className: styles.statusdangXuLy },
+    'Đang giao hàng': { icon: <Truck size={12} />, className: styles.statusdangGiaoHang },
+    'Đã giao hàng': { icon: <CheckCircle size={12} />, className: styles.statusdaGiaoHang },
+    'Đã hủy': { icon: <XCircle size={12} />, className: styles.statusdaHuy },
+    'Hoàn trả': { icon: <RefreshCw size={12} />, className: styles.statushoanTra },
+    'Hoàn thành': { icon: <CheckCircle size={12} />, className: styles.statushoanThanh },
   };
 
   const displayStatuses = Object.values(statusMap);
@@ -147,9 +147,14 @@ const OrdersPage = () => {
   useEffect(() => {
   const fetchOrdersAndCounts = async () => {
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/order?statusFilter=${statusFilter}&paymentStatusFilter=${selectedPaymentStatus || 'all'}&page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&sort=${sortOption}`
-      );
+      const url = `http://localhost:3000/api/admin/order?statusFilter=${statusFilter}&paymentStatusFilter=${selectedPaymentStatus || 'all'}&page=${currentPage}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}&sort=${sortOption}`;
+      
+      const res = await fetch(url);
+
+      if (!res.ok) {
+        toast.error(`Lỗi API: ${res.status} ${res.statusText}`);
+        return;
+      }
 
       const data = await res.json();
 
@@ -179,7 +184,7 @@ const OrdersPage = () => {
 
   const updateOrderStatus = async (id: string, newStatus: string) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/order/suaStatus/${id}`, {
+      const res = await fetch(`http://localhost:3000/api/admin/order/suaStatus/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order_status: newStatus }),
@@ -214,7 +219,7 @@ const OrdersPage = () => {
 
   const updatePaymentStatus = async (id: string, newStatus: string) => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/order/suaStatus/${id}`, {
+    const res = await fetch(`http://localhost:3000/api/admin/order/suaStatus/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ payment_status: newStatus }),
@@ -247,8 +252,8 @@ const OrdersPage = () => {
     <div className={`${styles.container} ${isSidebarCollapsed ? styles.containerExpanded : ''}`}>
       <div className={styles.header}><h1 className={styles.title}>Đơn hàng</h1></div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 10 }}>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {displayStatuses.map((status) => {
           const config = statusConfigs[status as keyof typeof statusConfigs];
           const count = countByStatus(status);
@@ -257,11 +262,11 @@ const OrdersPage = () => {
             <div
               key={status}
               className={`${styles.statusFlex} ${config.className} ${isSelected ? styles.activeStatus : ''}`}
-              onClick={() => {
-                setStatusFilter(reverseStatusMap[status]);
-                setSelectedPaymentStatus(null);
-                setCurrentPage(1);
-              }}
+                             onClick={() => {
+                 setStatusFilter(reverseStatusMap[status]);
+                 setSelectedPaymentStatus(null);
+                 setCurrentPage(1);
+               }}
               style={{ cursor: 'pointer'}}
             >
               <span className={styles.statusIconText}>
@@ -382,8 +387,10 @@ const OrdersPage = () => {
                   <tr key={order._id}>
                     <td>{(currentPage - 1) * limit + index + 1}</td>
                     <td>{username}</td>
-                    <td><Image src={imagePath ? `${imagePath}` : `/images/logo/logoV.png`} alt={imagePath ?? 'Product image'} width={80} height={80} style={{ objectFit: "cover" }} /></td>
-                    <td>{productName}</td>
+                    <td><Image src={imagePath ? `${imagePath}` : `/images/logo/logoV.png`} alt={imagePath ?? 'Product image'} width={60} height={60} style={{ objectFit: "cover" }} /></td>
+                    <td style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={productName}>
+                      {productName}
+                    </td>
                     <td>{order.total_amount?.toLocaleString('vi-VN')}đ</td>
                     <td>{order.created_at ? new Date(order.created_at).toLocaleDateString('vi-VN') : 'Không rõ'}</td>
                     <td style={{ transform: "translateX(0px)" }}>
@@ -401,7 +408,7 @@ const OrdersPage = () => {
                     </td> 
                     <td>
                       <div className={styles.actions}>
-                        <Link href={`orders/${order._id}`}><button className={styles.actionButton}><Eye size={16} /></button></Link>
+                        <Link href={`orders/${order._id}`}><button className={styles.actionButton}><Eye size={14} /></button></Link>
 
                         <button
                           className={`${styles.badgeButton} ${isLocked ? styles.disabledButton : styles.nextButton}`}
@@ -468,7 +475,7 @@ const OrdersPage = () => {
              <div className={styles.modalHeader}>
                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                  <span style={{ color: '#facc15' }}>⚠️</span>
-                 <strong className={styles.headingModel}>Xác nhận {modalAction == 'cancel' ? 'hủy đơn' : 'chuyển trạng thái'}</strong>
+                 <strong className={styles.headingModel}>Xác nhận {modalAction == 'cancel' ? 'hủy đơn' : 'Chuyển'}</strong>
                </span>
              </div>
              <div className={styles.modalBody}>

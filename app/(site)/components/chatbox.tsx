@@ -117,7 +117,7 @@ const conversationIdRef = useRef<string>("guest-conversation");
     const token = localStorage.getItem("token");
     try {
       const res = await axios.get<Message[]>(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/messages/${conversationIdRef.current}`,
+        `http://localhost:3000/api/messages/${conversationIdRef.current}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

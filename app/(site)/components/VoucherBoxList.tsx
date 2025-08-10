@@ -38,7 +38,7 @@ const VoucherBoxList = () => {
     }
     
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/voucher-user`, {
+      const res = await axios.get(`http://localhost:3000/voucher-user`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -60,7 +60,7 @@ const VoucherBoxList = () => {
   useEffect(() => {
     const fetchVouchers = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher`);
+        const res = await axios.get(`http://localhost:3000/api/admin/voucher`);
         setVouchers((res.data as { list: IVoucher[] }).list || []);
       } catch {
         setVouchers([]);
@@ -88,7 +88,7 @@ const VoucherBoxList = () => {
     setSavingVoucher(voucherId);
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/voucher-user/save`,
+        `http://localhost:3000/api/voucher-user/save`,
         { voucher_id: voucherId },
         {
           headers: {
