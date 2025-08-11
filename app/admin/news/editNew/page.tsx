@@ -123,14 +123,37 @@ const EditNews = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title?.trim() || !formData.description?.trim() || !formData.category?.trim()) {
-      toast.error('Vui lòng điền đầy đủ thông tin.');
+    console.log('Form data:', formData); // Debug log
+
+    // Kiểm tra các trường bắt buộc
+    if (!formData.title?.trim()) {
+      toast.error('Vui lòng nhập tiêu đề.');
       return;
+    }
+
+    if (!formData.category?.trim()) {
+      toast.error('Vui lòng chọn danh mục.');
+      return;
+    }
+
+    // Kiểm tra mô tả - cho phép rỗng nếu là bản nháp
+    if (formData.status === 'Công khai') {
+      // Kiểm tra nếu description là undefined hoặc null
+      if (!formData.description) {
+        toast.error('Vui lòng nhập mô tả khi chọn trạng thái Công khai.');
+        return;
+      }
+      
+      const cleanDescription = formData.description.replace(/<[^>]*>/g, '').trim();
+      if (!cleanDescription) {
+        toast.error('Vui lòng nhập mô tả khi chọn trạng thái Công khai.');
+        return;
+      }
     }
 
     const body = new FormData();
     body.append('title', formData.title);
-    body.append('content', formData.description);
+    body.append('content', formData.description || ''); // Đảm bảo không gửi undefined
     body.append('categorynews_id', formData.category);
     body.append('news_status', formData.status == 'Công khai' ? '0' : '1');
 
@@ -183,8 +206,8 @@ const EditNews = () => {
           <label className={styles.label}>Mô tả <span style={{color: "red"}}>*</span></label>
           <div className={styles.tinymceWrapper}>
           <Editor
-            value={formData.description}
-            onChange={(e) => handleInputChange('description', e.target.value)}
+            value={formData.description || ''}
+            onEditorChange={(content) => handleInputChange('description', content)}
             init={{
               height: 400,
               menubar: false,

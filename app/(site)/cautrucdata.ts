@@ -20,7 +20,7 @@ export interface IProduct {
   strap_material: string;
   case_material: string;
   categories: ICategory[];
-  main_image: IHinh;
+  main_image: IHinh | string;
   images: IHinh[];
   slug: string;
   sold: number;
@@ -56,7 +56,7 @@ export interface ICart {
   price: number;
   sale_price: number;
   name: string;
-  main_image: IHinh;
+  main_image: IHinh | string;
   brand: IBrand;
   quantity: number;
 }
@@ -101,7 +101,7 @@ export interface IOrder {
   details: {
     product_id: {
       name: string;
-      main_image: IHinh;
+      main_image: IHinh | string;
     };
   }[];
   note: string | null;
@@ -246,7 +246,7 @@ export interface ProductApiResponse {
 export interface ProductSummary {
   _id: string;
   name: string;
-  main_image: IHinh;
+  main_image: IHinh | string;
   quantity: number;
   sold: number;
   created_at: string;

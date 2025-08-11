@@ -20,7 +20,7 @@ function CheckoutCancelContent() {
         <div className="flex justify-center mb-4 text-red-500">
           <XCircle size={64} />
         </div>
-        <h2 className="text-2xl font-semibold mb-2">Thanh toán đã bị huỷ</h2>
+        <h2 className="text-2xl font-semibold mb-2">Đơn hàng đã bị huỷ</h2>
         {orderCode && (
           <p className="text-gray-600 mb-4">
             Mã đơn hàng: <strong>{orderCode}</strong>
@@ -37,7 +37,7 @@ function CheckoutCancelContent() {
             Quay lại giỏ hàng
           </Link>
           <Link
-            href="/"
+            href="/shop"
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded-xl hover:bg-gray-300 transition"
           >
             Tiếp tục mua sắm

@@ -103,7 +103,21 @@ export default function News() {
                 <div className="absolute inset-0 bg-black/30 group-hover:bg-black/5 transition"></div>
                 <div className="relative z-10 p-6 bg-black bg-black/10 backdrop-blur-sm flex flex-col justify-end min-h-[140px]">
                   <h4 className="font-semibold text-lg mb-2 text-white drop-shadow">{news.title}</h4>
-                  <p className="text-gray-200 text-sm mb-2 drop-shadow">{news.content}</p>
+                  <p className="text-gray-200 text-sm mb-2 drop-shadow">
+                    {news.content ? 
+                      decodeURIComponent(news.content.replace(/<[^>]*>/g, '').replace(/&[a-zA-Z0-9#]+;/g, (match) => {
+                        const entities: { [key: string]: string } = {
+                          '&oacute;': 'ó', '&agrave;': 'à', '&nbsp;': ' ', '&aacute;': 'á', '&eacute;': 'é',
+                          '&egrave;': 'è', '&uacute;': 'ú', '&ugrave;': 'ù', '&iacute;': 'í', '&igrave;': 'ì',
+                          '&yacute;': 'ý', '&ograve;': 'ò', '&atilde;': 'ã', '&otilde;': 'õ', '&ntilde;': 'ñ',
+                          '&ccedil;': 'ç', '&Aacute;': 'Á', '&Eacute;': 'É', '&Iacute;': 'Í', '&Oacute;': 'Ó',
+                          '&Uacute;': 'Ú', '&Agrave;': 'À', '&Egrave;': 'È', '&Igrave;': 'Ì', '&Ograve;': 'Ò',
+                          '&Ugrave;': 'Ù', '&Atilde;': 'Ã', '&Otilde;': 'Õ', '&Ntilde;': 'Ñ', '&Ccedil;': 'Ç'
+                        };
+                        return entities[match] || match;
+                      })) : ''
+                    }
+                  </p>
                   <Link
                     href={`/news/${news._id}`}
                     className="inline-flex items-center text-white font-regular hover:underline mt-2"

@@ -275,7 +275,7 @@ const BrandPage = () => {
                       textOverflow: "ellipsis",
                     }}
                   >
-                    {brand.description || "Không có mô tả"}
+                    {brand.description ? brand.description.replace(/<[^>]*>/g, '') : "Không có mô tả"}
                   </td>
                   <td>{formatDate(brand.created_at)}</td>
                   <td>

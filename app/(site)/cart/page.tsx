@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { CheckCircle, Circle } from "lucide-react";
 import { useCart } from "../components/CartContext";
+import { getProductImageUrl } from '@/app/utils/imageUtils';
 export const dynamic = 'force-dynamic';
 
 export default function CartPage() {
@@ -24,6 +25,36 @@ export default function CartPage() {
   const router = useRouter();
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [stockInfo, setStockInfo] = useState<{[key: string]: {name: string, quantity: number}}>({});
+
+  // Kiểm tra xem có sản phẩm nào vượt quá tồn kho không
+  const hasStockIssue = selectedItems.some(itemId => {
+    const item = cart.find(cartItem => cartItem._id === itemId);
+    if (!item) return false;
+    return stockInfo[item._id] && item.so_luong > stockInfo[item._id].quantity;
+  });
+
+  // Hàm lấy thông tin tồn kho real-time
+  const fetchStockInfo = useCallback(async () => {
+    if (cart.length === 0) return;
+    
+    try {
+      const productIds = cart.map(item => item._id);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/stock-info?${productIds.map(id => `productIds=${id}`).join('&')}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setStockInfo(data.stockInfo || {});
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy thông tin tồn kho:", error);
+    }
+  }, [cart]);
+
+  // Cập nhật thông tin tồn kho khi cart thay đổi
+  useEffect(() => {
+    fetchStockInfo();
+  }, [fetchStockInfo]);
 
   const handleCheckout = () => {
     router.push("/checkout");
@@ -78,11 +109,11 @@ export default function CartPage() {
                         <div className="w-full sm:w-20 h-20 flex-shrink-0">
                           <Link href={`/product/${item._id}`} className="relative w-full h-full">
                               <Image
-                                src={item.main_image ? 
-                                  (typeof item.main_image === 'string' ? 
-                                    `/images/product/${item.main_image}` : 
-                                    `/images/product/${item.main_image.image}`
-                                  ) : '/sp1.png'}
+                                src={getProductImageUrl(
+                                  typeof item.main_image === 'string' ? 
+                                    item.main_image : 
+                                    item.main_image?.image
+                                )}
                                 alt={item.name}
                                 className="w-full h-full object-contain rounded-lg bg-gray-50"
                                 width={80}
@@ -117,7 +148,7 @@ export default function CartPage() {
                                 if (item.so_luong > 1) {
                                   updateQuantity(item._id, item.so_luong - 1);
                                 } else {
-                                  toast.error("Số lượng không hợp lệ hoặc đã đạt giới hạn tối thiểu.");
+                                  toast.error("Chỉ còn lại " + item.quantity + " sản phẩm trong kho");
                                 }
                               }}
                               className="px-2 py-0.5 text-gray-600 hover:bg-gray-100 transition-colors"
@@ -163,7 +194,7 @@ export default function CartPage() {
                                 } else if (item.so_luong < item.quantity) {
                                   updateQuantity(item._id, item.so_luong + 1);
                                 } else {
-                                  toast.error("Số lượng không hợp lệ hoặc đã đạt giới hạn tối đa.");
+                                  toast.error("Số lượng hàng không đủ. Chỉ còn lại " + item.quantity + " sản phẩm trong kho");
                                 }
                               }}
                               className="px-2 py-0.5 text-gray-600 hover:bg-gray-100 transition-colors"
@@ -178,6 +209,18 @@ export default function CartPage() {
                               <i className="fas fa-trash-alt text-sm"></i>
                             </button>
                           </div>
+                          
+                          {/* Cảnh báo tồn kho */}
+                          {stockInfo[item._id] && item.so_luong > stockInfo[item._id].quantity && (
+                            <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                              <div className="flex items-center gap-2 text-red-700 text-sm">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                                <span>Chỉ còn {stockInfo[item._id]?.quantity || item.quantity} sản phẩm trong kho. Vui lòng giảm số lượng.</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -244,14 +287,14 @@ export default function CartPage() {
                   </div>
                   <button
                     onClick={handleCheckout}
-                    disabled={selectedItems.length === 0}
+                    disabled={selectedItems.length === 0 || hasStockIssue}
                     className={`w-full py-3 rounded-lg transition-all duration-300 ${
-                      selectedItems.length > 0
+                      selectedItems.length > 0 && !hasStockIssue
                         ? "bg-red-600 text-white hover:bg-red-700"
                         : "bg-gray-300 text-white cursor-not-allowed"
                     }`}
                   >
-                    Thanh toán
+                    {hasStockIssue ? "Thanh toán" : "Thanh toán"}
                   </button>
 
                   <Link

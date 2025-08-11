@@ -6,6 +6,28 @@ import axios from "axios";
 import { INews, ICateNews } from "../cautrucdata";
 import OptimizedImage from "../components/OptimizedImage";
 import { getNewsImageUrl } from '@/app/utils/imageUtils';
+
+// Hàm helper để xử lý HTML entities và tags
+const cleanContent = (content: string | undefined): string => {
+  if (!content) return '';
+  
+  // Loại bỏ HTML tags
+  let cleaned = content.replace(/<[^>]*>/g, '');
+  
+  // Xử lý HTML entities
+  const entities: { [key: string]: string } = {
+    '&oacute;': 'ó', '&agrave;': 'à', '&nbsp;': ' ', '&aacute;': 'á', '&eacute;': 'é',
+    '&egrave;': 'è', '&uacute;': 'ú', '&ugrave;': 'ù', '&iacute;': 'í', '&igrave;': 'ì',
+    '&yacute;': 'ý', '&ograve;': 'ò', '&atilde;': 'ã', '&otilde;': 'õ', '&ntilde;': 'ñ',
+    '&ccedil;': 'ç', '&Aacute;': 'Á', '&Eacute;': 'É', '&Iacute;': 'Í', '&Oacute;': 'Ó',
+    '&Uacute;': 'Ú', '&Agrave;': 'À', '&Egrave;': 'È', '&Igrave;': 'Ì', '&Ograve;': 'Ò',
+    '&Ugrave;': 'Ù', '&Atilde;': 'Ã', '&Otilde;': 'Õ', '&Ntilde;': 'Ñ', '&Ccedil;': 'Ç'
+  };
+  
+  cleaned = cleaned.replace(/&[a-zA-Z0-9#]+;/g, (match) => entities[match] || match);
+  
+  return cleaned;
+};
 interface NewsResponse {
   news: INews[];
   currentPage: number;
@@ -201,7 +223,7 @@ export default function News() {
                         {post.title}
                       </div>
                       <div className="text-xs text-gray-500 mt-1 line-clamp-1">
-                        {post.content}
+                        {cleanContent(post.content)}
                       </div>
                     </div>
                   </Link>
@@ -259,7 +281,7 @@ export default function News() {
                           {news.title}
                         </Link>
                         <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                          {news.content}
+                          {cleanContent(news.content)}
                         </p>
                         <div className="flex justify-between items-center text-sm text-gray-500 mb-3 mt-auto">
                           <span>

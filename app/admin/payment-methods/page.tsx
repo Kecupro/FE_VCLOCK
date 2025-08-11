@@ -196,7 +196,7 @@ const PaymentMethodPage = () => {
                   </td>
                   <td>{method.name}</td>
                   <td>{method.code}</td>
-                  <td>{method.description}</td>
+                  <td>{method.description ? method.description.replace(/<[^>]*>/g, '') : 'Không có mô tả'}</td>
                   <td>
                     <span className={`${styles.statusBadge} ${method.is_active ? styles.statusActive : styles.statusInactive}`}>
                       {method.is_active ? 'Đang hoạt động' : 'Không hoạt động'}

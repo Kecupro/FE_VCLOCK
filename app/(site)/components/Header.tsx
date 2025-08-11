@@ -262,7 +262,7 @@ const Header = () => {
               </button>
                 {showDropdown && (
                   <div
-                    className="absolute right-0 mt-2 w-64 bg-white shadow-xl rounded-xl z-50 p-4 text-black animate-fade-in"
+                    className="absolute right-0 mt-2 w-74 bg-white shadow-xl rounded-xl z-50 p-4 text-black animate-fade-in"
                     style={{ minWidth: 220, transition: 'opacity 0.2s' }}
                   >
                     <div className="flex items-center gap-3 mb-3">

@@ -10,6 +10,7 @@ import styles from '../../assets/css/detailOrder.module.css';
 import { useAppContext } from '../../../context/AppContext';
 import { IOrder, IOrderDetail } from '@/app/(site)/cautrucdata';
 import { ToastContainer, toast } from "react-toastify";
+import { getProductImageUrl } from '@/app/utils/imageUtils';
 
 const OrderDetailPage = () => {
   const params = useParams();
@@ -217,8 +218,10 @@ const OrderDetailPage = () => {
     fetchOrderDetails();
   }, [fetchOrder, fetchOrderDetails]);
 
-  const formatCurrency = (num: number) =>
-    num.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+  const formatCurrency = (num: number | undefined | null) => {
+    if (num === undefined || num === null) return '0₫';
+    return num.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+  };
 
   const handleBack = () => {
     router.back();
@@ -359,16 +362,18 @@ const OrderDetailPage = () => {
                       <tbody>
                         {details.map((item, idx) => {
                           const { product_id } = item;
-                          const price = product_id.sale_price > 0 ? product_id.sale_price : product_id.price;
+                          const price = product_id?.sale_price > 0 ? product_id.sale_price : product_id?.price || 0;
+                          const quantity = item?.quantity || 0;
                           return (
                             <tr key={idx}>
                               <td>
                                 {product_id?.main_image ? (
                                   <Image
-                                    src={typeof product_id.main_image === 'string' ? 
-                                      `/images/product/${product_id.main_image}` : 
-                                      `/images/product/${product_id.main_image.image}`
-                                    }
+                                    src={getProductImageUrl(
+                                      typeof product_id.main_image === 'string' ? 
+                                        product_id.main_image : 
+                                        product_id.main_image.image
+                                    )}
                                     alt={typeof product_id.main_image === 'string' ? 
                                       'Ảnh sản phẩm' : 
                                       (product_id.main_image.alt || 'Ảnh sản phẩm')
@@ -379,10 +384,10 @@ const OrderDetailPage = () => {
                                   />
                                 ) : '---'}
                               </td>
-                              <td>{product_id.name}</td>
+                              <td>{product_id?.name || '---'}</td>
                               <td>{formatCurrency(price)}</td>
-                              <td>{item.quantity}</td>
-                              <td>{formatCurrency(price * item.quantity)}</td>
+                              <td>{quantity}</td>
+                              <td>{formatCurrency(price * quantity)}</td>
                             </tr>
                           );
                         })}
@@ -464,6 +469,11 @@ const OrderDetailPage = () => {
                <p>
                  Bạn có chắc chắn muốn {modalAction == 'cancel' ? 'hủy' : 'chuyển trạng thái'} đơn hàng này không?
                </p>
+               {modalAction == 'cancel' && (
+                 <p style={{ color: 'green', marginTop: 6, fontSize: '14px' }}>
+                   ✅ Số lượng tồn kho sẽ được cập nhật lại tự động khi hủy đơn hàng.
+                 </p>
+               )}
                <p style={{ color: 'red', marginTop: 6 }}>Lưu ý: Hành động này không thể hoàn tác!</p>
              </div>
              <div className={styles.modalFooter}>

@@ -229,7 +229,7 @@ const SearchPage = () => {
                       key={product._id}
                       className="relative flex flex-col bg-white rounded shadow hover:shadow-lg transition p-4 group h-full min-h-[390px] min-w-[220px] max-w-[340px] w-full mx-auto"
                     >
-                      <Link href={`/product/${product._id}`} className="flex-shrink-0 flex items-center justify-center h-48 mb-3 overflow-hidden">
+                      <Link href={`/product/${product._id}`} className="flex-shrink-0 flex items-center justify-center h-48 mb-3 overflow-hidden relative">
                         <OptimizedImage
                           src={
                             product.main_image
@@ -244,9 +244,20 @@ const SearchPage = () => {
                           alt={product.name}
                           width={200}
                           height={192}
-                          className="max-w-full max-h-full object-contain group-hover:scale-110 transition duration-300"
+                          className={`max-w-full max-h-full object-contain transition duration-300 ${
+                            product.quantity > 0 ? 'group-hover:scale-110' : 'grayscale opacity-50'
+                          }`}
                           fallbackSrc="/images/avatar-default.png"
                         />
+                        
+                        {/* Overlay "Đã bán hết" khi quantity = 0 */}
+                        {product.quantity === 0 && (
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                            <div className="bg-black text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-xs shadow-lg">
+                              HẾT<br/>HÀNG
+                            </div>
+                          </div>
+                        )}
                       </Link>
                       <div className="flex flex-col flex-grow min-h-[60px]">
                         <div className="flex justify-between items-start mb-1">
@@ -288,8 +299,8 @@ const SearchPage = () => {
                           </div>
                         )}
                         <div className="mt-2 flex gap-2">
-                          <AddToCart sp={product} />
-                          <BuyNow sp={product} />
+                          <AddToCart sp={product} disabled={product.quantity === 0} />
+                          <BuyNow sp={product} disabled={product.quantity === 0} />
                         </div>
                       </div>
                       <div className="absolute top-2 right-2 z-10">
@@ -326,7 +337,7 @@ const SearchPage = () => {
                             key={product._id}
                             className="relative flex flex-col bg-white rounded shadow hover:shadow-lg transition p-4 group h-full min-h-[390px] min-w-[220px] max-w-[340px] w-full mx-auto"
                           >
-                            <Link href={`/product/${product._id}`} className="flex-shrink-0 flex items-center justify-center h-48 mb-3 overflow-hidden">
+                            <Link href={`/product/${product._id}`} className="flex-shrink-0 flex items-center justify-center h-48 mb-3 overflow-hidden relative">
                               <OptimizedImage
                                 src={
                                   product.main_image
@@ -341,9 +352,20 @@ const SearchPage = () => {
                                 alt={product.name}
                                 width={200}
                                 height={192}
-                                className="max-w-full max-h-full object-contain group-hover:scale-110 transition duration-300"
+                                className={`max-w-full max-h-full object-contain transition duration-300 ${
+                                  product.quantity > 0 ? 'group-hover:scale-110' : 'grayscale opacity-50'
+                                }`}
                                 fallbackSrc="/images/avatar-default.png"
                               />
+                              
+                              {/* Overlay "Đã bán hết" khi quantity = 0 */}
+                              {product.quantity === 0 && (
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                                  <div className="bg-black text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-xs shadow-lg">
+                                    HẾT<br/>HÀNG
+                                  </div>
+                                </div>
+                              )}
                             </Link>
                             <div className="flex flex-col flex-grow min-h-[60px]">
                               <div className="flex justify-between items-start mb-1">
@@ -384,10 +406,10 @@ const SearchPage = () => {
                                   </span>
                                 </div>
                               )}
-                              <div className="mt-2 flex gap-2">
-                                <AddToCart sp={product} />
-                                <BuyNow sp={product} />
-                              </div>
+                                                      <div className="mt-2 flex gap-2">
+                          <AddToCart sp={product} disabled={product.quantity === 0} />
+                          <BuyNow sp={product} disabled={product.quantity === 0} />
+                        </div>
                             </div>
                             <div className="absolute top-2 right-2 z-10">
                               <WishlistButton 

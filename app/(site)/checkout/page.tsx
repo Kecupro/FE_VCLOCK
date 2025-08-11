@@ -121,13 +121,17 @@ export default function CheckoutPage() {
 		return [...addresses].sort((a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime())[0];
 	  }, [addresses]);
 
+
+
 	useEffect(() => {
 		if (token) {
 			fetchAddresses();
 		}
 	}, [token, fetchAddresses]);
 
-	// Lắng nghe sự kiện auth_success từ Google/Facebook OAuth
+
+
+		// Lắng nghe sự kiện auth_success từ Google/Facebook OAuth
 	useEffect(() => {
 		const handleAuthSuccess = (event: CustomEvent) => {
 			const { returnUrl } = event.detail;
@@ -205,23 +209,40 @@ export default function CheckoutPage() {
 
 
 	  useEffect(() => {
-		const storedCart = localStorage.getItem("cart");
-		const storedSelected = localStorage.getItem("selectedItems");
-	  	
-		if (storedCart) {
-		  const parsedCart = JSON.parse(storedCart);
-		  const selectedIds: string[] = storedSelected ? JSON.parse(storedSelected) : [];
-	  	
-		  // Nếu có selectedIds thì chỉ lấy những sản phẩm được chọn
-		  const filteredCart =
-			selectedIds.length > 0
-			  ? parsedCart.filter((item: ICart) => selectedIds.includes(item._id))
-			  : parsedCart;
-	  	
-		  setCart(filteredCart);
-		  subtotal(filteredCart);
-		}
-	  }, [subtotal]);	  
+    // Kiểm tra xem có phải là mua ngay không
+    const urlParams = new URLSearchParams(window.location.search);
+    const isBuyNow = urlParams.get('buyNow') === 'true';
+    
+    if (isBuyNow) {
+      // Lấy session mua ngay
+      const buyNowSession = localStorage.getItem("buyNowSession");
+      if (buyNowSession) {
+        const session = JSON.parse(buyNowSession);
+        setCart(session.items);
+        subtotal(session.items);
+        // Xóa session mua ngay sau khi đã sử dụng
+        localStorage.removeItem("buyNowSession");
+      }
+    } else {
+      // Xử lý giỏ hàng bình thường
+      const storedCart = localStorage.getItem("cart");
+      const storedSelected = localStorage.getItem("selectedItems");
+        
+      if (storedCart) {
+        const parsedCart = JSON.parse(storedCart);
+        const selectedIds: string[] = storedSelected ? JSON.parse(storedSelected) : [];
+      
+        // Nếu có selectedIds thì chỉ lấy những sản phẩm được chọn
+        const filteredCart =
+          selectedIds.length > 0
+            ? parsedCart.filter((item: ICart) => selectedIds.includes(item._id))
+            : parsedCart;
+      
+        setCart(filteredCart);
+        subtotal(filteredCart);
+      }
+    }
+  }, [subtotal]);	  
 
 
 
@@ -272,16 +293,24 @@ export default function CheckoutPage() {
 	const handlePostOrderSuccess = () => {
     toast.success("Đặt hàng thành công!");
 
+    // Kiểm tra xem có phải là mua ngay không
+    const urlParams = new URLSearchParams(window.location.search);
+    const isBuyNow = urlParams.get('buyNow') === 'true';
+    
+    if (isBuyNow) {
+      // Nếu là mua ngay, chỉ cần xóa session và chuyển hướng
+      localStorage.removeItem("buyNowSession");
+    } else {
+      // Xử lý giỏ hàng bình thường
+      const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
+      const fullCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
-    const fullCart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const updatedCart = fullCart.filter((item: ICart) => !selectedIds.includes(item._id));
 
-
-    const updatedCart = fullCart.filter((item: ICart) => !selectedIds.includes(item._id));
-
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-    localStorage.removeItem("selectedItems");
-    setCart(updatedCart);
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      localStorage.removeItem("selectedItems");
+      setCart(updatedCart);
+    }
 
     setForm({
         name: "",
@@ -291,7 +320,6 @@ export default function CheckoutPage() {
         coupon: "",
     });
     setSelectedVoucher(null);
-
 
     window.location.href = '/checkout-success';
 };	
@@ -348,9 +376,18 @@ export default function CheckoutPage() {
 
 			if (resData.checkoutUrl) {
 			  window.location.href = resData.checkoutUrl;
+			} else if (resData.errors && Array.isArray(resData.errors)) {
+			  // Xử lý lỗi tồn kho cho thanh toán qua ngân hàng
+			  const errorMessages = resData.errors.map((error: { message: string }) => error.message).join('\n');
+			  toast.error(`\n${errorMessages} `, {
+				autoClose: 5000,
+				closeOnClick: false,
+				pauseOnHover: true
+			  });
 			} else {
 			  toast.error("Không thể lấy link thanh toán. Vui lòng thử lại.");
 			}
+			router.push('/checkout-cancel');
 	  
 		  } else {
 			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/checkout`, {
@@ -363,7 +400,17 @@ export default function CheckoutPage() {
 			if (data?.order_id) {
 			  handlePostOrderSuccess();
 			} else {
-			  toast.error(data.message || "Đặt hàng thất bại.");
+			  // Xử lý lỗi tồn kho
+			  if (data.errors && Array.isArray(data.errors)) {
+				const errorMessages = data.errors.map((error: { message: string }) => error.message).join('\n');
+				toast.error(`\n${errorMessages}`, {
+					autoClose: 5000,
+					closeOnClick: false,
+					pauseOnHover: true
+				});
+			  } else {
+				toast.error(data.message || "Đặt hàng thất bại.");
+			  }
 			  router.push('/checkout-cancel');
 			}
 		  }
@@ -917,6 +964,8 @@ export default function CheckoutPage() {
 					</div>
 					<div className="md:w-[420px] w-full bg-white rounded border border-gray-300 p-6 h-fit">
 						<h2 className="font-semibold text-lg mb-4">Đơn hàng của bạn</h2>
+						
+
 						<table className="w-full text-base mb-4">
 							<thead>
 								<tr>
@@ -927,7 +976,11 @@ export default function CheckoutPage() {
 							<tbody>
 								{cart.map((item) => (
 									<tr key={item.name}>
-									<td className="py-2">{item.name} × {item.so_luong}</td>
+									<td className="py-2">
+										<div>
+											<div>{item.name} × {item.so_luong}</div>
+										</div>
+									</td>
 									<td className="py-2 text-right">{((item.sale_price > 0 ? item.sale_price : item.price) * item.so_luong).toLocaleString()} ₫</td>
 									</tr>
 								))}

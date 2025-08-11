@@ -410,8 +410,15 @@ function ShopPageContent() {
                 <li key={p._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition group">
                   <Link href={`/product/${p._id}`} className="flex-shrink-0">
                      <Image
-                       src={getProductImageUrl(p.main_image?.image)}
-                       alt={p.main_image?.alt || p.name}
+                                                       src={getProductImageUrl(
+                                    typeof p.main_image === 'string' ? 
+                                        p.main_image : 
+                                        p.main_image?.image
+                                )}
+                                                alt={typeof p.main_image === 'string' ? 
+                             p.name : 
+                             (p.main_image?.alt || p.name)
+                         }
                        width={48}
                        height={48}
                        className="w-12 h-12 rounded-full object-cover border border-gray-200 shadow-sm group-hover:scale-105 transition"
@@ -495,14 +502,32 @@ function ShopPageContent() {
                 key={sp._id}
                 className="relative flex flex-col bg-white rounded shadow hover:shadow-lg transition p-3 group h-full min-h-[380px]"
               >
-                <Link href={`/product/${sp._id}`} className="flex-shrink-0 flex items-center justify-center h-40 mb-2 overflow-hidden">
+                <Link href={`/product/${sp._id}`} className="flex-shrink-0 flex items-center justify-center h-40 mb-2 overflow-hidden relative">
                   <OptimizedImage
-                    src={getProductImageUrl(sp.main_image?.image)}
-                    alt={sp.main_image?.alt || sp.name}
+                    src={getProductImageUrl(
+                        typeof sp.main_image === 'string' ? 
+                            sp.main_image : 
+                            sp.main_image?.image
+                    )}
+                    alt={typeof sp.main_image === 'string' ? 
+                        sp.name : 
+                        (sp.main_image?.alt || sp.name)
+                    }
                     width={200}
                     height={192}
-                    className="max-w-full max-h-full object-contain group-hover:scale-110 transition duration-300"
+                    className={`max-w-full max-h-full object-contain transition duration-300 ${
+                      sp.quantity > 0 ? 'group-hover:scale-110' : 'grayscale opacity-50'
+                    }`}
                   />
+                  
+                  {/* Overlay "Đã bán hết" khi quantity = 0 */}
+                  {sp.quantity === 0 && (
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                      <div className="bg-black text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-xs shadow-lg">
+                        HẾT<br/>HÀNG
+                      </div>
+                    </div>
+                  )}
                 </Link>
                 <div className="flex flex-col flex-grow min-h-[60px]">
                   <div className="flex justify-between items-start mb-1">
@@ -544,8 +569,8 @@ function ShopPageContent() {
                     </div>
                   )}
                   <div className="mt-2 flex gap-2">
-                    <AddToCart sp={sp} />
-                    <BuyNow sp={sp} />
+                    <AddToCart sp={sp} disabled={sp.quantity === 0} />
+                    <BuyNow sp={sp} disabled={sp.quantity === 0} />
                   </div>
                 </div>
                 <div className="absolute top-2 right-2 z-10">

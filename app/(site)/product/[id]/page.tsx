@@ -1,7 +1,7 @@
 "use client";
 
 import { IStats, IProduct } from "../../cautrucdata";
-import { useState, useEffect, useRef   } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import SPLienQuan from "../SPLienQuan";
 import HienBinhLuanSP from "../HienBinhLuanSP";
 import StarRating from "../../components/StarRating";
@@ -10,6 +10,7 @@ import BuyNow from "../../components/BuyNow";
 import AddToCart from "../../components/AddToCart";
 import { useParams } from 'next/navigation';
 import { getProductImageUrl } from '@/app/utils/imageUtils';
+import axios from 'axios';
 interface IRawImage { is_main: boolean; image: string , alt?: string; }
 
 export default function ProductDetail() {
@@ -20,12 +21,68 @@ export default function ProductDetail() {
   const [stats, setStats] = useState<IStats | null>(null);
 
   const refetchBinhLuan = useRef<() => void>(() => {});
+  const hasIncrementedView = useRef(false);
 
   
   const params = useParams();  
   const slug = params?.id as string;
   const id = typeof slug === "string" ? slug.split('-').slice(-1)[0] : undefined;
 
+  const cleanupOldSession = () => {
+    if (typeof window === 'undefined') return;
+    
+    const lastCleanup = localStorage.getItem('viewedProductsLastCleanup');
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000;
+    
+    if (!lastCleanup || (now - parseInt(lastCleanup)) > oneDay) {
+      localStorage.removeItem('viewedProducts');
+      localStorage.setItem('viewedProductsLastCleanup', now.toString());
+    }
+  };
+
+  const hasViewedInSession = useCallback((productId: string): boolean => {
+    if (typeof window === 'undefined') return false;
+    
+    cleanupOldSession();
+    
+    const viewedProducts = JSON.parse(localStorage.getItem('viewedProducts') || '[]');
+    return viewedProducts.includes(productId);
+  }, []);
+
+  const markAsViewed = useCallback((productId: string) => {
+    if (typeof window === 'undefined') return;
+    
+    cleanupOldSession();
+    
+    const viewedProducts = JSON.parse(localStorage.getItem('viewedProducts') || '[]');
+    if (!viewedProducts.includes(productId)) {
+      viewedProducts.push(productId);
+      localStorage.setItem('viewedProducts', JSON.stringify(viewedProducts));
+    }
+  }, []);
+
+  const incrementView = useCallback(async () => {
+    if (hasIncrementedView.current || !id) return;
+    
+    try {
+      hasIncrementedView.current = true;
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/product/${id}/increment-view`);
+      
+      const responseData = response.data as { success?: boolean; message?: string; views?: number };
+      
+      if (responseData.success) {
+        markAsViewed(id);
+        
+        if (product) {
+          setProduct(prev => prev ? { ...prev, views: (prev.views || 0) + 1 } : null);
+        }
+      }
+    } catch (error) {
+      console.error('Lỗi tăng lượt xem:', error);
+      hasIncrementedView.current = false;
+    }
+  }, [id, product, markAsViewed]);
 
   useEffect(() => {
     if (!id) return;
@@ -62,13 +119,18 @@ export default function ProductDetail() {
 
         setProduct(cleanProduct);
         setCurrentImg(0);
+
+        // Kiểm tra và tăng lượt xem nếu chưa xem trong phiên này
+        if (id && !hasViewedInSession(id)) {
+          incrementView();
+        }
       } catch (error) {
         console.error(error);
       }
     }
 
     fetchProduct();
-  }, [id]);
+  }, [id, hasViewedInSession, incrementView]);
 
 
   if (!product) return <div>Đang tải sản phẩm...</div>;
@@ -182,8 +244,8 @@ export default function ProductDetail() {
           <p className="mb-2 text-gray-700 font-medium">{(product.brand_id?.name || product.brand?.name) ?? "Không rõ thương hiệu"}</p>
           <div className="mb-6">
             <div className="flex gap-4 mb-4">
-              <AddToCart sp={product} />
-              <BuyNow sp={product} />
+              <AddToCart sp={product} disabled={product.quantity === 0} />
+              <BuyNow sp={product} disabled={product.quantity === 0} />
             </div>
             <ul className="list-disc list-inside text-gray-700 text-sm space-y-1 w-100">
             </ul>
@@ -265,7 +327,7 @@ export default function ProductDetail() {
             <div>
               <h3 className="font-bold text-text-lg mb-2">Mô tả sản phẩm</h3>
               <p className="text-gray-700 text-base mb-4">
-                {product.description}
+                {product.description ? product.description.replace(/<[^>]*>/g, '') : 'Không có mô tả'}
               </p>
               <ul className="list-disc list-inside text-gray-700 mb-4 space-y-1">
                 <li>Thiết kế mặt số tối giản, sang trọng, phù hợp cả nam và nữ.</li>

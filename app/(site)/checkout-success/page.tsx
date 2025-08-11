@@ -13,14 +13,22 @@ function CheckoutSuccessContent() {
   const orderCode = searchParams.get("orderCode");
 
   useEffect(() => {
-
     if (orderCode) {
-      const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
-      const fullCart = JSON.parse(localStorage.getItem("cart") || "[]");
-      const updatedCart = fullCart.filter((item: { _id: string }) => !selectedIds.includes(item._id));
+      // Kiểm tra xem có phải là mua ngay không
+      const buyNowSession = localStorage.getItem("buyNowSession");
+      
+      if (buyNowSession) {
+        // Nếu là mua ngay, chỉ cần xóa session
+        localStorage.removeItem("buyNowSession");
+      } else {
+        // Xử lý giỏ hàng bình thường
+        const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
+        const fullCart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const updatedCart = fullCart.filter((item: { _id: string }) => !selectedIds.includes(item._id));
 
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
-      localStorage.removeItem("selectedItems");
+        localStorage.setItem("cart", JSON.stringify(updatedCart));
+        localStorage.removeItem("selectedItems");
+      }
     }
   }, [orderCode]);
 

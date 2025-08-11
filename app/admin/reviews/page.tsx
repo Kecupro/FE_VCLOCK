@@ -56,11 +56,10 @@ const RatingPage = () => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setCurrentPage(1);
-      fetchReviews();
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [searchTerm, fetchReviews]);
+  }, [searchTerm]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -202,13 +201,6 @@ const RatingPage = () => {
       </div>
 
       <div className={styles.card}>
-        {loading && (
-          <div className={styles.loading}>
-            <div className={styles.spinner}></div>
-            <span>Đang tải...</span>
-          </div>
-        )}
-        
         <div className={styles.tableWrapper}>
           <table className={styles.table}>
             <thead className={styles.tableHeader}>

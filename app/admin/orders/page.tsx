@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { useAppContext } from '../../context/AppContext';
 import { ToastContainer, toast } from 'react-toastify';
 import { IOrder } from '@/app/(site)/cautrucdata';
+import { getProductImageUrl } from '@/app/utils/imageUtils';
 
 const OrdersPage = () => {
   const { isSidebarCollapsed = false } = useAppContext();
@@ -362,7 +363,11 @@ const OrdersPage = () => {
                 const product = item?.product_id;
                 const productName = product?.name || 'Không rõ';
                 const productImage = product?.main_image;
-                const imagePath = productImage?.image ? `/images/product/${productImage.image}` : null;
+                const imagePath = getProductImageUrl(
+                    typeof productImage === 'string' ? 
+                        productImage : 
+                        productImage?.image
+                );
                 const orderStatusText = statusMap[order.order_status] || 'Không rõ';
                 const orderStatusLabel = orderStatusText as keyof typeof statusConfigs;
                 
@@ -387,7 +392,7 @@ const OrdersPage = () => {
                   <tr key={order._id}>
                     <td>{(currentPage - 1) * limit + index + 1}</td>
                     <td>{username}</td>
-                    <td><Image src={imagePath ? `${imagePath}` : `/images/logo/logoV.png`} alt={imagePath ?? 'Product image'} width={60} height={60} style={{ objectFit: "cover" }} /></td>
+                    <td><Image src={imagePath} alt={productName} width={60} height={60} style={{ objectFit: "cover" }} /></td>
                     <td style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={productName}>
                       {productName}
                     </td>

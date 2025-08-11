@@ -15,6 +15,7 @@ interface TopRatedProduct {
   name: string;
   price: number;
   sale_price: number;
+  quantity: number;
   averageRating: number;
   reviewCount: number;
   main_image: {
@@ -93,14 +94,14 @@ export default function Feedback() {
         is_main: true,
         image: typeof product.main_image === 'string' ? 
           product.main_image : 
-          product.main_image.image,
+          product.main_image?.image || '',
         alt: typeof product.main_image === 'string' ? 
           product.name : 
-          product.main_image.alt,
+          product.main_image?.alt || product.name,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
-      quantity: 1,
+      quantity: product.quantity,
       status: 0,
 
       views: 0,
@@ -187,13 +188,31 @@ export default function Feedback() {
                   <div className="lg:w-1/2 relative h-64 lg:h-auto overflow-hidden">
                     <Link href={`/product/${product._id}`}>
                       <OptimizedImage
-                        src={getProductImageUrl(product.main_image?.image)}
-                        alt={product.main_image?.alt || product.name}
+                        src={getProductImageUrl(
+                          typeof product.main_image === 'string' ? 
+                            product.main_image : 
+                            product.main_image?.image
+                        )}
+                        alt={typeof product.main_image === 'string' ? 
+                          product.name : 
+                          (product.main_image?.alt || product.name)
+                        }
                         width={400}
                         height={300}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        className={`w-full h-full object-cover transition-transform duration-300 ${
+                          product.quantity > 0 ? 'hover:scale-105' : 'grayscale opacity-50'
+                        }`}
                       />
                     </Link>
+                    
+                    {/* Overlay "Đã bán hết" khi quantity = 0 */}
+                    {product.quantity === 0 && (
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                        <div className="bg-black text-white w-20 h-20 rounded-full flex items-center justify-center font-bold text-xs shadow-lg">
+                          HẾT<br/>HÀNG
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="absolute top-3 left-3 bg-red-600 text-white px-2 py-1 rounded-full text-sm font-bold flex items-center gap-1">
                       <i className="fa-solid fa-star"></i>
@@ -275,8 +294,8 @@ export default function Feedback() {
                       </ul>
                     </div>
                     <div className="w-full mb-3 flex gap-2">
-                      <AddToCart sp={createProductForCart(product)} />
-                      <BuyNow sp={createProductForCart(product)} />
+                      <AddToCart sp={createProductForCart(product)} disabled={product.quantity === 0} />
+                      <BuyNow sp={createProductForCart(product)} disabled={product.quantity === 0} />
                     </div>
 
                     <div className="text-center">

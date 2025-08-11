@@ -150,11 +150,14 @@ export default function NewsDetail() {
                 </span>
               </div>
               <div className="prose max-w-none">
-                {news.content.split('\n').map((paragraph, index) => (
-                  <p key={index} className="mb-4 text-gray-700">
-                    {paragraph}
-                  </p>
-                ))}
+                {news.content ? (
+                  <div 
+                    className="text-gray-700 leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: news.content }}
+                  />
+                ) : (
+                  <p className="text-gray-500 italic">Không có nội dung</p>
+                )}
               </div>
             </div>
           </article>

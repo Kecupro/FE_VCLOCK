@@ -28,6 +28,9 @@ export const getImageUrl = (imagePath: string | undefined | null, folder?: strin
 };
 
 export const getProductImageUrl = (imagePath: string | undefined | null): string => {
+  if (!imagePath) {
+    return '/images/mixed/logoVCLOCK.png';
+  }
   return getImageUrl(imagePath, 'product');
 };
 
@@ -44,6 +47,9 @@ export const getNewsImageUrl = (imagePath: string | undefined | null): string =>
 };
 
 export const getAvatarImageUrl = (imagePath: string | undefined | null): string => {
+  if (!imagePath) {
+    return '/images/avatar-default.png';
+  }
   return getImageUrl(imagePath, 'avatar');
 };
 

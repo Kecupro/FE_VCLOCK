@@ -3,11 +3,19 @@ import { useCart } from "./CartContext";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-export default function BuyNow({ sp }: { sp: IProduct }) {
-  const { setSelectedItems, refreshCartFromStorage } = useCart();
+export default function BuyNow({ sp, disabled }: { sp: IProduct; disabled?: boolean }) {
+  const { setSelectedItems } = useCart();
   const router = useRouter();
+  
+  // Kiểm tra nếu sản phẩm hết hàng
+  const isOutOfStock = sp.quantity === 0 || disabled;
 
   const handleBuyNow = () => {
+    if (isOutOfStock) {
+      toast.error("Sản phẩm đã hết hàng!");
+      return;
+    }
+    
     let mainImage: IHinh = {
       _id: "",
       is_main: true,
@@ -58,47 +66,38 @@ export default function BuyNow({ sp }: { sp: IProduct }) {
       quantity: sp.quantity,
     };
 
-    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const existingItem = existingCart.find((i: ICart) => i._id === item._id);
+    // Tạo session tạm thời cho mua ngay mà không ảnh hưởng đến giỏ hàng
+    const buyNowSession = {
+      items: [item],
+      isBuyNow: true,
+      timestamp: new Date().getTime()
+    };
     
-    // Auto-adjust quantity for buy now
-    if (existingItem) {
-      let newQuantity = existingItem.so_luong + item.so_luong;
-      
-      // Auto-cap at 10 for buy now
-      if (newQuantity > 10) {
-        newQuantity = 10;
-      }
-      
-      // Still check stock availability
-      if (newQuantity > sp.quantity) {
-        toast.error(`Chỉ còn ${sp.quantity} sản phẩm trong kho`);
-        return;
-      }
-      
-      const updatedCart = existingCart.map((i: ICart) =>
-        i._id === item._id ? { ...i, so_luong: newQuantity } : i
-      );
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
-    } else {
-      localStorage.setItem("cart", JSON.stringify([...existingCart, item]));
-    }
+    // Lưu session mua ngay vào localStorage
+    localStorage.setItem("buyNowSession", JSON.stringify(buyNowSession));
     
-
-    refreshCartFromStorage();
-    
+    // Cập nhật selectedItems chỉ cho item này
     setSelectedItems([item._id]);
     
-    router.push('/checkout');
+    // Chuyển đến checkout với tham số buyNow=true
+    router.push('/checkout?buyNow=true');
   };
 
   return (
     <button
-      className="flex-1 mx-auto font-normal block bg-black text-white p-3 rounded-sm mt-1 hover:bg-red-600 transition-colors duration-200"
+      className={`flex-1 mx-auto font-normal block p-3 rounded-sm mt-1 transition-colors duration-200 ${
+        isOutOfStock 
+          ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+          : 'bg-black text-white hover:bg-red-600'
+      }`}
       onClick={handleBuyNow}
+      disabled={isOutOfStock}
+      title={isOutOfStock ? "Sản phẩm đã hết hàng" : "Mua ngay"}
     >
       <div className="flex items-center justify-center">
-        <span className="text-sm font-medium">Mua ngay</span>
+        <span className={`text-sm font-medium ${isOutOfStock ? 'opacity-50' : ''}`}>
+          Mua ngay
+        </span>
       </div>
     </button>
   );
