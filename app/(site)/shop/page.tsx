@@ -523,9 +523,11 @@ function ShopPageContent() {
                   {/* Overlay "Đã bán hết" khi quantity = 0 */}
                   {sp.quantity === 0 && (
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-                      <div className="bg-black text-white w-16 h-16 rounded-full flex items-center justify-center font-bold text-xs shadow-lg">
-                        HẾT<br/>HÀNG
-                      </div>
+                                          <div className="bg-black text-white w-40 h-6 flex items-center justify-center font-bold text-xs shadow-lg relative overflow-hidden">
+                      <div className="absolute inset-0 bg-red-600 transform rotate-45 translate-x-8 -translate-y-2"></div>
+                      <div className="absolute inset-0 bg-red-600 transform -rotate-45 -translate-x-8 -translate-y-2"></div>
+                      <span className="relative z-10 text-white font-bold text-xs">HẾT HÀNG</span>
+                    </div>
                     </div>
                   )}
                 </Link>

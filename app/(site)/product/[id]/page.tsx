@@ -22,6 +22,47 @@ export default function ProductDetail() {
 
   const refetchBinhLuan = useRef<() => void>(() => {});
   const hasIncrementedView = useRef(false);
+  const isInitialLoad = useRef(true);
+
+  // Hàm xử lý HTML entities và tags, giữ lại hình ảnh
+  const decodeHtmlEntities = (text: string): string => {
+    if (!text) return '';
+    
+    let decodedText = text;
+    
+    // Xử lý các HTML entities phổ biến trước
+    decodedText = decodedText
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&agrave;/g, 'à')
+      .replace(/&aacute;/g, 'á')
+      .replace(/&acirc;/g, 'â')
+      .replace(/&atilde;/g, 'ã')
+      .replace(/&auml;/g, 'ä')
+      .replace(/&egrave;/g, 'è')
+      .replace(/&eacute;/g, 'é')
+      .replace(/&ecirc;/g, 'ê')
+      .replace(/&igrave;/g, 'ì')
+      .replace(/&iacute;/g, 'í')
+      .replace(/&ocirc;/g, 'ô')
+      .replace(/&ograve;/g, 'ò')
+      .replace(/&oacute;/g, 'ó')
+      .replace(/&otilde;/g, 'õ')
+      .replace(/&ouml;/g, 'ö')
+      .replace(/&ugrave;/g, 'ù')
+      .replace(/&uacute;/g, 'ú')
+      .replace(/&ucirc;/g, 'û')
+      .replace(/&uuml;/g, 'ü')
+      .replace(/&yacute;/g, 'ý')
+      .replace(/&ccedil;/g, 'ç')
+      .replace(/&ntilde;/g, 'ñ');
+    
+    return decodedText.trim();
+  };
 
   
   const params = useParams();  
@@ -96,6 +137,9 @@ export default function ProductDetail() {
   useEffect(() => {
     if (!id) return;
 
+    // Reset isInitialLoad khi ID thay đổi
+    isInitialLoad.current = true;
+
     async function fetchProduct() {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product/${id}`);
@@ -118,7 +162,6 @@ export default function ProductDetail() {
         
 
         setProduct(cleanProduct);
-        setCurrentImg(0);
 
         // Kiểm tra và tăng lượt xem nếu chưa xem trong phiên này
         if (id && !hasViewedInSession(id)) {
@@ -131,6 +174,14 @@ export default function ProductDetail() {
 
     fetchProduct();
   }, [id, hasViewedInSession, incrementView]);
+
+  // Reset currentImg khi product thay đổi
+  useEffect(() => {
+    if (product && isInitialLoad.current) {
+      setCurrentImg(0);
+      isInitialLoad.current = false;
+    }
+  }, [product?._id]);
 
 
   if (!product) return <div>Đang tải sản phẩm...</div>;
@@ -326,9 +377,12 @@ export default function ProductDetail() {
           {tab === "desc" && (
             <div>
               <h3 className="font-bold text-text-lg mb-2">Mô tả sản phẩm</h3>
-              <p className="text-gray-700 text-base mb-4">
-                {product.description ? product.description.replace(/<[^>]*>/g, '') : 'Không có mô tả'}
-              </p>
+              <div 
+                className="text-gray-700 text-base mb-4 [&>img]:max-w-full [&>img]:h-auto [&>img]:rounded-lg [&>img]:shadow-md [&>img]:my-4 [&>p]:mb-4 [&>p]:leading-relaxed [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mb-4 [&>h2]:text-xl [&>h2]:font-semibold [&>h2]:mb-3 [&>h3]:text-lg [&>h3]:font-medium [&>h3]:mb-2 [&>ul]:list-disc [&>ul]:list-inside [&>ul]:mb-4 [&>ol]:list-decimal [&>ol]:list-inside [&>ol]:mb-4 [&>li]:mb-1 [&>strong]:font-bold [&>em]:italic"
+                dangerouslySetInnerHTML={{ 
+                  __html: product.description ? decodeHtmlEntities(product.description) : 'Không có mô tả' 
+                }}
+              />
               <ul className="list-disc list-inside text-gray-700 mb-4 space-y-1">
                 <li>Thiết kế mặt số tối giản, sang trọng, phù hợp cả nam và nữ.</li>
                 <li>Dây da thật mềm mại, màu sắc trẻ trung, dễ phối đồ.</li>

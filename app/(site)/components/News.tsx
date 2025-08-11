@@ -105,17 +105,24 @@ export default function News() {
                   <h4 className="font-semibold text-lg mb-2 text-white drop-shadow">{news.title}</h4>
                   <p className="text-gray-200 text-sm mb-2 drop-shadow">
                     {news.content ? 
-                      decodeURIComponent(news.content.replace(/<[^>]*>/g, '').replace(/&[a-zA-Z0-9#]+;/g, (match) => {
-                        const entities: { [key: string]: string } = {
-                          '&oacute;': 'ó', '&agrave;': 'à', '&nbsp;': ' ', '&aacute;': 'á', '&eacute;': 'é',
-                          '&egrave;': 'è', '&uacute;': 'ú', '&ugrave;': 'ù', '&iacute;': 'í', '&igrave;': 'ì',
-                          '&yacute;': 'ý', '&ograve;': 'ò', '&atilde;': 'ã', '&otilde;': 'õ', '&ntilde;': 'ñ',
-                          '&ccedil;': 'ç', '&Aacute;': 'Á', '&Eacute;': 'É', '&Iacute;': 'Í', '&Oacute;': 'Ó',
-                          '&Uacute;': 'Ú', '&Agrave;': 'À', '&Egrave;': 'È', '&Igrave;': 'Ì', '&Ograve;': 'Ò',
-                          '&Ugrave;': 'Ù', '&Atilde;': 'Ã', '&Otilde;': 'Õ', '&Ntilde;': 'Ñ', '&Ccedil;': 'Ç'
-                        };
-                        return entities[match] || match;
-                      })) : ''
+                      (() => {
+                        const decodedContent = decodeURIComponent(news.content.replace(/<[^>]*>/g, '').replace(/&[a-zA-Z0-9#]+;/g, (match) => {
+                          const entities: { [key: string]: string } = {
+                            '&oacute;': 'ó', '&agrave;': 'à', '&nbsp;': ' ', '&aacute;': 'á', '&eacute;': 'é',
+                            '&egrave;': 'è', '&uacute;': 'ú', '&ugrave;': 'ù', '&iacute;': 'í', '&igrave;': 'ì',
+                            '&yacute;': 'ý', '&ograve;': 'ò', '&atilde;': 'ã', '&otilde;': 'õ', '&ntilde;': 'ñ',
+                            '&ccedil;': 'ç', '&Aacute;': 'Á', '&Eacute;': 'É', '&Iacute;': 'Í', '&Oacute;': 'Ó',
+                            '&Uacute;': 'Ú', '&Agrave;': 'À', '&Egrave;': 'È', '&Igrave;': 'Ì', '&Ograve;': 'Ò',
+                            '&Ugrave;': 'Ù', '&Atilde;': 'Ã', '&Otilde;': 'Õ', '&Ntilde;': 'Ñ', '&Ccedil;': 'Ç'
+                          };
+                          return entities[match] || match;
+                        }));
+                        const maxLength = 120;
+                        if (decodedContent.length > maxLength) {
+                          return decodedContent.substring(0, maxLength).trim() + '...';
+                        }
+                        return decodedContent;
+                      })() : ''
                     }
                   </p>
                   <Link
