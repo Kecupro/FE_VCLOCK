@@ -126,10 +126,11 @@ export default function NewsDetail() {
               <div className="w-full h-96">
                 <OptimizedImage
                   src={getNewsImageUrl(news.image)}
-                  alt={news.title}
+                  alt={news.title || 'Tin tức'}
                   width={800}
                   height={384}
                   className="w-full h-full object-cover"
+                  fallbackSrc="/images/news/default-news.jpg"
                 />
               </div>
             )}

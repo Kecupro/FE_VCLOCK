@@ -94,7 +94,12 @@ function ShopPageContent() {
   useEffect(() => {
     const brandParam = searchParams.get('brand');
     if (brandParam) {
-      setSelectedBrand(decodeURIComponent(brandParam));
+      try {
+        setSelectedBrand(decodeURIComponent(brandParam));
+      } catch (error) {
+        console.error('Error decoding brand param:', error);
+        setSelectedBrand(brandParam); // Fallback to original value
+      }
     }
   }, [searchParams]);
 
@@ -102,7 +107,12 @@ function ShopPageContent() {
   useEffect(() => {
     const categoryParam = searchParams.get('category');
     if (categoryParam) {
-      setSelectedCategory(decodeURIComponent(categoryParam));
+      try {
+        setSelectedCategory(decodeURIComponent(categoryParam));
+      } catch (error) {
+        console.error('Error decoding category param:', error);
+        setSelectedCategory(categoryParam); // Fallback to original value
+      }
     }
   }, [searchParams]);
 

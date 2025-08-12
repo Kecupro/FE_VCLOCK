@@ -93,12 +93,12 @@ export default function News() {
             <SwiperSlide key={news._id}>
               <div className="relative group rounded overflow-hidden shadow hover:shadow-lg transition h-100 flex flex-col justify-end">
                 <OptimizedImage
-                  src={getNewsImageUrl(news.image)}
-                  alt={news.title}
+                  src={news.image ? getNewsImageUrl(news.image) : '/images/news/default-news.jpg'}
+                  alt={news.title || 'Tin tức'}
                   width={400}
                   height={300}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  fallbackSrc={getNewsImageUrl('default-news.jpg')}
+                  fallbackSrc="/images/news/default-news.jpg"
                 />
                 <div className="absolute inset-0 bg-black/30 group-hover:bg-black/5 transition"></div>
                 <div className="relative z-10 p-6 bg-black bg-black/10 backdrop-blur-sm flex flex-col justify-end min-h-[140px]">
@@ -106,22 +106,39 @@ export default function News() {
                   <p className="text-gray-200 text-sm mb-2 drop-shadow">
                     {news.content ? 
                       (() => {
-                        const decodedContent = decodeURIComponent(news.content.replace(/<[^>]*>/g, '').replace(/&[a-zA-Z0-9#]+;/g, (match) => {
-                          const entities: { [key: string]: string } = {
-                            '&oacute;': 'ó', '&agrave;': 'à', '&nbsp;': ' ', '&aacute;': 'á', '&eacute;': 'é',
-                            '&egrave;': 'è', '&uacute;': 'ú', '&ugrave;': 'ù', '&iacute;': 'í', '&igrave;': 'ì',
-                            '&yacute;': 'ý', '&ograve;': 'ò', '&atilde;': 'ã', '&otilde;': 'õ', '&ntilde;': 'ñ',
-                            '&ccedil;': 'ç', '&Aacute;': 'Á', '&Eacute;': 'É', '&Iacute;': 'Í', '&Oacute;': 'Ó',
-                            '&Uacute;': 'Ú', '&Agrave;': 'À', '&Egrave;': 'È', '&Igrave;': 'Ì', '&Ograve;': 'Ò',
-                            '&Ugrave;': 'Ù', '&Atilde;': 'Ã', '&Otilde;': 'Õ', '&Ntilde;': 'Ñ', '&Ccedil;': 'Ç'
-                          };
-                          return entities[match] || match;
-                        }));
-                        const maxLength = 120;
-                        if (decodedContent.length > maxLength) {
-                          return decodedContent.substring(0, maxLength).trim() + '...';
+                        try {
+                          // Xử lý HTML entities trước
+                          const processedContent = news.content.replace(/<[^>]*>/g, '').replace(/&[a-zA-Z0-9#]+;/g, (match) => {
+                            const entities: { [key: string]: string } = {
+                              '&oacute;': 'ó', '&agrave;': 'à', '&nbsp;': ' ', '&aacute;': 'á', '&eacute;': 'é',
+                              '&egrave;': 'è', '&uacute;': 'ú', '&ugrave;': 'ù', '&iacute;': 'í', '&igrave;': 'ì',
+                              '&yacute;': 'ý', '&ograve;': 'ò', '&atilde;': 'ã', '&otilde;': 'õ', '&ntilde;': 'ñ',
+                              '&ccedil;': 'ç', '&Aacute;': 'Á', '&Eacute;': 'É', '&Iacute;': 'Í', '&Oacute;': 'Ó',
+                              '&Uacute;': 'Ú', '&Agrave;': 'À', '&Egrave;': 'È', '&Igrave;': 'Ì', '&Ograve;': 'Ò',
+                              '&Ugrave;': 'Ù', '&Atilde;': 'Ã', '&Otilde;': 'Õ', '&Ntilde;': 'Ñ', '&Ccedil;': 'Ç'
+                            };
+                            return entities[match] || match;
+                          });
+                          
+                          // Thử decodeURIComponent với try-catch
+                          let decodedContent;
+                          try {
+                            decodedContent = decodeURIComponent(processedContent);
+                          } catch {
+                            // Nếu decodeURIComponent fail, sử dụng content đã xử lý HTML entities
+                            decodedContent = processedContent;
+                          }
+                          
+                          const maxLength = 120;
+                          if (decodedContent.length > maxLength) {
+                            return decodedContent.substring(0, maxLength).trim() + '...';
+                          }
+                          return decodedContent;
+                        } catch {
+                          // Fallback: trả về text đơn giản
+                          const simpleText = news.content.replace(/<[^>]*>/g, '').substring(0, 120);
+                          return simpleText.length > 120 ? simpleText.substring(0, 120) + '...' : simpleText;
                         }
-                        return decodedContent;
                       })() : ''
                     }
                   </p>

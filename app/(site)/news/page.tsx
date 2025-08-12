@@ -262,8 +262,8 @@ export default function News() {
                     >
                       <div className="relative h-48 overflow-hidden">
                         <OptimizedImage
-                          src={getNewsImageUrl(news.image || undefined)}
-                          alt={news.title}
+                          src={news.image ? getNewsImageUrl(news.image) : '/images/news/default-news.jpg'}
+                          alt={news.title || 'Tin tức'}
                           width={400}
                           height={300}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
