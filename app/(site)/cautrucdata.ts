@@ -94,6 +94,7 @@ export interface ICateNews {
 
 export interface IOrder {
   _id: string;
+  orderCode?: string;
   user_id: IUser;
   voucher_id: IVoucher;
   address_id: IAddress;

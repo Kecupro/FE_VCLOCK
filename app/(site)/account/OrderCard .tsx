@@ -231,7 +231,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
         <div key={order._id} className="border border-gray-200 rounded-lg p-4 bg-white space-y-2 shadow-sm mb-4">
           <div className="flex justify-between text-sm text-gray-700">
             <div>
-              <p>Mã đơn: <strong>DH-{order._id.slice(-8)}</strong></p>
+              <p>Mã đơn: <strong>#{order.orderCode || `DH-${order._id.slice(-8)}`}</strong></p>
             </div>
             <div className="flex flex-col items-end">
               <span className={`${statusColorMap[order.order_status || "choXuLy"]} font-medium`}>
@@ -364,7 +364,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
             <Dialog.Title className="text-xl font-semibold mb-4">Chi tiết đơn hàng</Dialog.Title>
       {selectedOrder && (
               <div className="text-sm text-gray-700 space-y-2">
-                <p><strong>Mã đơn:</strong> DH-{selectedOrder._id.slice(-8)}</p>
+                <p><strong>Mã đơn:</strong> #{selectedOrder.orderCode || `DH-${selectedOrder._id.slice(-8)}`}</p>
                 <p><strong>Phương thức:</strong> {selectedOrder.payment_method_id.name}</p>
                 <p><strong>Trạng thái đơn hàng: </strong> 
                     <span className={`${statusColorMap[selectedOrder.order_status || "choXuLy"]} font-medium`}>

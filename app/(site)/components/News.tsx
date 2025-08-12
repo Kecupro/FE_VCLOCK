@@ -93,12 +93,12 @@ export default function News() {
             <SwiperSlide key={news._id}>
               <div className="relative group rounded overflow-hidden shadow hover:shadow-lg transition h-100 flex flex-col justify-end">
                 <OptimizedImage
-                  src={news.image ? getNewsImageUrl(news.image) : '/images/news/default-news.jpg'}
-                  alt={news.title || 'Tin tức'}
+                  src={getNewsImageUrl(news.image)}
+                  alt={news.title}
                   width={400}
                   height={300}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  fallbackSrc="/images/news/default-news.jpg"
+                  fallbackSrc={getNewsImageUrl('default-news.jpg')}
                 />
                 <div className="absolute inset-0 bg-black/30 group-hover:bg-black/5 transition"></div>
                 <div className="relative z-10 p-6 bg-black bg-black/10 backdrop-blur-sm flex flex-col justify-end min-h-[140px]">
@@ -108,7 +108,7 @@ export default function News() {
                       (() => {
                         try {
                           // Xử lý HTML entities trước
-                          const processedContent = news.content.replace(/<[^>]*>/g, '').replace(/&[a-zA-Z0-9#]+;/g, (match) => {
+                          const cleanContent = news.content.replace(/<[^>]*>/g, '').replace(/&[a-zA-Z0-9#]+;/g, (match) => {
                             const entities: { [key: string]: string } = {
                               '&oacute;': 'ó', '&agrave;': 'à', '&nbsp;': ' ', '&aacute;': 'á', '&eacute;': 'é',
                               '&egrave;': 'è', '&uacute;': 'ú', '&ugrave;': 'ù', '&iacute;': 'í', '&igrave;': 'ì',
@@ -123,10 +123,10 @@ export default function News() {
                           // Thử decodeURIComponent với try-catch
                           let decodedContent;
                           try {
-                            decodedContent = decodeURIComponent(processedContent);
+                            decodedContent = decodeURIComponent(cleanContent);
                           } catch {
-                            // Nếu decodeURIComponent fail, sử dụng content đã xử lý HTML entities
-                            decodedContent = processedContent;
+                            // Nếu decodeURIComponent fail, sử dụng content gốc đã clean
+                            decodedContent = cleanContent;
                           }
                           
                           const maxLength = 120;
@@ -134,10 +134,10 @@ export default function News() {
                             return decodedContent.substring(0, maxLength).trim() + '...';
                           }
                           return decodedContent;
-                        } catch {
-                          // Fallback: trả về text đơn giản
-                          const simpleText = news.content.replace(/<[^>]*>/g, '').substring(0, 120);
-                          return simpleText.length > 120 ? simpleText.substring(0, 120) + '...' : simpleText;
+                        } catch (error) {
+                          // Fallback: trả về chuỗi rỗng nếu có lỗi
+                          console.error('Error processing news content:', error);
+                          return '';
                         }
                       })() : ''
                     }

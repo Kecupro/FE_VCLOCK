@@ -653,17 +653,7 @@ export default function CheckoutPage() {
 								/>
 							</div>
 
-							<div className="md:col-span-2">
-								<label className="block text-sm mb-1 font-medium">Ghi chú đơn hàng (tuỳ chọn)</label>
-								<textarea
-									name="note"
-									placeholder="Ghi chú về đơn hàng"
-									value={form.note}
-									onChange={handleChange}
-									className="w-full p-3 border border-gray-300 rounded"
-									rows={3}
-								/>
-							</div>
+						
 
 							</div>
 						) : (

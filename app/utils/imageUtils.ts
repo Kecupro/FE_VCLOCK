@@ -43,30 +43,7 @@ export const getBrandImageUrl = (imagePath: string | undefined | null): string =
 };
 
 export const getNewsImageUrl = (imagePath: string | undefined | null): string => {
-  if (!imagePath) {
-    return '/images/news/default-news.jpg';
-  }
-
-  try {
-    // Nếu đã là URL đầy đủ (Cloudinary), trả về nguyên vẹn
-    if (imagePath.startsWith('http')) {
-      // Validate URL format
-      new URL(imagePath);
-      return imagePath;
-    }
-
-    // Nếu là đường dẫn local, thêm prefix
-    if (imagePath.startsWith('/images/')) {
-      return imagePath;
-    }
-
-    // Xử lý tên file có ký tự đặc biệt
-    const sanitizedPath = imagePath.replace(/[^\w\-\.]/g, '_');
-    return `/images/news/${sanitizedPath}`;
-  } catch (error) {
-    console.error('Error processing news image URL:', error);
-    return '/images/news/default-news.jpg';
-  }
+  return getImageUrl(imagePath, 'news');
 };
 
 export const getAvatarImageUrl = (imagePath: string | undefined | null): string => {

@@ -187,7 +187,7 @@ const NewsPage = () => {
               {filteredNews.map((item, index) => (
                 <tr key={item._id} className={styles.tableRow}>
                   <td>{(currentPage - 1) * limit + index + 1}</td>
-                  <td><Image src={item.image ? getNewsImageUrl(item.image) : `/images/logo/logoV.png`} alt={item.title || 'Tin tức'} width={80} height={80} style={{ objectFit: "cover" }} unoptimized={getNewsImageUrl(item.image)?.startsWith('http')} /></td>
+                  <td><Image src={getNewsImageUrl(item.image) || `/images/logo/logoV.png`} alt={item.title} width={80} height={80} style={{ objectFit: "cover" }} unoptimized={getNewsImageUrl(item.image)?.startsWith('http')} /></td>
                   <td style={{ maxWidth: 200, wordBreak: "break-word" }}>{item.title}</td>
                   <td>{item.categorynews_id?.name || "Không có danh mục"}</td>
                   <td>{ new Date(item.created_at).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })}</td>
