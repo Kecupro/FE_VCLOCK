@@ -34,6 +34,16 @@ export default function CartPage() {
     return stockInfo[item._id] && item.so_luong > stockInfo[item._id].quantity;
   });
 
+  // Kiểm tra sản phẩm hết hàng
+  const outOfStockItems = cart.filter(item => 
+    stockInfo[item._id] && stockInfo[item._id].quantity === 0
+  );
+
+  // Kiểm tra sản phẩm vượt quá tồn kho
+  const overStockItems = cart.filter(item => 
+    stockInfo[item._id] && item.so_luong > stockInfo[item._id].quantity && stockInfo[item._id].quantity > 0
+  );
+
   // Hàm lấy thông tin tồn kho real-time
   const fetchStockInfo = useCallback(async () => {
     if (cart.length === 0) return;
@@ -55,6 +65,17 @@ export default function CartPage() {
   useEffect(() => {
     fetchStockInfo();
   }, [fetchStockInfo]);
+
+  // Tự động cập nhật tồn kho mỗi 30 giây
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (cart.length > 0) {
+        fetchStockInfo();
+      }
+    }, 30000); // 30 giây
+
+    return () => clearInterval(interval);
+  }, [cart.length, fetchStockInfo]);
 
   const handleCheckout = () => {
     router.push("/checkout");
@@ -82,19 +103,72 @@ export default function CartPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <div className="flex items-center mb-2">
-              <button
-                onClick={toggleSelectAll}
-                className="flex items-center m-3 gap-2 px-3 py-2 rounded text-sm transition-colors bg-gray-100 hover:bg-gray-200"
-              >
-                {selectedItems.length === cart.length ? (
-                  <CheckCircle className="text-red-600 w-5 h-5" />
-                ) : (
-                  <Circle className="text-gray-500 w-5 h-5" />
-                )}
-                {selectedItems.length === cart.length ? "Bỏ chọn tất cả" : "Chọn tất cả"}
-              </button>
-            </div>  
+              
+              {/* Cảnh báo sản phẩm hết hàng */}
+              {outOfStockItems.length > 0 && (
+                <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <i className="fas fa-exclamation-triangle text-red-400"></i>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-red-700">
+                        <strong>Có {outOfStockItems.length} sản phẩm đã hết hàng:</strong>
+                      </p>
+                      <ul className="mt-2 text-sm text-red-600">
+                        {outOfStockItems.map(item => (
+                          <li key={item._id} className="flex items-center justify-between">
+                            <span>{item.name}</span>
+                            <button
+                              onClick={() => removeItem(item._id)}
+                              className="text-red-500 hover:text-red-700 underline text-xs"
+                            >
+                              Xóa khỏi giỏ hàng
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Cảnh báo sản phẩm vượt quá tồn kho */}
+              {overStockItems.length > 0 && (
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <i className="fas fa-exclamation-triangle text-yellow-400"></i>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-yellow-700">
+                        <strong>Có {overStockItems.length} sản phẩm vượt quá tồn kho:</strong>
+                      </p>
+                      <ul className="mt-2 text-sm text-yellow-600">
+                        {overStockItems.map(item => (
+                          <li key={item._id}>
+                            {item.name} - Hiện có: {stockInfo[item._id]?.quantity || 0}, Đã chọn: {item.so_luong}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center mb-2 p-3">
+                <button
+                  onClick={toggleSelectAll}
+                  className="flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors bg-gray-100 hover:bg-gray-200"
+                >
+                  {selectedItems.length === cart.length ? (
+                    <CheckCircle className="text-red-600 w-5 h-5" />
+                  ) : (
+                    <Circle className="text-gray-500 w-5 h-5" />
+                  )}
+                  {selectedItems.length === cart.length ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+                </button>
+              </div>  
                 <div className="divide-y divide-gray-200">
                   {cart.map((item) => (
                     <div key={item._id} className="p-4 sm:p-6">
@@ -147,8 +221,9 @@ export default function CartPage() {
                               onClick={() => {
                                 if (item.so_luong > 1) {
                                   updateQuantity(item._id, item.so_luong - 1);
-                                } else {
-                                  toast.error("Chỉ còn lại " + item.quantity + " sản phẩm trong kho");
+                                } else if (item.so_luong === 1) {
+                                  // Khi số lượng = 1, giảm về 0 sẽ xóa sản phẩm khỏi giỏ hàng
+                                  removeItem(item._id);
                                 }
                               }}
                               className="px-2 py-0.5 text-gray-600 hover:bg-gray-100 transition-colors"
@@ -168,12 +243,17 @@ export default function CartPage() {
                                 const product = cart.find((p) => p._id === item._id);
                                 if (!product) return;
 
+                                const currentStock = stockInfo[item._id]?.quantity || product.quantity;
+
                                 if (val > 10) {
                                   toast.error("Số lượng tối đa cho mỗi sản phẩm là 10.");
                                   updateQuantity(item._id, 10);
-                                } else if (val > product.quantity) {
-                                  toast.error(`Số lượng hàng không đủ. Chỉ còn ${product.quantity} sản phẩm.`);
-                                  updateQuantity(item._id, product.quantity); 
+                                } else if (currentStock === 0) {
+                                  toast.error("Sản phẩm đã hết hàng!");
+                                  return;
+                                } else if (val > currentStock) {
+                                  toast.error(`Số lượng hàng không đủ. Chỉ còn ${currentStock} sản phẩm.`);
+                                  updateQuantity(item._id, currentStock); 
                                 } else {
                                   updateQuantity(item._id, val);
                                 }
@@ -191,10 +271,13 @@ export default function CartPage() {
                               onClick={() => {
                                 if (item.so_luong >= 10) {
                                   toast.error("Số lượng tối đa cho mỗi sản phẩm là 10.");
-                                } else if (item.so_luong < item.quantity) {
-                                  updateQuantity(item._id, item.so_luong + 1);
                                 } else {
-                                  toast.error("Số lượng hàng không đủ. Chỉ còn lại " + item.quantity + " sản phẩm trong kho");
+                                  const currentStock = stockInfo[item._id]?.quantity || item.quantity;
+                                  if (item.so_luong < currentStock) {
+                                    updateQuantity(item._id, item.so_luong + 1);
+                                  } else {
+                                    toast.error(`Số lượng hàng không đủ. Chỉ còn lại ${currentStock} sản phẩm trong kho`);
+                                  }
                                 }
                               }}
                               className="px-2 py-0.5 text-gray-600 hover:bg-gray-100 transition-colors"
@@ -211,7 +294,7 @@ export default function CartPage() {
                           </div>
                           
                           {/* Cảnh báo tồn kho */}
-                          {stockInfo[item._id] && item.so_luong > stockInfo[item._id].quantity && (
+                          {stockInfo[item._id] && item.so_luong > stockInfo[item._id].quantity && stockInfo[item._id].quantity > 1 && (
                             <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
                               <div className="flex items-center gap-2 text-red-700 text-sm">
                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -287,14 +370,19 @@ export default function CartPage() {
                   </div>
                   <button
                     onClick={handleCheckout}
-                    disabled={selectedItems.length === 0 || hasStockIssue}
+                    disabled={selectedItems.length === 0 || hasStockIssue || outOfStockItems.length > 0}
                     className={`w-full py-3 rounded-lg transition-all duration-300 ${
-                      selectedItems.length > 0 && !hasStockIssue
+                      selectedItems.length > 0 && !hasStockIssue && outOfStockItems.length === 0
                         ? "bg-red-600 text-white hover:bg-red-700"
-                        : "bg-gray-300 text-white cursor-not-allowed"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
                     }`}
                   >
-                    {hasStockIssue ? "Thanh toán" : "Thanh toán"}
+                    {selectedItems.length === 0 
+                      ? "Thanh toán"
+                      : hasStockIssue || outOfStockItems.length > 0 
+                        ? "Thanh toán" 
+                        : "Thanh toán"
+                    }
                   </button>
 
                   <Link

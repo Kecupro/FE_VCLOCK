@@ -384,11 +384,11 @@ export default function CheckoutPage() {
 				closeOnClick: false,
 				pauseOnHover: true
 			  });
+			  router.push('/checkout-cancel');
 			} else {
 			  toast.error("Không thể lấy link thanh toán. Vui lòng thử lại.");
+			  router.push('/checkout-cancel');
 			}
-			router.push('/checkout-cancel');
-	  
 		  } else {
 			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/checkout`, {
 			  method: "POST",
