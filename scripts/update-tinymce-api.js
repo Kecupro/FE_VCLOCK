@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 // Cấu hình
-const OLD_API_KEY = '6fo0luz3qumzjivmx7fqqwnkpf7hrg0e8san58tjg18xa5n7';
-const NEW_API_KEY = 'Y3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf'; // Thay thế bằng API key mới của bạn
+const OLD_API_KEY = 'Y3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf';
+const NEW_API_KEY = '3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf'; // Thay thế bằng API key mới của bạn
 
 // Danh sách các file cần cập nhật
 const filesToUpdate = [

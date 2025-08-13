@@ -325,3 +325,14 @@ export interface APIResponse {
     queryExecuted?: unknown;
   };
 }
+
+export interface INotification {
+  _id: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: 'order' | 'system' | 'promotion';
+  orderId?: string;
+  isRead: boolean;
+  createdAt: string;
+}

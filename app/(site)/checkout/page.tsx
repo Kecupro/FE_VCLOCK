@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { ICart, IAddress, IPaymentMethod, IVoucher } from "../cautrucdata";
 import { useAuth } from "../context/AuthContext";
@@ -593,43 +592,66 @@ export default function CheckoutPage() {
 	
 
 	return (
-		<main className="max-w-7xl mx-auto py-10 px-2 sm:px-6 pt-40">
-			<h1 className="text-2xl font-bold mb-8 text-center">Thanh toán đơn hàng</h1>
-				<form onSubmit={handleSubmit}  className="flex flex-col md:flex-row gap-8">
-					<div className="flex-1 bg-white rounded border border-gray-300 p-6 space-y-5">
+		<main className="max-w-7xl mx-auto py-6 sm:py-10 px-2 sm:px-6 pt-32 sm:pt-40">
+			<div className="text-center mb-6 sm:mb-8">
+				<h1 className="text-xl sm:text-2xl font-bold text-gray-800">Thanh toán đơn hàng</h1>
+			</div>
+				<form onSubmit={handleSubmit} className="flex flex-col lg:flex-row gap-4 sm:gap-8">
+					<div className="flex-1 bg-white rounded border border-gray-300 p-4 sm:p-6 space-y-4 sm:space-y-5">
 
 						
 					{user ? (
 					""
 					) : (
-					<div className="mb-2 text-sm text-gray-600">
-						Bạn đã có tài khoản?{" "}
-						<Link href="/login" className="text-red-600 hover:underline font-semibold">
-						Ấn vào đây để đăng nhập
-						</Link>
+					<div className="mb-4 p-3 bg-red-50 border border-gray-200 rounded-lg">
+						<div className="flex items-center gap-2 text-sm text-red-700">
+							<i className="fas fa-info-circle text-red-500"></i>
+							<span>Bạn đã có tài khoản?{" "}</span>
+							<button 
+								type="button"
+								onClick={() => setShowAuthModal(true)}
+								className="text-red-600 hover:underline font-semibold cursor-pointer"
+							>
+								Ấn vào đây để đăng nhập
+							</button>
+						</div>
 					</div>
 					)}
 
 
-						<h2 className="font-semibold text-lg mb-2">Thông tin thanh toán</h2>
-						<label className="block text-sm mb-1 font-medium">Địa chỉ giao hàng *</label>
+						<div className="flex items-center gap-3 mb-4">
+							<div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-full">
+								<i className="fas fa-credit-card text-red-600 text-sm"></i>
+							</div>
+							<h2 className="font-semibold text-base sm:text-lg text-gray-800">Thông tin thanh toán</h2>
+						</div>
+						<div className="flex items-center gap-2 mb-2">
+							<i className="fas fa-map-marker-alt text-red-500"></i>
+							<label className="text-sm font-medium text-gray-700">Địa chỉ giao hàng <span className="text-red-500">*</span></label>
+						</div>
 					{!user ? (
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+													<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
 							<div>
-								<label className="block text-sm mb-1 font-medium">Tên *</label>
+								<div className="flex items-center gap-2 mb-1">
+									<i className="fas fa-user text-gray-500 text-xs"></i>
+									<label className="text-sm font-medium text-gray-700">Tên *</label>
+								</div>
 								<input
 								name="name"
 								type="text"
 								placeholder="Họ và tên"
 								value={form.name}
 								onChange={handleChange}
-								className="w-full p-3 border border-gray-300 rounded"
+								className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-gray-500 transition-colors"
 								required={false}
 								/>
 							</div>
 
 							<div>
-								<label className="block text-sm mb-1 font-medium">Số điện thoại *</label>
+								<div className="flex items-center gap-2 mb-1">
+									<i className="fas fa-phone text-gray-500 text-xs"></i>
+									<label className="text-sm font-medium text-gray-700">Số điện thoại *</label>
+								</div>
 								<input
 								name="phone"
 								type="tel"
@@ -640,13 +662,16 @@ export default function CheckoutPage() {
 									const value = e.target.value.replace(/[^0-9]/g, '');
 									setForm(prev => ({ ...prev, phone: value }));
 								}}
-								className="w-full p-3 border border-gray-300 rounded"
+								className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-gray-500 transition-colors"
 								required={false}
 								/>
 							</div>
 
-							<div className="md:col-span-2">
-								<label className="block text-sm mb-1 font-medium">Địa chỉ *</label>
+							<div className="sm:col-span-2">
+								<div className="flex items-center gap-2 mb-1">
+									<i className="fas fa-home text-gray-500 text-xs"></i>
+									<label className="text-sm font-medium text-gray-700">Địa chỉ *</label>
+								</div>
 								<AddressSelector
 								value={form.address}
 								onChange={(addr) => setForm(prev => ({ ...prev, address: addr }))}
@@ -657,11 +682,8 @@ export default function CheckoutPage() {
 
 							</div>
 						) : (
-							<div className="mb-4 p-4 bg-gray-50 rounded border border-gray-200">
-						<p className="text-sm text-gray-700 mb-2">
-							Chào <span className="font-semibold text-red-600">{user.fullName}</span> 👋,
-							vui lòng chọn địa chỉ giao hàng bên dưới hoặc thêm mới nếu cần:
-						</p>
+							<div className="mb-4 p-4 rounded-lg border border-gray-200">
+	
 
 							{!isChangingAddress ? (
 								<>
@@ -675,19 +697,21 @@ export default function CheckoutPage() {
 									return <p>Vui lòng chọn địa chỉ giao hàng</p>; 
 									}
 									return (
-										<div className="border rounded-xl p-4 bg-white shadow-sm flex items-start justify-between">
-											<div className="flex items-center gap-3">
-												<div className="bg-red-100 text-red-600 rounded-full p-2">
-												<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none"
-													viewBox="0 0 24 24" stroke="currentColor">
-													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-													d="M16 7a4 4 0 00-8 0v1a4 4 0 008 0V7zM4 21h16M4 17h16" />
-												</svg>
+										<div className=" rounded-xl p-4  shadow-sm flex flex-col sm:flex-row sm:items-start sm:justify-between">
+											<div className="flex items-start gap-3 mb-3 sm:mb-0">
+												<div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full flex-shrink-0">
+													<i className="fas fa-check text-green-600 text-sm"></i>
 												</div>
-												<div>
-												<p className="font-semibold text-sm">{defaultAddr.receiver_name}</p>
-												<p className="text-sm text-gray-700">{defaultAddr.phone}</p>
-												<p className="text-sm text-gray-600">{defaultAddr.address}</p>
+												<div className="flex-1 min-w-0">
+													<p className="font-semibold text-sm text-gray-800">{defaultAddr.receiver_name}</p>
+													<p className="text-sm text-gray-700 flex items-center gap-1">
+														<i className="fas fa-phone text-gray-500 text-xs"></i>
+														{defaultAddr.phone}
+													</p>
+													<p className="text-sm text-gray-600 break-words flex items-start gap-1">
+														<i className="fas fa-map-marker-alt text-gray-500 text-xs mt-1 flex-shrink-0"></i>
+														{defaultAddr.address}
+													</p>
 												</div>
 											</div>
 
@@ -695,19 +719,22 @@ export default function CheckoutPage() {
 												type="button"
 												onClick={handleChangeAddressClick}
 												disabled={isSubmittingAddress}
-												className={`text-sm font-medium px-4 py-2 rounded-md transition ${
+												className={`w-full sm:w-auto text-sm font-medium px-4 py-2 rounded-md transition flex items-center gap-2 ${
 													isSubmittingAddress
 													? "bg-gray-400 text-white cursor-not-allowed"
-													: "bg-black text-white hover:bg-white hover:text-black hover:border hover:border-black"
+													: "bg-red-600 text-white hover:bg-red-700 hover:shadow-md"
 												}`}
 												>
 												{isSubmittingAddress ? (
-													<span className="flex items-center gap-2">
+													<span className="flex items-center justify-center gap-2">
 													<span>Đang tải</span>
 													<span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
 													</span>
 												) : (
-													"Thay đổi"
+													<>
+														<i className="fas fa-edit text-xs"></i>
+														Thay đổi
+													</>
 												)}
 											</button>
 										</div>
@@ -719,18 +746,31 @@ export default function CheckoutPage() {
 								<>
 									<div className="space-y-3">
 									{addresses.map((addr) => (
-										<label key={addr._id} className="block border p-3 rounded hover:border-red-500 cursor-pointer">
-										<input
-											type="radio"
-											name="shippingAddressChange"
-											value={addr._id}
-											checked={tempSelectedAddressId === addr._id}
-											onChange={(e) => setTempSelectedAddressId(e.target.value)}
-											className="mr-2 accent-red-600"
-										/>
-										<span className="text-sm">{addr.receiver_name}</span>,{" "}
-										<span className="text-sm text-gray-600">{addr.phone}</span>,{" "}
-										<span className="text-sm">{addr.address}</span>
+										<label key={addr._id} className="block border border-gray-200 hover:border-gray-400 p-4 rounded-lg cursor-pointer transition-all">
+											<div className="flex items-start gap-3">
+												<input
+													type="radio"
+													name="shippingAddressChange"
+													value={addr._id}
+													checked={tempSelectedAddressId === addr._id}
+													onChange={(e) => setTempSelectedAddressId(e.target.value)}
+													className="mt-1 accent-red-600"
+												/>
+												<div className="flex-1">
+													<div className="flex items-center gap-2 mb-1">
+														<i className="fas fa-user text-gray-500 text-xs"></i>
+														<span className="text-sm font-medium text-gray-800">{addr.receiver_name}</span>
+													</div>
+													<div className="flex items-center gap-2 mb-1">
+														<i className="fas fa-phone text-gray-500 text-xs"></i>
+														<span className="text-sm text-gray-600">{addr.phone}</span>
+													</div>
+													<div className="flex items-start gap-2">
+														<i className="fas fa-map-marker-alt text-gray-500 text-xs mt-1 flex-shrink-0"></i>
+														<span className="text-sm text-gray-600">{addr.address}</span>
+													</div>
+												</div>
+											</div>
 										</label>
 									))}
 									</div>
@@ -741,8 +781,9 @@ export default function CheckoutPage() {
 										setSelectedAddressId(tempSelectedAddressId);
 										setIsChangingAddress(false);
 										}}
-										className="text-sm bg-red-600 text-white px-4 py-2 rounded"
+										className="text-sm bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-700 transition-colors"
 									>
+										<i className="fas fa-check text-xs"></i>
 										Xác nhận
 									</button>
 									<button
@@ -750,8 +791,9 @@ export default function CheckoutPage() {
 										onClick={() => {setIsChangingAddress(false);
 											setTempSelectedAddressId(selectedAddressId); 
 										}}
-										className="text-sm text-gray-600 underline"
+										className="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-2 bg-gray-100 rounded-lg p-2 hover:bg-gray-200 transition-all px-4"
 									>
+										<i className="fas fa-times text-xs"></i>
 										Hủy
 									</button>
 									</div>
@@ -762,7 +804,7 @@ export default function CheckoutPage() {
 							<div className="mt-3">
 								<button
 									type="button"
-									className="text-sm text-red-600 underline hover:text-red-700"
+									className="text-sm text-red-600 underline hover:text-red-700 flex items-center gap-2"
 									onClick={() => {
 										setShowNewAddressForm(!showNewAddressForm);
 										if (!showNewAddressForm) {
@@ -770,78 +812,105 @@ export default function CheckoutPage() {
 										}
 									  }}
 								>
-									{showNewAddressForm ? "Ẩn biểu mẫu nhập mới" : "Thêm địa chỉ giao hàng mới"}
+									<i className={`fas ${showNewAddressForm ? 'fa-minus' : 'fa-plus'} text-xs`}></i>
+									{showNewAddressForm ? "Ẩn biểu mẫu thêm địa chỉ" : "Thêm địa chỉ "}
 								</button>
 							</div>
 
 
 							{showNewAddressForm && (
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-								<div>
-								  <label className="block text-gray-700 text-sm font-medium mb-2">Tên người nhận</label>
-								  <input
-									type="text"
-									value={newAddress.receiver_name}
-									onChange={(e) => setNewAddress({...newAddress, receiver_name: e.target.value})}
-									className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-									placeholder="Ví dụ: Nguyễn Văn A"
-								  />
-								</div>
-								<div>
-								  <label className="block text-gray-700 text-sm font-medium mb-2">Số điện thoại</label>
-								  <input
-									type="tel"
-									pattern="^0[35789][0-9]{8}$"
-									title="Số điện thoại phải có 10 chữ số và bắt đầu bằng 03, 05, 07, 08 hoặc 09"
-									required
-									value={newAddress.phone}
-									onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
-									className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-									placeholder="Ví dụ: 0123456789"
-								  />
-								</div>
-								<div className="md:col-span-2">
-								  <label className="block text-gray-700 text-sm font-medium mb-2">Địa chỉ giao hàng</label>
-								  <div className="relative">
-									
-									<AddressSelector
-									  value={newAddress.address}
-									  onChange={(addr) => setNewAddress({ ...newAddress, address: addr })}
-									/>
+								<div className="mt-4 p-4  rounded-lg">
+									<div className="flex items-center gap-2 mb-4">
+										<i className="fas fa-plus-circle text-red-600"></i>
+										<h3 className="font-semibold text-gray-800">Thêm địa chỉ mới</h3>
 									</div>
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+									<div>
+									  <div className="flex items-center gap-2 mb-2">
+										<i className="fas fa-user text-gray-500 text-xs"></i>
+										<label className="block text-gray-700 text-sm font-medium">Tên người nhận</label>
+									  </div>
+									  <input
+										type="text"
+										value={newAddress.receiver_name}
+										onChange={(e) => setNewAddress({...newAddress, receiver_name: e.target.value})}
+										className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-gray-500 transition-colors"
+										placeholder="Ví dụ: Nguyễn Văn A"
+									  />
+									</div>
+									<div>
+									  <div className="flex items-center gap-2 mb-2">
+										<i className="fas fa-phone text-gray-500 text-xs"></i>
+										<label className="block text-gray-700 text-sm font-medium">Số điện thoại</label>
+									  </div>
+									  <input
+										type="tel"
+										pattern="^0[35789][0-9]{8}$"
+										title="Số điện thoại phải có 10 chữ số và bắt đầu bằng 03, 05, 07, 08 hoặc 09"
+										required
+										value={newAddress.phone}
+										onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
+										className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-200 focus:border-gray-500 transition-colors"
+										placeholder="Ví dụ: 0123456789"
+									  />
+									</div>
+									<div className="sm:col-span-2">
+									  <div className="flex items-center gap-2 mb-2">
+										<i className="fas fa-home text-gray-500 text-xs"></i>
+										<label className="block text-gray-700 text-sm font-medium">Địa chỉ giao hàng</label>
+									  </div>
+									  <div className="relative">
+										
+										<AddressSelector
+										  value={newAddress.address}
+										  onChange={(addr) => setNewAddress({ ...newAddress, address: addr })}
+										/>
+										</div>
 
+									</div>
+								  </div>
 								</div>
-							  </div>
 							)}
 							</div>
 						)}
 
 						{!user && (
-							<div className="text-sm text-gray-600 mb-4">
-								Địa chỉ giao hàng sẽ được sử dụng để gửi đơn hàng. Vui lòng điền đầy đủ thông tin.
+							<div className="text-sm text-gray-600 mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+								<div className="flex items-center gap-2">
+									<i className="fas fa-info-circle text-red-500"></i>
+									<span>Địa chỉ giao hàng sẽ được sử dụng để gửi đơn hàng. Vui lòng điền đầy đủ thông tin.</span>
+								</div>
 							</div>
 						)}
 						<div className="space-y-3">
-							<h2 className="font-semibold text-sm mb-1">Chọn voucher</h2>
+							<div className="flex items-center gap-2 mb-2">
+								<i className="fas fa-ticket-alt text-red-500"></i>
+								<h6 className="font-bold text-sm text-gray-800">Chọn voucher</h6>
+							</div>
 
 							{selectedVoucher ? (
-								<div className="flex items-center gap-2 text-green-600 text-sm">
-								✅ Đã chọn: {selectedVoucher.voucher_name} ({selectedVoucher.voucher_code})
+								<div className="flex items-center gap-2 text-green-600 text-sm p-2 bg-green-50 rounded-lg border border-green-200">
+									<i className="fas fa-check-circle text-green-500"></i>
+									<span>Đã chọn: {selectedVoucher.voucher_name} ({selectedVoucher.voucher_code})</span>
 								</div>
 							) : (
-								<div className="text-sm text-gray-500">❗Bạn chưa chọn voucher nào</div>
+								<div className="text-sm text-gray-500 p-2 bg-gray-50 rounded-lg border border-gray-200">
+									<i className="fas fa-info-circle text-gray-400 mr-2"></i>
+									Bạn chưa chọn voucher nào
+								</div>
 							)}
 
 							<Dialog.Root>
 								<Dialog.Trigger asChild>
-								<button className="px-4 py-2 rounded bg-black text-white font-semibold">
+								<button className="px-4 py-2 rounded-lg bg-black text-white font-medium text-sm hover:from-orange-600 hover:to-red-600 transition-all flex items-center gap-2 shadow-md">
+									<i className="fas fa-ticket-alt"></i>
 									Chọn voucher
 								</button>
 								</Dialog.Trigger>
 
 								<Dialog.Portal>
 								<Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
-								<Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] p-6 overflow-y-auto space-y-4">
+								<Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl w-[95%] max-w-2xl max-h-[90vh] p-4 sm:p-6 overflow-y-auto space-y-4">
 									<Dialog.Title className="text-lg font-bold mb-2">Chọn voucher</Dialog.Title>
 									
 									{vouchers.length > 0 ? (
@@ -940,76 +1009,109 @@ export default function CheckoutPage() {
 						</div>
 						
 						<div>
-							<label className="block text-sm mb-1 font-medium">Ghi chú đơn hàng (tuỳ chọn)</label>
+							<div className="flex items-center gap-2 mb-2">
+								<i className="fas fa-sticky-note text-red-500"></i>
+								<label className="text-sm font-medium text-gray-700">Ghi chú đơn hàng (tuỳ chọn)</label>
+							</div>
 							<textarea
 								name="note"
 								placeholder="Ghi chú về đơn hàng"
 								value={form.note}
 								onChange={handleChange}
-								className="w-full p-3 border border-gray-300 rounded"
+								className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-500 transition-colors"
 								rows={3}
 							/>
 						</div>
 						
 					</div>
-					<div className="md:w-[420px] w-full bg-white rounded border border-gray-300 p-6 h-fit">
-						<h2 className="font-semibold text-lg mb-4">Đơn hàng của bạn</h2>
+					<div className="lg:w-[420px] w-full bg-white rounded-lg border border-gray-300 p-4 sm:p-6 h-fit shadow-lg">
+						<div className="flex items-center gap-3 mb-4">
+							<div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-full">
+								<i className="fas fa-shopping-bag text-red-600 text-sm"></i>
+							</div>
+							<h2 className="font-semibold text-base sm:text-lg text-gray-800">Đơn hàng của bạn</h2>
+						</div>
 						
 
-						<table className="w-full text-base mb-4">
+						<table className="w-full text-sm sm:text-base mb-4">
 							<thead>
-								<tr>
-									<th className="text-left py-2">Sản phẩm</th>
-									<th className="text-right py-2">Tổng</th>
+								<tr className="border-b border-gray-200">
+									<th className="text-left py-3 font-semibold text-gray-700">
+										<i className="fas fa-box text-gray-500 mr-2"></i>
+										Sản phẩm
+									</th>
+									<th className="text-right py-3 font-semibold text-gray-700">
+										<i className="fas fa-coins text-gray-500 mr-2"></i>
+										Tổng
+									</th>
 								</tr>
 							</thead>
 							<tbody>
 								{cart.map((item) => (
-									<tr key={item.name}>
-									<td className="py-2">
-										<div>
-											<div>{item.name} × {item.so_luong}</div>
+									<tr key={item.name} className="border-b border-gray-100">
+									<td className="py-3">
+										<div className="flex items-center gap-2">
+											<div className="w-2 h-2 bg-red-500 rounded-full"></div>
+											<div>
+												<div className="font-medium text-gray-800">{item.name}</div>
+												<div className="text-xs text-gray-500">Số lượng: {item.so_luong}</div>
+											</div>
 										</div>
 									</td>
-									<td className="py-2 text-right">{((item.sale_price > 0 ? item.sale_price : item.price) * item.so_luong).toLocaleString()} ₫</td>
+									<td className="py-3 text-right font-medium text-gray-700">{((item.sale_price > 0 ? item.sale_price : item.price) * item.so_luong).toLocaleString()} ₫</td>
 									</tr>
 								))}
 
-								<tr>
-									<td className="py-2 font-semibold">Tổng phụ</td>
-									<td className="py-2 text-right">{total.toLocaleString()} ₫</td>
+								<tr className="border-b border-gray-200">
+									<td className="py-3 font-semibold text-gray-700">
+										<i className="fas fa-calculator text-gray-500 mr-2"></i>
+										Tổng phụ
+									</td>
+									<td className="py-3 text-right font-semibold text-gray-700">{total.toLocaleString()} ₫</td>
 								</tr>
 
 								{selectedVoucher && (
-									<tr>
-									<td className="py-2 font-semibold text-green-700">
+									<tr className="border-b border-gray-200">
+									<td className="py-3 font-semibold text-green-700">
+										<i className="fas fa-ticket-alt text-green-500 mr-2"></i>
 										Mã giảm ({selectedVoucher.voucher_code})
 									</td>
-									<td className="py-2 text-right text-green-700">
+									<td className="py-3 text-right text-green-700 font-semibold">
 										- {(originalTotal - finalTotal).toLocaleString()} ₫
-
 									</td>
 									</tr>
 								)}
 
-								<tr>
-									<td className="py-2 font-semibold">Giao hàng</td>
-									<td className="py-2 text-right">Miễn phí</td>
+								<tr className="border-b border-gray-200">
+									<td className="py-3 font-semibold text-gray-700">
+										<i className="fas fa-shipping-fast text-gray-500 mr-2"></i>
+										Giao hàng
+									</td>
+									<td className="py-3 text-right font-semibold text-green-600">
+										<i className="fas fa-check text-green-500 mr-1"></i>
+										Miễn phí
+									</td>
 								</tr>
 
-								<tr>
-									<td className="py-2 font-bold text-lg">Tổng</td>
-									<td className="py-2 text-right text-red-600 font-bold text-lg">
-									{finalTotal.toLocaleString()} ₫
+								<tr className="">
+									<td className="py-4 font-bold text-base sm:text-lg text-gray-800">
+										<i className="fas fa-receipt text-red-500 mr-2"></i>
+										Tổng
+									</td>
+									<td className="py-4 text-right text-red-600 font-bold text-base sm:text-lg">
+									{finalTotal.toLocaleString()}₫
 									</td>
 								</tr>
 								</tbody>
 						</table>
 						<div className="mb-3">
-							<div className="font-semibold mb-1">Phương thức thanh toán</div>
+							<div className="flex items-center gap-2 mb-2">
+								<i className="fas fa-credit-card text-indigo-500"></i>
+								<div className="font-semibold text-gray-800">Phương thức thanh toán</div>
+							</div>
 							<div className="flex flex-col gap-2">
 								{paymentMethods.map((method) => (
-									<label key={method.code} className="flex items-center gap-2 cursor-pointer">
+									<label key={method.code} className="flex items-center gap-2 cursor-pointer p-2 border border-gray-200 rounded-lg hover:border-gray-500 transition-all">
 										<input
 											type="radio"
 											name="payment"
@@ -1017,37 +1119,47 @@ export default function CheckoutPage() {
 											checked={selectedPayment === method.code}
 											onChange={() => setSelectedPayment(method.code)}
 										/>
-										<Image
-											src={method.icon_url ? 
-												(method.icon_url.startsWith('http') ? method.icon_url : `/images/payment-Method/${method.icon_url}`) 
-												: "/images/payment-Method/placeholder.png"}
-											alt={method.name}
-											width={24}
-											height={24}
-											className="h-6 w-6 object-contain"
-											onError={(e) => {
-												// Fallback khi ảnh lỗi
-												const target = e.target as HTMLImageElement;
-												target.src = "/images/payment-Method/placeholder.png";
-											}}
-										/>
-										{method.name}
+										<div className="flex items-center gap-2 flex-1">
+											<Image
+												src={method.icon_url ? 
+													(method.icon_url.startsWith('http') ? method.icon_url : `/images/payment-Method/${method.icon_url}`) 
+													: "/images/payment-Method/placeholder.png"}
+												alt={method.name}
+												width={20}
+												height={20}
+												className="h-5 w-5 object-contain"
+												onError={(e) => {
+													// Fallback khi ảnh lỗi
+													const target = e.target as HTMLImageElement;
+													target.src = "/images/payment-Method/placeholder.png";
+												}}
+											/>
+											<span className="font-medium text-gray-700 text-sm">{method.name}</span>
+										</div>
+										{selectedPayment === method.code && (
+											<i className="fas fa-check-circle text-red-500 text-sm"></i>
+										)}
 									</label>
 								))}
 							</div>
 
 
 							{["MOMO_WALLET", "ZALOPAY_WALLET"].includes(selectedPayment) && (
-								<div className="mt-3 text-sm text-gray-700">
-									Vui lòng quét mã QR bên dưới để thanh toán:
-									<div className="mt-2">
-										<OptimizedImage 
-											src="/placeholder-qr.png" 
-											alt="QR code" 
-											width={128}
-											height={128}
-											className="h-32 w-32" 
-										/>
+								<div className="mt-4 p-4 bg-red-50 border border-gray-200 rounded-lg">
+									<div className="flex items-center gap-2 mb-3">
+										<i className="fas fa-qrcode text-red-600"></i>
+										<span className="text-sm font-medium text-gray-700">Vui lòng quét mã QR bên dưới để thanh toán:</span>
+									</div>
+									<div className="flex justify-center">
+										<div className="p-2 bg-white rounded-lg shadow-sm">
+											<OptimizedImage 
+												src="/placeholder-qr.png" 
+												alt="QR code" 
+												width={128}
+												height={128}
+												className="h-32 w-32" 
+											/>
+										</div>
 									</div>
 								</div>
 							)}
@@ -1056,10 +1168,20 @@ export default function CheckoutPage() {
 						</div>
 						<button
 							type="submit"
-							className="w-full bg-red-600 text-white py-3 rounded font-semibold text-lg hover:bg-red-700 transition"
+							className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base hover:from-red-700 hover:to-red-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 							disabled={isLoading}
 						>
-							{isLoading ? "Đang xử lý..." : "Đặt hàng"}
+							{isLoading ? (
+								<>
+									<span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+									Đang xử lý...
+								</>
+							) : (
+								<>
+									<i className="fas fa-shopping-cart"></i>
+									Đặt hàng
+								</>
+							)}
 						</button>
 					</div>
 			</form>

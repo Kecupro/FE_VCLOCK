@@ -77,12 +77,13 @@ export default function SPLienQuan({id} : {id:string}) {
 				<Swiper
 					modules={[Navigation, Autoplay]}
 					spaceBetween={24}
-					slidesPerView={2}
+					slidesPerView={1}
 					navigation
 					autoplay={{ delay: 2500, disableOnInteraction: false }}
 					breakpoints={{
-						768: { slidesPerView: 4 },
-						480: { slidesPerView: 3 },
+						640: { slidesPerView: 2 },
+						768: { slidesPerView: 3 },
+						1024: { slidesPerView: 4 },
 					}}
 					loop
 				>

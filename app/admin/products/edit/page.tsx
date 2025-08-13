@@ -288,7 +288,7 @@ const EditProduct = () => {
               `,
                 branding: false,
               }}
-              tinymceScriptSrc="https://cdn.tiny.cloud/1/Y3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf/tinymce/6/tinymce.min.js"
+              tinymceScriptSrc="https://cdn.tiny.cloud/1/3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf/tinymce/6/tinymce.min.js"
             />
           </div>
         </div>

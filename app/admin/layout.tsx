@@ -590,10 +590,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <html lang="vi">
         <head>
           <title>Admin</title>
-          <link rel="stylesheet" href="https://cdn.tiny.cloud/1/Y3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf/tinymce/6/skins/ui/oxide/skin.min.css" />
-          <link rel="stylesheet" href="https://cdn.tiny.cloud/1/Y3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf/tinymce/6/skins/ui/oxide-dark/skin.min.css" />
-          <link rel="stylesheet" href="https://cdn.tiny.cloud/1/Y3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf/tinymce/6/skins/content/default/content.min.css" />
-          <link rel="stylesheet" href="https://cdn.tiny.cloud/1/Y3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf/tinymce/6/skins/content/dark/content.min.css" />         
+          <link rel="stylesheet" href="https://cdn.tiny.cloud/1/3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf/tinymce/6/skins/ui/oxide/skin.min.css" />
+          <link rel="stylesheet" href="https://cdn.tiny.cloud/1/3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf/tinymce/6/skins/ui/oxide-dark/skin.min.css" />
+          <link rel="stylesheet" href="https://cdn.tiny.cloud/1/3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf/tinymce/6/skins/content/default/content.min.css" />
+          <link rel="stylesheet" href="https://cdn.tiny.cloud/1/3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf/tinymce/6/skins/content/dark/content.min.css" />         
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
           <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />

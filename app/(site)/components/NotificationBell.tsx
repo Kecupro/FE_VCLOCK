@@ -3,21 +3,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import Link from "next/link";
-
-interface Notification {
-  _id: string;
-  userId: string;
-  title: string;
-  message: string;
-  type: 'order' | 'system' | 'promotion';
-  orderId?: string;
-  isRead: boolean;
-  createdAt: string;
-}
+import { INotification } from "../cautrucdata";
 
 const NotificationBell = () => {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<INotification[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);

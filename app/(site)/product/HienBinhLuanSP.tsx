@@ -61,10 +61,12 @@ export default function HienBinhLuanSP({
             />
           </div>
           <div className="flex-1 w-full">
-            <div className="flex items-center gap-2 mb-1 w-full">
-              <span className="font-semibold">{bl.user_id?.fullName || bl.user_id?.username || "Anonymous"}</span>
-              <StarRating rating={bl.rating} className="ml-2" />
-              <span className="text-gray-400 text-xs ml-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1 w-full">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">{bl.user_id?.fullName || bl.user_id?.username || "Anonymous"}</span>
+                <StarRating rating={bl.rating} className="ml-2" />
+              </div>
+              <span className="text-gray-400 text-xs">
                 {bl.created_at ? new Date(bl.created_at).toLocaleString("vi-VN") : ""}
               </span>
             </div>

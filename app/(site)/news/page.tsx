@@ -257,10 +257,10 @@ export default function News() {
                   {newsData?.news.map((news, index) => (
                     <div
                       key={news._id}
-                      className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group animate-fade-in h-[420px] flex flex-col"
+                      className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group animate-fade-in flex flex-col"
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
-                      <div className="relative h-48 overflow-hidden">
+                      <div className="relative aspect-[4/3] overflow-hidden">
                         <OptimizedImage
                           src={getNewsImageUrl(news.image || undefined)}
                           alt={news.title}
@@ -276,7 +276,7 @@ export default function News() {
                       <div className="p-4 flex-1 flex flex-col">
                         <Link
                           href={`/news/${news._id}`}
-                          className="font-semibold text-lg text-gray-800 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors block hover:underline"
+                          className="font-semibold text-base text-gray-800 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors block hover:underline"
                         >
                           {news.title}
                         </Link>

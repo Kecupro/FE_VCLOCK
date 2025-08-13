@@ -22,12 +22,7 @@ function CheckoutSuccessContent() {
     const processPaymentSuccess = async () => {
       if (orderCode) {
         try {
-          console.log("🎉 Processing payment success for orderCode:", orderCode);
-          
-          // Lấy token từ localStorage
           const token = localStorage.getItem("token");
-          
-          // Gọi API để xử lý thanh toán thành công
           const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment-success`, {
             method: "POST",
             headers: {
@@ -40,14 +35,13 @@ function CheckoutSuccessContent() {
           const data = await response.json();
           
           if (response.ok) {
-            console.log("✅ Payment processed successfully:", data);
             setOrderStatus(data);
           } else {
-            console.error("❌ Payment processing failed:", data);
+
             toast.error(data.message || "Có lỗi xảy ra khi xử lý thanh toán");
           }
         } catch (error) {
-          console.error("❌ Error processing payment:", error);
+          console.error(" Lỗi xử lý thanh toán:", error);
           toast.error("Có lỗi xảy ra khi xử lý thanh toán");
         } finally {
           setIsProcessing(false);
@@ -99,7 +93,7 @@ function CheckoutSuccessContent() {
           <CheckCircle size={64} />
         </div>
         <h2 className="text-2xl font-semibold mb-2">
-          {orderStatus?.order_status === "COD" ? "Đặt hàng thành công" : "Thanh toán thành công"}
+          {orderStatus?.order_status === "COD" ? "Đặt hàng thành công" : "Đặt hàng thành công"}
         </h2>
         {orderCode && (
           <p className="text-gray-600 mb-4">

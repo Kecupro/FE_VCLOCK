@@ -19,6 +19,216 @@ const Height = 40;
 import { getAvatarSrc } from '../../utils/avatarUtils';
 import { clearAuthData } from '../../utils/authUtils';
 import NotificationBell from './NotificationBell';
+import { INotification } from '../cautrucdata';
+
+// Mobile Notification Components
+const MobileToast = ({ message, type = 'info', onClose }: { message: string, type?: 'info' | 'success' | 'error', onClose: () => void }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+  
+  return (
+    <div className={`fixed top-20 left-4 right-4 z-[60] ${bgColor} text-white p-3 rounded-lg shadow-lg flex items-center justify-between animate-slide-down`}>
+      <span className="text-sm">{message}</span>
+      <button onClick={onClose} className="ml-2 text-white hover:text-gray-200">
+        <i className="fa-solid fa-times"></i>
+      </button>
+    </div>
+  );
+};
+
+// Bottom Sheet Notification with full functionality
+const MobileBottomSheet = ({ isOpen, onClose, onNotificationsChange }: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  onNotificationsChange?: (hasNotifications: boolean) => void;
+}) => {
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState<INotification[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Format time function (same as NotificationBell)
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'Vừa xong';
+    if (minutes < 60) return `${minutes} phút trước`;
+    if (hours < 24) return `${hours} giờ trước`;
+    return `${days} ngày trước`;
+  };
+
+  useEffect(() => {
+    if (isOpen && user) {
+      fetchNotifications();
+    }
+  }, [isOpen, user]);
+
+  useEffect(() => {
+    if (onNotificationsChange) {
+      onNotificationsChange(notifications.length > 0);
+    }
+  }, [notifications, onNotificationsChange]);
+
+  const fetchNotifications = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('${process.env.NEXT_PUBLIC_API_URL}/api/notifications', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data.notifications || []);
+      }
+    } catch (error) {
+      console.error('Lỗi tải thông báo:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const markAsRead = async (notificationId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/${notificationId}/read`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      // Refresh notifications
+      fetchNotifications();
+    } catch (error) {
+      console.error('Lỗi đánh dấu đã đọc:', error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await fetch('${process.env.NEXT_PUBLIC_API_URL}/api/notifications/mark-all-read', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      fetchNotifications();
+    } catch (error) {
+      console.error('Lỗi đánh dấu tất cả đã đọc:', error);
+    }
+  };
+
+  if (!isOpen) return null;
+  
+  return (
+    <>
+      <div className="fixed inset-0 bg-black/50 z-[70]" onClick={onClose}></div>
+      <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-xl z-[71] animate-slide-up max-h-[70vh] overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <h3 className="font-semibold text-gray-800">Thông báo</h3>
+          <div className="flex items-center gap-2">
+            {notifications.length > 0 && (
+              <button 
+                onClick={markAllAsRead}
+                className="text-xs text-blue-600 hover:text-blue-800"
+              >
+                Đánh dấu tất cả đã đọc
+              </button>
+            )}
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              <i className="fa-solid fa-times text-xl"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div className="overflow-y-auto max-h-[calc(70vh-60px)]">
+          {loading ? (
+            <div className="flex justify-center items-center p-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="text-center p-8 text-gray-500">
+              <i className="fa-solid fa-bell text-4xl mb-4 text-gray-300"></i>
+              <p>Không có thông báo nào</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {notifications.map((notification) => (
+                <div 
+                  key={notification._id} 
+                  className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
+                    !notification.isRead ? 'bg-blue-50' : ''
+                  }`}
+                  onClick={() => markAsRead(notification._id)}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
+                      notification.isRead ? 'bg-gray-300' : 'bg-red-500'
+                    }`}></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">
+                        {notification.title}
+                      </p>
+                      <p className="text-xs text-gray-600 mt-1">
+                        {notification.message}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-2">
+                        {formatTime(notification.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
+// Floating Action Button
+const MobileFAB = ({ onClick, hasNotifications = false }: { onClick: () => void, hasNotifications?: boolean }) => {
+  return (
+    <button
+      onClick={onClick}
+      className="fixed bottom-6 left-6 w-12 h-12 bg-red-500 text-white rounded-full shadow-lg z-[60] flex items-center justify-center hover:bg-red-600 transition-colors md:hidden"
+    >
+      <i className="fa-solid fa-bell text-lg"></i>
+      {hasNotifications && (
+        <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-white rounded-full flex items-center justify-center">
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+        </div>
+      )}
+    </button>
+  );
+};
+
+// Status Bar Notification
+const MobileStatusBar = ({ message, type = 'info', onClose }: { message: string, type?: 'info' | 'success' | 'error', onClose: () => void }) => {
+  const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+  
+  return (
+    <div className={`fixed top-0 left-0 right-0 z-[80] ${bgColor} text-white p-2 text-center animate-slide-down`}>
+      <span className="text-xs">{message}</span>
+      <button onClick={onClose} className="absolute right-2 top-1/2 -translate-y-1/2 text-white">
+        <i className="fa-solid fa-times text-xs"></i>
+      </button>
+    </div>
+  );
+};
 
 function AvatarImage({ avatar, alt, size = 32, className = "" }: { avatar?: string | null, alt?: string, size?: number, className?: string }) {
   const [imgSrc, setImgSrc] = useState(getAvatarSrc(avatar));
@@ -64,6 +274,10 @@ const Header = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [mobileToast, setMobileToast] = useState<{ message: string; type: 'info' | 'success' | 'error' } | null>(null);
+  const [showBottomSheet, setShowBottomSheet] = useState(false);
+  const [showStatusBar, setShowStatusBar] = useState(false);
+  const [hasNotifications, setHasNotifications] = useState(false);
   const dropdownTimeout = useRef<NodeJS.Timeout | null>(null);
   const hasRefreshed = useRef(false);
   const router = useRouter();
@@ -193,6 +407,34 @@ const Header = () => {
 
   return (
     <header className="header">
+      <style jsx>{`
+        @keyframes slide-down {
+          from {
+            transform: translateY(-100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        @keyframes slide-up {
+          from {
+            transform: translateY(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        .animate-slide-down {
+          animation: slide-down 0.3s ease-out;
+        }
+        .animate-slide-up {
+          animation: slide-up 0.3s ease-out;
+        }
+      `}</style>
       <div
         className={`w-full z-50 header-info hidden sm:flex justify-between items-center py-3 px-4 sm:px-6 md:px-8 lg:px-[10%] bg-black text-white transition-all duration-300 fixed top-0 left-0`}
         style={{ height: Height }}
@@ -349,7 +591,13 @@ const Header = () => {
             </i>
           </Link>
           <Link href="/cart" className="text-white p-2"> 
-            <i className="fa-solid fa-bag-shopping text-2xl"></i>
+            <i className="fa-solid fa-bag-shopping text-2xl relative">
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 min-w-[16px] flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </i>
           </Link>
         </div>
       </div>
@@ -370,12 +618,36 @@ const Header = () => {
               <Link href="/news" className="font-semibold" onClick={() => setSidebarOpen(false)}>TIN TỨC</Link>
               <Link href="/contact" className="font-semibold" onClick={() => setSidebarOpen(false)}>LIÊN HỆ</Link>
             </nav>
-            <form className="relative flex items-center mb-6">
-              <input
-                type="text"
-                placeholder="Tìm kiếm..."
-                className="p-2 pr-10 rounded-4xl border-2 border-gray-300 w-full"
-              />
+            <form 
+              className="relative flex items-center mb-6"
+              onSubmit={e => {
+                e.preventDefault();
+                handleSearch(searchValue);
+                setSidebarOpen(false);
+              }}
+            >
+              <div className="relative w-full">
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm..."
+                  className="p-2 pr-10 rounded-4xl border-2 border-gray-300 w-full"
+                  value={searchValue}
+                  onChange={e => {
+                    setSearchValue(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                />
+                {searchValue && (
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+                    onClick={() => setSearchValue('')}
+                  >
+                    <i className="fa fa-times-circle"></i>
+                  </button>
+                )}
+              </div>
               <button
                 type="submit"
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-red-600 hover:text-red-800"
@@ -384,6 +656,85 @@ const Header = () => {
                 <i className="fa-solid fa-magnifying-glass"></i>
               </button>
             </form>
+
+            {/* Mobile Search Suggestions */}
+            {showSuggestions && (searchValue || searchHistory.length > 0) && (
+              <div className="absolute left-6 right-6 top-20 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-60 overflow-y-auto">
+                {searchValue && searchSuggestions.length > 0 && (
+                  <div className="p-2">
+                    <div className="text-xs text-gray-500 px-2 py-1">Gợi ý tìm kiếm</div>
+                    {searchSuggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        className="w-full text-left px-2 py-2 hover:bg-gray-100 rounded text-sm text-gray-700 flex items-center"
+                        onClick={() => {
+                          handleSearch(suggestion.name);
+                          setSidebarOpen(false);
+                        }}
+                      >
+                        <i className="fa-solid fa-magnifying-glass text-gray-400 mr-2"></i>
+                        {suggestion.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {!searchValue && searchHistory.length > 0 && (
+                  <div className="p-2">
+                    <div className="text-xs text-gray-500 px-2 py-1">Lịch sử tìm kiếm</div>
+                    {searchHistory.map((item, index) => (
+                      <div
+                        key={index}
+                        className="w-full text-left px-2 py-2 hover:bg-gray-100 rounded text-sm text-gray-700 flex items-center justify-between"
+                      >
+                        <button
+                          className="flex items-center flex-1 text-left"
+                          onClick={() => {
+                            handleSearch(item);
+                            setSidebarOpen(false);
+                          }}
+                        >
+                          <i className="fa-solid fa-clock text-gray-400 mr-2"></i>
+                          {item}
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const newHistory = searchHistory.filter((_, i) => i !== index);
+                            setSearchHistory(newHistory);
+                            localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+                          }}
+                          className="text-gray-400 hover:text-red-500 p-1 ml-2"
+                          type="button"
+                        >
+                          <i className="fa-solid fa-times"></i>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {!searchValue && (
+                  <div className="p-2 border-t border-gray-100">
+                    <div className="text-xs text-gray-500 px-2 py-1">Tìm kiếm phổ biến</div>
+                    <div className="flex flex-wrap gap-1">
+                      {['Đồng hồ nam', 'Đồng hồ nữ', 'Breguet', 'Cartier', 'Luxury'].map((tag, index) => (
+                        <button
+                          key={index}
+                          className="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-xs text-gray-700"
+                          onClick={() => {
+                            handleSearch(tag);
+                            setSidebarOpen(false);
+                          }}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             {user ? (
               <div className="mt-auto mb-4">
                 <Link 
@@ -391,8 +742,8 @@ const Header = () => {
                   className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded"
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <AvatarImage avatar={user.avatar} alt="avatar" size={32} />
-                  <span className="font-medium">{user.username}</span>
+                  <AvatarImage avatar={user.avatar} alt="avatar" size={28} />
+                  <span className="font-medium text-sm">{user.fullName || user.username}</span>
                 </Link>
               </div>
             ) : (
@@ -606,6 +957,37 @@ const Header = () => {
       <AuthModal 
         isOpen={showAuthModal} 
         onClose={() => setShowAuthModal(false)} 
+      />
+      
+      {/* Mobile Toast Notifications */}
+      {mobileToast && (
+        <MobileToast
+          message={mobileToast.message}
+          type={mobileToast.type}
+          onClose={() => setMobileToast(null)}
+        />
+      )}
+
+      {/* Mobile Bottom Sheet */}
+      <MobileBottomSheet 
+        isOpen={showBottomSheet} 
+        onClose={() => setShowBottomSheet(false)}
+        onNotificationsChange={setHasNotifications}
+      />
+
+      {/* Mobile Status Bar */}
+      {showStatusBar && (
+        <MobileStatusBar
+          message="Có thông báo mới!"
+          type="info"
+          onClose={() => setShowStatusBar(false)}
+        />
+      )}
+
+      {/* Mobile FAB - Floating Action Button */}
+      <MobileFAB 
+        onClick={() => setShowBottomSheet(true)} 
+        hasNotifications={hasNotifications}
       />
     </header>
   );

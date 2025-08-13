@@ -402,9 +402,9 @@ export default function ProductDetail() {
           {tab === "review" && (
             <div>
               <div className="flex items-center justify-center gap-2 mb-8 w-full">
-                <StarRating rating={stats?.averageRating || 0} className="text-red-500 text-3xl" />
-                <span className="ml-2 font-semibold text-lg text-gray-800">{stats?.averageRating}</span>
-                <span className="text-gray-500 text-sm">({stats?.totalReviews} đánh giá)</span>
+                <StarRating rating={stats?.averageRating || 0} className="text-red-500 text-xl sm:text-3xl" />
+                <span className="ml-2 font-semibold text-base sm:text-lg text-gray-800">{stats?.averageRating}</span>
+                <span className="text-gray-500 text-xs sm:text-sm">({stats?.totalReviews} đánh giá)</span>
               </div>
 
               <HienBinhLuanSP productId={product._id} onRefetchReady={(fn) => { refetchBinhLuan.current = fn; }} />

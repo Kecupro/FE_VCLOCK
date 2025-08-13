@@ -3,7 +3,7 @@
 export const clearAuthData = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  localStorage.removeItem('cart');
+  // localStorage.removeItem('cart');
   
   window.dispatchEvent(new StorageEvent('storage', {
     key: 'token',

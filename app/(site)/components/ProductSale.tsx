@@ -146,11 +146,12 @@ export default function ProductSale() {
                 <Swiper
                     modules={[Navigation, Autoplay]}
                     spaceBetween={24}
-                    slidesPerView={2}
+                    slidesPerView={1}
                     autoplay={{ delay: 2500, disableOnInteraction: false }}
                     breakpoints={{
-                        768: { slidesPerView: 4 },
-                        480: { slidesPerView: 3 },
+                        640: { slidesPerView: 2 },
+                        768: { slidesPerView: 3 },
+                        1024: { slidesPerView: 4 },
                     }}
                     loop
                 >
