@@ -444,3 +444,149 @@ html.dark-mode .select::-webkit-scrollbar-track {
   background-color: red;
 }
 
+/* Custom Select Dropdown Styles */
+.customSelect {
+  position: relative;
+  width: 100%;
+}
+
+.selectTrigger {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #f9fafb;
+  color: #374151;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+html.dark-mode .selectTrigger {
+  background-color: var(--card-bg-dark);
+  border: 1px solid var(--border-color-dark);
+  color: var(--text-color-dark);
+}
+
+.selectTrigger:hover {
+  border-color: #3b82f6;
+}
+
+.selectArrow {
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.selectDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-height: 300px;
+  overflow: hidden;
+}
+
+html.dark-mode .selectDropdown {
+  background-color: var(--card-bg-dark);
+  border: 1px solid var(--border-color-dark);
+}
+
+.searchContainer {
+  padding: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+html.dark-mode .searchContainer {
+  border-bottom: 1px solid var(--border-color-dark);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #ffffff;
+  color: #374151;
+  box-sizing: border-box;
+}
+
+html.dark-mode .searchInput {
+  background-color: var(--card-bg-dark);
+  border: 1px solid var(--border-color-dark);
+  color: var(--text-color-dark);
+}
+
+.optionsContainer {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+  transition: background-color 0.2s ease;
+}
+
+html.dark-mode .option {
+  color: var(--text-color-dark);
+}
+
+.option:hover {
+  background-color: #f3f4f6;
+}
+
+html.dark-mode .option:hover {
+  background-color: #374151;
+}
+
+.option.selected {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+html.dark-mode .option.selected {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.noResults {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+html.dark-mode .noResults {
+  color: #9ca3af;
+}
+
+.checkbox {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+  transition: background-color 0.2s ease;
+}
+

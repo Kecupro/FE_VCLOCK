@@ -110,6 +110,7 @@ function findFiles(dir, extensions = ['.ts', '.tsx', '.js', '.jsx']) {
       }
     }
   } catch (error) {
+    
   }
   
   return files;

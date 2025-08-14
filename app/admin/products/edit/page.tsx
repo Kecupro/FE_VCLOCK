@@ -35,11 +35,33 @@ const EditProduct = () => {
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [brands, setBrands] = useState<IBrand[]>([]);
   const [existingSubImages, setExistingSubImages] = useState<string[]>([]);
+  const [brandSearchTerm, setBrandSearchTerm] = useState('');
+  const [showBrandDropdown, setShowBrandDropdown] = useState(false);
+  const [categorySearchTerm, setCategorySearchTerm] = useState('');
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
   const { isDarkMode } = useAppContext();
   const router = useRouter();
   const searchParams = useSearchParams();
   const productId = searchParams?.get('id');
+
+  // Filter brands based on search term
+  const filteredBrands = brands.filter(brand =>
+    brand.name.toLowerCase().includes(brandSearchTerm.toLowerCase())
+  );
+
+  // Filter categories based on search term
+  const filteredCategories = categories.filter(category =>
+    category.name.toLowerCase().includes(categorySearchTerm.toLowerCase())
+  );
+
+  // Get selected brand name for display
+  const selectedBrandName = brands.find(brand => brand._id === selectedBrand)?.name || '--- Chọn thương hiệu ---';
+
+  // Get selected categories names for display
+  const selectedCategoriesNames = selectedCategories.length > 0 
+    ? selectedCategories.map(id => categories.find(cat => cat._id === id)?.name).filter(Boolean).join(', ')
+    : '--- Chọn danh mục ---';
 
   useEffect(() => {
     const html = document.documentElement;
@@ -47,16 +69,45 @@ const EditProduct = () => {
     else html.classList.remove(styles['dark-mode']);
   }, [isDarkMode]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest(`.${styles.customSelect}`)) {
+        setShowBrandDropdown(false);
+        setShowCategoryDropdown(false);
+      }
+    };
+
+    if (showBrandDropdown || showCategoryDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showBrandDropdown, showCategoryDropdown, styles.customSelect]);
+
   useEffect(() => {
     const fetchCategories = async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryProduct`);
-      const data = await res.json();
-      setCategories(data.list || []);
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryProduct`);
+        const data = await res.json();
+        setCategories(data.list || []);
+      } catch {
+        toast.error("Lỗi khi tải danh mục sản phẩm!");
+      }
     };
     const fetchBrands = async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand`);
-      const data = await res.json();
-      setBrands(data.list || []);
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/brand`);
+        const data = await res.json();
+        // Filter only active brands (brand_status: 0)
+        const activeBrands = data.filter((brand: IBrand) => brand.brand_status === 0);
+        setBrands(activeBrands || []);
+      } catch {
+        toast.error("Lỗi khi tải danh sách thương hiệu!");
+      }
     };
     fetchCategories();
     fetchBrands();
@@ -229,30 +280,120 @@ const EditProduct = () => {
           <label className={styles.label}>
             Danh mục <span style={{ color: 'red' }}>*</span>
           </label>
-          <select
-            className={styles.select}
-            multiple
-            value={selectedCategories}
-            onChange={(e) =>
-              setSelectedCategories(
-                Array.from(e.target.selectedOptions, (option) => option.value)
-              )
-            }
-          >
-            {categories.map((cate) => (
-              <option key={cate._id} value={cate._id}>
-                {cate.name}
-              </option>
-            ))}
-          </select>
+          <div className={styles.customSelect}>
+            <div 
+              className={styles.selectTrigger}
+              onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+            >
+              <span>{selectedCategoriesNames}</span>
+              <span className={styles.selectArrow}>▼</span>
+            </div>
+            
+            {showCategoryDropdown && (
+              <div className={styles.selectDropdown}>
+                <div className={styles.searchContainer}>
+                  <input
+                    type="text"
+                    placeholder="Tìm kiếm danh mục..."
+                    value={categorySearchTerm}
+                    onChange={(e) => setCategorySearchTerm(e.target.value)}
+                    className={styles.searchInput}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+                
+                <div className={styles.optionsContainer}>
+                  {filteredCategories.map((category) => (
+                    <div
+                      key={category._id}
+                      className={`${styles.option} ${selectedCategories.includes(category._id) ? styles.selected : ''}`}
+                      onClick={() => {
+                        const newSelectedCategories = selectedCategories.includes(category._id)
+                          ? selectedCategories.filter(id => id !== category._id)
+                          : [...selectedCategories, category._id];
+                        setSelectedCategories(newSelectedCategories);
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedCategories.includes(category._id)}
+                        onChange={() => {}} // Handled by parent div onClick
+                        className={styles.checkbox}
+                      />
+                      {category.name}
+                    </div>
+                  ))}
+                  
+                  {filteredCategories.length === 0 && categorySearchTerm && (
+                    <div className={styles.noResults}>
+                      Không tìm thấy danh mục &quot;{categorySearchTerm}&quot;
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className={styles.formGroup}>
           <label className={styles.label}>Thương hiệu <span style={{color: "red"}}>*</span></label>
-          <select className={styles.select} value={selectedBrand} onChange={(e) => setSelectedBrand(e.target.value)}>
-            <option value="">--- Chọn thương hiệu ---</option>
-            {brands.map(cate => <option key={cate._id} value={cate._id}>{cate.name}</option>)}
-          </select>
+          <div className={styles.customSelect}>
+            <div 
+              className={styles.selectTrigger}
+              onClick={() => setShowBrandDropdown(!showBrandDropdown)}
+            >
+              <span>{selectedBrandName}</span>
+              <span className={styles.selectArrow}>▼</span>
+            </div>
+            
+            {showBrandDropdown && (
+              <div className={styles.selectDropdown}>
+                <div className={styles.searchContainer}>
+                  <input
+                    type="text"
+                    placeholder="Tìm kiếm thương hiệu..."
+                    value={brandSearchTerm}
+                    onChange={(e) => setBrandSearchTerm(e.target.value)}
+                    className={styles.searchInput}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+                
+                <div className={styles.optionsContainer}>
+                  <div
+                    className={styles.option}
+                    onClick={() => {
+                      setSelectedBrand('');
+                      setShowBrandDropdown(false);
+                      setBrandSearchTerm('');
+                    }}
+                  >
+                    --- Chọn thương hiệu ---
+                  </div>
+                  
+                  {filteredBrands.map((brand) => (
+                    <div
+                      key={brand._id}
+                      className={`${styles.option} ${selectedBrand === brand._id ? styles.selected : ''}`}
+                      onClick={() => {
+                        setSelectedBrand(brand._id);
+                        setShowBrandDropdown(false);
+                        setBrandSearchTerm('');
+                      }}
+                    >
+                      {brand.name}
+                    </div>
+                  ))}
+                  
+                  {filteredBrands.length === 0 && brandSearchTerm && (
+                    <div className={styles.noResults}>
+                      Không tìm thấy thương hiệu &quot;{brandSearchTerm}&quot;
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className={styles.formGroup}>

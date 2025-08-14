@@ -55,8 +55,17 @@ export default function OrderCard({ user_id }: OrderCardProps) {
     const fetchOrders = async () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders?user_id=${user_id}`);
-        const data: IOrder[] = await res.json();
-        const mapped = (data || []).map((order: IOrder) => ({
+        const data = await res.json();
+        
+        // Kiểm tra xem data có phải là array không
+        if (!Array.isArray(data)) {
+          console.warn("API trả về dữ liệu không phải array:", data);
+          setOrders([]);
+          setOrderDetailsMap({});
+          return;
+        }
+        
+        const mapped = data.map((order: IOrder) => ({
           ...order,
           order_status: mapOrderStatus(order.order_status) as IOrder['order_status'],
           payment_status: mapPaymentStatus(order.payment_status) as IOrder['payment_status'],
@@ -66,19 +75,34 @@ export default function OrderCard({ user_id }: OrderCardProps) {
         const detailMap: Record<string, IOrderDetail[]> = {};
         await Promise.all(
           mapped.map(async (order) => {
-            const detailRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/order-details/${order._id}`);
-            const details: IOrderDetail[] = await detailRes.json();
-            detailMap[order._id] = details;
+            try {
+              const detailRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/order-details/${order._id}`);
+              const details = await detailRes.json();
+              detailMap[order._id] = Array.isArray(details) ? details : [];
+            } catch (error) {
+              console.error(`Lỗi khi tải chi tiết đơn hàng ${order._id}:`, error);
+              detailMap[order._id] = [];
+            }
           })
         );
         setOrderDetailsMap(detailMap);
       } catch (err) {
         console.error("Lỗi khi tải đơn hàng:", err);
+        setOrders([]);
+        setOrderDetailsMap({});
       } finally {
         setLoading(false);
       }
     };
+    
+    // Chỉ fetch khi có user_id hợp lệ
+    if (user_id && user_id.trim() !== '') {
       fetchOrders();
+    } else {
+      setOrders([]);
+      setOrderDetailsMap({});
+      setLoading(false);
+    }
   }, [user_id]);
 
   useEffect(() => {
@@ -93,6 +117,14 @@ export default function OrderCard({ user_id }: OrderCardProps) {
           },
         });
         const data = await res.json();
+        
+        // Kiểm tra xem data có phải là array không
+        if (!Array.isArray(data)) {
+          console.warn("API reviews trả về dữ liệu không phải array:", data);
+          setReviewedDetails({});
+          return;
+        }
+        
         const map: Record<string, number> = {};
         data.forEach((review: { order_detail_id: string, rating: number }) => {
           map[review.order_detail_id] = review.rating;
@@ -100,6 +132,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
         setReviewedDetails(map);
       } catch (err) {
         console.error("Lỗi tải đánh giá:", err);
+        setReviewedDetails({});
       }
     };
     fetchReviews();
@@ -107,9 +140,15 @@ export default function OrderCard({ user_id }: OrderCardProps) {
 
   const handleCancelOrder = async (order_id: string) => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cancel-order/${order_id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cancel-order/${order_id}`, {
         method: "PUT",
       });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Không thể hủy đơn hàng");
+      }
+      
       setOrders((prev) =>
         prev.map((o) =>
           o._id === order_id ? { ...o, order_status: "daHuy" } : o
@@ -118,7 +157,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
       toast.success("Đơn hàng đã được hủy thành công");
     } catch (err) {
       console.error("Lỗi khi hủy đơn hàng:", err);
-      alert("Không thể hủy đơn. Vui lòng thử lại.");
+      toast.error(err instanceof Error ? err.message : "Không thể hủy đơn. Vui lòng thử lại.");
     }
   };
 

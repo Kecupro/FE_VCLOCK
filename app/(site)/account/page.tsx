@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import Image from "next/image";
 import { getAvatarSrc } from "../../utils/avatarUtils";
 import { getProductImageUrl } from '@/app/utils/imageUtils';
+import * as Dialog from "@radix-ui/react-dialog";
 interface WishlistItem {
   _id: string;
   product_id: string;
@@ -49,6 +50,14 @@ function AccountPageContent() {
     address: ''
   });
   const [tab, setTab] = useState<"info" | "orders" | "favorites" | "addresses" | "voucher">("info");
+  
+  // Modal states
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showDeleteAddressModal, setShowDeleteAddressModal] = useState(false);
+  const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
+  const [showRemoveWishlistModal, setShowRemoveWishlistModal] = useState(false);
+  const [productToRemove, setProductToRemove] = useState<string | null>(null);
+  const [showClearWishlistModal, setShowClearWishlistModal] = useState(false);
   
 
   useEffect(() => {
@@ -166,9 +175,12 @@ function AccountPageContent() {
   }, [tab, fetchWishlistItems]);
 
   const handleLogout = () => {
-    if (window.confirm('Bạn có chắc chắn muốn đăng xuất?')) {
-      logout();
-    }
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = () => {
+    logout();
+    setShowLogoutModal(false);
   };
 
   const handleAvatarClick = () => fileInputRef.current?.click();
@@ -356,13 +368,18 @@ const result = await response.json();
   };
 
   const handleDeleteAddress = async (addressId: string) => {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa địa chỉ này?')) return;
+    setAddressToDelete(addressId);
+    setShowDeleteAddressModal(true);
+  };
+
+  const confirmDeleteAddress = async () => {
+    if (!addressToDelete) return;
 
     const token = localStorage.getItem("token");
     if (!token) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses/${addressId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/addresses/${addressToDelete}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -370,7 +387,7 @@ const result = await response.json();
       });
 
       if (response.ok) {
-        setAddresses(addresses.filter(addr => addr._id !== addressId));
+        setAddresses(addresses.filter(addr => addr._id !== addressToDelete));
         toast.success("Xóa địa chỉ thành công!");
       } else {
         const errorData = await response.json();
@@ -379,6 +396,9 @@ const result = await response.json();
     } catch (error) {
       console.error("Lỗi xóa địa chỉ:", error);
       toast.error("Đã xảy ra lỗi. Vui lòng thử lại sau!");
+    } finally {
+      setShowDeleteAddressModal(false);
+      setAddressToDelete(null);
     }
   };
 
@@ -483,12 +503,18 @@ address: address.address
   };
 
   const handleRemoveFromWishlist = async (productId: string) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi danh sách yêu thích?")) return;
+    setProductToRemove(productId);
+    setShowRemoveWishlistModal(true);
+  };
+
+  const confirmRemoveFromWishlist = async () => {
+    if (!productToRemove) return;
+    
     const token = localStorage.getItem("token");
     if (!token) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist/${productId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist/${productToRemove}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -496,13 +522,16 @@ address: address.address
       });
 
       if (response.ok) {
-        setWishlistItems(wishlistItems.filter(item => item.product_id !== productId));
+        setWishlistItems(wishlistItems.filter(item => item.product_id !== productToRemove));
         refreshWishlistCount(); 
         toast.success('Đã xóa sản phẩm khỏi danh sách yêu thích!');
       }
     } catch (error) {
       console.error("Lỗi xóa khỏi danh sách yêu thích:", error);
-      alert('Có lỗi xảy ra khi xóa sản phẩm khỏi danh sách yêu thích.');
+      toast.error('Có lỗi xảy ra khi xóa sản phẩm khỏi danh sách yêu thích.');
+    } finally {
+      setShowRemoveWishlistModal(false);
+      setProductToRemove(null);
     }
   };
 
@@ -528,7 +557,10 @@ address: address.address
 
 
   const handleClearWishlist = async () => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa tất cả sản phẩm khỏi danh sách yêu thích?")) return;
+    setShowClearWishlistModal(true);
+  };
+
+  const confirmClearWishlist = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
     try {
@@ -553,6 +585,7 @@ address: address.address
       toast.error('Có lỗi xảy ra khi xóa toàn bộ wishlist.');
     } finally {
       setIsLoadingWishlist(false);
+      setShowClearWishlistModal(false);
     }
   };
 
@@ -1044,7 +1077,111 @@ type="submit"
           </section>
         </div>
       </div>
-      
+
+      {/* Logout Modal */}
+      <Dialog.Root open={showLogoutModal} onOpenChange={setShowLogoutModal}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/30" />
+          <Dialog.Content className="bg-white rounded-xl shadow-xl p-6 max-w-sm mx-auto fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 space-y-4 z-50">
+            <Dialog.Title className="text-lg font-semibold text-red-600">Xác nhận đăng xuất</Dialog.Title>
+            <div className="text-sm text-gray-600">
+              Bạn có chắc chắn muốn đăng xuất?
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Dialog.Close asChild>
+                <button className="px-4 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-100">
+                  Hủy
+                </button>
+              </Dialog.Close>
+              <button
+                onClick={confirmLogout}
+                className="px-4 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700"
+              >
+                Đăng xuất
+              </button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      {/* Delete Address Modal */}
+      <Dialog.Root open={showDeleteAddressModal} onOpenChange={setShowDeleteAddressModal}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/30" />
+          <Dialog.Content className="bg-white rounded-xl shadow-xl p-6 max-w-sm mx-auto fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 space-y-4 z-50">
+            <Dialog.Title className="text-lg font-semibold text-red-600">Xác nhận xóa địa chỉ</Dialog.Title>
+            <div className="text-sm text-gray-600">
+              Bạn có chắc chắn muốn xóa địa chỉ này?
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Dialog.Close asChild>
+                <button className="px-4 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-100">
+                  Hủy
+                </button>
+              </Dialog.Close>
+              <button
+                onClick={confirmDeleteAddress}
+                className="px-4 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700"
+              >
+                Xóa
+              </button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      {/* Remove Wishlist Item Modal */}
+      <Dialog.Root open={showRemoveWishlistModal} onOpenChange={setShowRemoveWishlistModal}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/30" />
+          <Dialog.Content className="bg-white rounded-xl shadow-xl p-6 max-w-sm mx-auto fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 space-y-4 z-50">
+            <Dialog.Title className="text-lg font-semibold text-red-600">Xóa khỏi yêu thích</Dialog.Title>
+            <div className="text-sm text-gray-600">
+              Bạn có chắc chắn muốn xóa sản phẩm này khỏi danh sách yêu thích?
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Dialog.Close asChild>
+                <button className="px-4 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-100">
+                  Hủy
+                </button>
+              </Dialog.Close>
+              <button
+                onClick={confirmRemoveFromWishlist}
+                className="px-4 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700"
+              >
+                Xóa
+              </button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      {/* Clear Wishlist Modal */}
+      <Dialog.Root open={showClearWishlistModal} onOpenChange={setShowClearWishlistModal}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/30" />
+          <Dialog.Content className="bg-white rounded-xl shadow-xl p-6 max-w-sm mx-auto fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 space-y-4 z-50">
+            <Dialog.Title className="text-lg font-semibold text-red-600">Xóa toàn bộ yêu thích</Dialog.Title>
+            <div className="text-sm text-gray-600">
+              Bạn có chắc chắn muốn xóa tất cả sản phẩm khỏi danh sách yêu thích?
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Dialog.Close asChild>
+                <button className="px-4 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-100">
+                  Hủy
+                </button>
+              </Dialog.Close>
+              <button
+                onClick={confirmClearWishlist}
+                disabled={isLoadingWishlist}
+                className="px-4 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {isLoadingWishlist ? 'Đang xóa...' : 'Xóa tất cả'}
+              </button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
       
     </main>
   );

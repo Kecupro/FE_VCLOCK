@@ -96,7 +96,7 @@ export interface IOrder {
   _id: string;
   orderCode?: string;
   user_id: IUser;
-  voucher_id: IVoucher;
+  voucher_id: IVoucher | null;
   address_id: IAddress;
   payment_method_id: IPaymentMethod;
   details: {

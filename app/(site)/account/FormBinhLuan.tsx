@@ -36,7 +36,7 @@ export default function ReviewForm({
       const data = await res.json();
       if (res.ok) {
         if (res.ok) {
-          setMessage('🎉 Gửi đánh giá thành công!');
+          setMessage('Gửi đánh giá thành công!');
           setRating(0);
           setComment('');
           onSuccess?.(rating); // Gửi số sao lên component cha
@@ -95,7 +95,7 @@ export default function ReviewForm({
       </button>
 
       {message && (
-        <p className="text-sm mt-1 text-center text-green-600">{message}</p>
+        <p className="text-sm mt-1 text-center text-red-600">{message}</p>
       )}
     </form>
   );

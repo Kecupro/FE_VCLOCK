@@ -9,6 +9,7 @@ import AuthModal from "./AuthModal";
 import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
 import TypewriterPlaceholder from "./TypewriterPlaceholder";
+import * as Dialog from "@radix-ui/react-dialog";
 interface SearchSuggestion {
   name: string;
   type: string;
@@ -279,6 +280,9 @@ const Header = () => {
   const [showStatusBar, setShowStatusBar] = useState(false);
   const [hasNotifications, setHasNotifications] = useState(false);
   const dropdownTimeout = useRef<NodeJS.Timeout | null>(null);
+  
+  // Modal states
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const hasRefreshed = useRef(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -536,11 +540,7 @@ const Header = () => {
                     <hr className="my-2" />
                     <button
                       className="w-full flex items-center gap-2 text-left px-3 py-2 hover:bg-red-50 rounded text-red-600 transition"
-                      onClick={() => {
-                        if (window.confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
-                          logout();
-                        }
-                      }}
+                      onClick={() => setShowLogoutModal(true)}
                     >
                       <i className="fa-solid fa-right-from-bracket"></i>
                       Đăng xuất
@@ -989,6 +989,35 @@ const Header = () => {
         onClick={() => setShowBottomSheet(true)} 
         hasNotifications={hasNotifications}
       />
+
+      {/* Logout Modal */}
+      <Dialog.Root open={showLogoutModal} onOpenChange={setShowLogoutModal}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/30" />
+          <Dialog.Content className="bg-white rounded-xl shadow-xl p-6 max-w-sm mx-auto fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 space-y-4 z-50">
+            <Dialog.Title className="text-lg font-semibold text-red-600">Xác nhận đăng xuất</Dialog.Title>
+            <div className="text-sm text-gray-600">
+              Bạn có chắc chắn muốn đăng xuất?
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Dialog.Close asChild>
+                <button className="px-4 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-100">
+                  Hủy
+                </button>
+              </Dialog.Close>
+              <button
+                onClick={() => {
+                  logout();
+                  setShowLogoutModal(false);
+                }}
+                className="px-4 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700"
+              >
+                Đăng xuất
+              </button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </header>
   );
 };

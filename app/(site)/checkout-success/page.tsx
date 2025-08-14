@@ -38,7 +38,7 @@ function CheckoutSuccessContent() {
             setOrderStatus(data);
           } else {
 
-            toast.error(data.message || "Có lỗi xảy ra khi xử lý thanh toán");
+            toast.error(data.message || "Có lỗi xảy ra ");
           }
         } catch (error) {
           console.error(" Lỗi xử lý thanh toán:", error);
@@ -105,7 +105,7 @@ function CheckoutSuccessContent() {
             ? "Cảm ơn bạn đã mua hàng! Đơn hàng đã được xử lý thành công."
             : orderStatus 
               ? "Cảm ơn bạn đã mua hàng! Thanh toán đã được xử lý thành công."
-              : "Cảm ơn bạn đã mua hàng! Thanh toán đang được xử lý."
+              : "Cảm ơn bạn đã mua hàng! Đơn hàng của bạn đang được xử lý."
           }
         </p>
         <div className="flex justify-center gap-4">

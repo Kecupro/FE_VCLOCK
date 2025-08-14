@@ -66,18 +66,6 @@ const AddVoucher = () => {
     return;
   }
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  let status: 0 | 1 | 2;
-  if (today < start) {
-    status = 2;
-  } else if (today > end) {
-    status = 1;
-  } else {
-    status = 0;
-  }
-
   const body = {
     voucher_name,
     voucher_code,
@@ -87,7 +75,6 @@ const AddVoucher = () => {
     end_date: endDate,
     minimum_order_value: Number(minOrderValue) || 0,
     max_discount: Number(maxDiscount) || 0,
-    status,
   };
 
   try {

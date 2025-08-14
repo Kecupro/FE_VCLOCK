@@ -158,7 +158,7 @@ const RatingPage = () => {
               <Search className={styles.searchIcon} size={16} />
               <input
                 type="text"
-                placeholder="Tìm theo bình luận, sản phẩm, khách hàng..."
+                placeholder="Tìm theo bình luận..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className={styles.searchInput}

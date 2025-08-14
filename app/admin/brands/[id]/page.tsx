@@ -271,9 +271,17 @@ const BrandDetailPage: React.FC = () => {
 
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Mô tả:</span>
-              <span className={styles.detailValue}>
-                {brand.description || "Không có mô tả"}
-              </span>
+              <div className={styles.detailValue}>
+                <div 
+                  dangerouslySetInnerHTML={{ 
+                    __html: brand.description || "Không có mô tả" 
+                  }}
+                  style={{
+                    maxWidth: '100%',
+                    wordWrap: 'break-word'
+                  }}
+                />
+              </div>
             </div>
           
             <div className={styles.detailRow}>
