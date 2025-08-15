@@ -777,7 +777,7 @@ className="bg-gray-600 text-sm text-white px-6 py-2 rounded-lg font-semibold hov
             {tab === "addresses" && (
               <div>
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold text-gray-800">Địa chỉ </h2>
+                  <h2 className="text-lg font-bold text-gray-800">Địa chỉ </h2>
                   <button
                     onClick={() => setIsAddingAddress(true)}
                     className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center space-x-2"
@@ -921,7 +921,7 @@ type="submit"
                       <div className="flex justify-between items-start">
                         <div className="w-full">
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-semibold text-gray-800 text-lg">{addr.receiver_name}</h3>
+                            <h3 className="font-bold text-gray-800 text-sm">{addr.receiver_name}</h3>
                             <div className="flex space-x-2">
                               <button
                                 onClick={() => handleEditAddress(addr)}
@@ -990,7 +990,7 @@ type="submit"
 
             {tab === "favorites" && (
               <div>
-                <h2 className="text-xl font-bold text-gray-800 mb-6">Sản phẩm yêu thích</h2>
+                <h2 className="text-lg font-bold text-gray-800 mb-6">Sản phẩm yêu thích</h2>
 
                 {wishlistItems.length > 0 && (
                   <div className="flex justify-end mb-4">

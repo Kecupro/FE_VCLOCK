@@ -102,42 +102,145 @@ export default function News() {
                 />
                 <div className="absolute inset-0 bg-black/30 group-hover:bg-black/5 transition"></div>
                 <div className="relative z-10 p-6 bg-black bg-black/10 backdrop-blur-sm flex flex-col justify-end min-h-[140px]">
-                  <h4 className="font-semibold text-lg mb-2 text-white drop-shadow">{news.title}</h4>
+                  <h4 className="font-semibold text-lg mb-2 text-white drop-shadow truncate">{news.title}</h4>
                   <p className="text-gray-200 text-sm mb-2 drop-shadow">
                     {news.content ? 
                       (() => {
                         try {
-                          // Xử lý HTML entities trước
-                          const cleanContent = news.content.replace(/<[^>]*>/g, '').replace(/&[a-zA-Z0-9#]+;/g, (match) => {
-                            const entities: { [key: string]: string } = {
-                              '&oacute;': 'ó', '&agrave;': 'à', '&nbsp;': ' ', '&aacute;': 'á', '&eacute;': 'é',
-                              '&egrave;': 'è', '&uacute;': 'ú', '&ugrave;': 'ù', '&iacute;': 'í', '&igrave;': 'ì',
-                              '&yacute;': 'ý', '&ograve;': 'ò', '&atilde;': 'ã', '&otilde;': 'õ', '&ntilde;': 'ñ',
-                              '&ccedil;': 'ç', '&Aacute;': 'Á', '&Eacute;': 'É', '&Iacute;': 'Í', '&Oacute;': 'Ó',
-                              '&Uacute;': 'Ú', '&Agrave;': 'À', '&Egrave;': 'È', '&Igrave;': 'Ì', '&Ograve;': 'Ò',
-                              '&Ugrave;': 'Ù', '&Atilde;': 'Ã', '&Otilde;': 'Õ', '&Ntilde;': 'Ñ', '&Ccedil;': 'Ç'
-                            };
-                            return entities[match] || match;
+                          // Loại bỏ HTML tags
+                          let cleanContent = news.content.replace(/<[^>]*>/g, '');
+                          
+                          // Tạo một element tạm để decode HTML entities
+                          const tempDiv = document.createElement('div');
+                          tempDiv.innerHTML = cleanContent;
+                          cleanContent = tempDiv.textContent || tempDiv.innerText || '';
+                          
+                          // Xử lý các HTML entities phổ biến từ TinyMCE
+                          const htmlEntities: { [key: string]: string } = {
+                            '&nbsp;': ' ',
+                            '&amp;': '&',
+                            '&lt;': '<',
+                            '&gt;': '>',
+                            '&quot;': '"',
+                            '&#39;': "'",
+                            '&apos;': "'",
+                            '&ndash;': '-',
+                            '&mdash;': '-',
+                            '&hellip;': '...',
+                            '&ldquo;': '"',
+                            '&rdquo;': '"',
+                            '&lsquo;': "'",
+                            '&rsquo;': "'",
+                            '&copy;': '(c)',
+                            '&reg;': '(R)',
+                            '&trade;': '(TM)',
+                            '&deg;': '°',
+                            '&plusmn;': '+/-',
+                            '&times;': 'x',
+                            '&divide;': '/',
+                            '&frac12;': '1/2',
+                            '&frac14;': '1/4',
+                            '&frac34;': '3/4',
+                            '&sup1;': '1',
+                            '&sup2;': '2',
+                            '&sup3;': '3',
+                            '&micro;': 'u',
+                            '&para;': 'P',
+                            '&sect;': 'S',
+                            '&bull;': '*',
+                            '&middot;': '*',
+                            '&dagger;': '+',
+                            '&Dagger;': '++',
+                            '&larr;': '<-',
+                            '&rarr;': '->',
+                            '&uarr;': '^',
+                            '&darr;': 'v',
+                            '&lArr;': '<=',
+                            '&rArr;': '=>',
+                            '&uArr;': '^^',
+                            '&dArr;': 'vv',
+                            '&harr;': '<->',
+                            '&hArr;': '<=>',
+                            '&spades;': 'S',
+                            '&clubs;': 'C',
+                            '&hearts;': 'H',
+                            '&diams;': 'D',
+                            // Tiếng Việt
+                            '&oacute;': 'ó',
+                            '&agrave;': 'à',
+                            '&aacute;': 'á',
+                            '&eacute;': 'é',
+                            '&egrave;': 'è',
+                            '&uacute;': 'ú',
+                            '&ugrave;': 'ù',
+                            '&iacute;': 'í',
+                            '&igrave;': 'ì',
+                            '&yacute;': 'ý',
+                            '&ograve;': 'ò',
+                            '&atilde;': 'ã',
+                            '&otilde;': 'õ',
+                            '&ntilde;': 'ñ',
+                            '&ccedil;': 'ç',
+                            '&Aacute;': 'Á',
+                            '&Eacute;': 'É',
+                            '&Iacute;': 'Í',
+                            '&Oacute;': 'Ó',
+                            '&Uacute;': 'Ú',
+                            '&Agrave;': 'À',
+                            '&Egrave;': 'È',
+                            '&Igrave;': 'Ì',
+                            '&Ograve;': 'Ò',
+                            '&Ugrave;': 'Ù',
+                            '&Atilde;': 'Ã',
+                            '&Otilde;': 'Õ',
+                            '&Ntilde;': 'Ñ',
+                            '&Ccedil;': 'Ç',
+                            '&ocirc;': 'ô',
+                            '&acirc;': 'â',
+                            '&ecirc;': 'ê',
+                            '&icirc;': 'î',
+                            '&ucirc;': 'û',
+                            '&Ocirc;': 'Ô',
+                            '&Acirc;': 'Â',
+                            '&Ecirc;': 'Ê',
+                            '&Icirc;': 'Î',
+                            '&Ucirc;': 'Û'
+                          };
+                          
+                          // Thay thế HTML entities còn lại
+                          cleanContent = cleanContent.replace(/&[a-zA-Z0-9#]+;/g, (match) => {
+                            return htmlEntities[match] || match;
                           });
                           
-                          // Thử decodeURIComponent với try-catch
-                          let decodedContent;
-                          try {
-                            decodedContent = decodeURIComponent(cleanContent);
-                          } catch {
-                            // Nếu decodeURIComponent fail, sử dụng content gốc đã clean
-                            decodedContent = cleanContent;
+                          // Loại bỏ khoảng trắng thừa
+                          cleanContent = cleanContent.replace(/\s+/g, ' ').trim();
+                          
+                          // Giới hạn độ dài
+                          const maxLength = 120;
+                          if (cleanContent.length > maxLength) {
+                            return cleanContent.substring(0, maxLength).trim() + '...';
                           }
                           
-                          const maxLength = 120;
-                          if (decodedContent.length > maxLength) {
-                            return decodedContent.substring(0, maxLength).trim() + '...';
-                          }
-                          return decodedContent;
+                          return cleanContent;
                         } catch (error) {
-                          // Fallback: trả về chuỗi rỗng nếu có lỗi
                           console.error('Error processing news content:', error);
-                          return '';
+                          // Fallback: sử dụng DOMParser nếu có thể
+                          try {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(news.content, 'text/html');
+                            const fallbackContent = doc.body.textContent || doc.body.innerText || '';
+                            const cleanFallback = fallbackContent.replace(/\s+/g, ' ').trim();
+                            return cleanFallback.length > 120 
+                              ? cleanFallback.substring(0, 120) + '...' 
+                              : cleanFallback;
+                          } catch (fallbackError) {
+                            console.error('Fallback error:', fallbackError);
+                            // Fallback cuối cùng: trả về nội dung gốc đã được cắt ngắn
+                            const fallbackContent = news.content.replace(/<[^>]*>/g, '').trim();
+                            return fallbackContent.length > 120 
+                              ? fallbackContent.substring(0, 120) + '...' 
+                              : fallbackContent;
+                          }
                         }
                       })() : ''
                     }

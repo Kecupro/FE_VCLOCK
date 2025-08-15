@@ -11,22 +11,130 @@ import { getNewsImageUrl } from '@/app/utils/imageUtils';
 const cleanContent = (content: string | undefined): string => {
   if (!content) return '';
   
-  // Loại bỏ HTML tags
-  let cleaned = content.replace(/<[^>]*>/g, '');
-  
-  // Xử lý HTML entities
-  const entities: { [key: string]: string } = {
-    '&oacute;': 'ó', '&agrave;': 'à', '&nbsp;': ' ', '&aacute;': 'á', '&eacute;': 'é',
-    '&egrave;': 'è', '&uacute;': 'ú', '&ugrave;': 'ù', '&iacute;': 'í', '&igrave;': 'ì',
-    '&yacute;': 'ý', '&ograve;': 'ò', '&atilde;': 'ã', '&otilde;': 'õ', '&ntilde;': 'ñ',
-    '&ccedil;': 'ç', '&Aacute;': 'Á', '&Eacute;': 'É', '&Iacute;': 'Í', '&Oacute;': 'Ó',
-    '&Uacute;': 'Ú', '&Agrave;': 'À', '&Egrave;': 'È', '&Igrave;': 'Ì', '&Ograve;': 'Ò',
-    '&Ugrave;': 'Ù', '&Atilde;': 'Ã', '&Otilde;': 'Õ', '&Ntilde;': 'Ñ', '&Ccedil;': 'Ç'
-  };
-  
-  cleaned = cleaned.replace(/&[a-zA-Z0-9#]+;/g, (match) => entities[match] || match);
-  
-  return cleaned;
+  try {
+    // Loại bỏ HTML tags
+    let cleaned = content.replace(/<[^>]*>/g, '');
+    
+    // Tạo một element tạm để decode HTML entities
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = cleaned;
+    cleaned = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // Xử lý các HTML entities phổ biến từ TinyMCE
+    const htmlEntities: { [key: string]: string } = {
+      '&nbsp;': ' ',
+      '&amp;': '&',
+      '&lt;': '<',
+      '&gt;': '>',
+      '&quot;': '"',
+      '&#39;': "'",
+      '&apos;': "'",
+      '&ndash;': '-',
+      '&mdash;': '-',
+      '&hellip;': '...',
+      '&ldquo;': '"',
+      '&rdquo;': '"',
+      '&lsquo;': "'",
+      '&rsquo;': "'",
+      '&copy;': '(c)',
+      '&reg;': '(R)',
+      '&trade;': '(TM)',
+      '&deg;': '°',
+      '&plusmn;': '+/-',
+      '&times;': 'x',
+      '&divide;': '/',
+      '&frac12;': '1/2',
+      '&frac14;': '1/4',
+      '&frac34;': '3/4',
+      '&sup1;': '1',
+      '&sup2;': '2',
+      '&sup3;': '3',
+      '&micro;': 'u',
+      '&para;': 'P',
+      '&sect;': 'S',
+      '&bull;': '*',
+      '&middot;': '*',
+      '&dagger;': '+',
+      '&Dagger;': '++',
+      '&larr;': '<-',
+      '&rarr;': '->',
+      '&uarr;': '^',
+      '&darr;': 'v',
+      '&lArr;': '<=',
+      '&rArr;': '=>',
+      '&uArr;': '^^',
+      '&dArr;': 'vv',
+      '&harr;': '<->',
+      '&hArr;': '<=>',
+      '&spades;': 'S',
+      '&clubs;': 'C',
+      '&hearts;': 'H',
+      '&diams;': 'D',
+      // Tiếng Việt
+      '&oacute;': 'ó',
+      '&agrave;': 'à',
+      '&aacute;': 'á',
+      '&eacute;': 'é',
+      '&egrave;': 'è',
+      '&uacute;': 'ú',
+      '&ugrave;': 'ù',
+      '&iacute;': 'í',
+      '&igrave;': 'ì',
+      '&yacute;': 'ý',
+      '&ograve;': 'ò',
+      '&atilde;': 'ã',
+      '&otilde;': 'õ',
+      '&ntilde;': 'ñ',
+      '&ccedil;': 'ç',
+      '&Aacute;': 'Á',
+      '&Eacute;': 'É',
+      '&Iacute;': 'Í',
+      '&Oacute;': 'Ó',
+      '&Uacute;': 'Ú',
+      '&Agrave;': 'À',
+      '&Egrave;': 'È',
+      '&Igrave;': 'Ì',
+      '&Ograve;': 'Ò',
+      '&Ugrave;': 'Ù',
+      '&Atilde;': 'Ã',
+      '&Otilde;': 'Õ',
+      '&Ntilde;': 'Ñ',
+      '&Ccedil;': 'Ç',
+      '&ocirc;': 'ô',
+      '&acirc;': 'â',
+      '&ecirc;': 'ê',
+      '&icirc;': 'î',
+      '&ucirc;': 'û',
+      '&Ocirc;': 'Ô',
+      '&Acirc;': 'Â',
+      '&Ecirc;': 'Ê',
+      '&Icirc;': 'Î',
+      '&Ucirc;': 'Û'
+    };
+    
+    // Thay thế HTML entities còn lại
+    cleaned = cleaned.replace(/&[a-zA-Z0-9#]+;/g, (match) => {
+      return htmlEntities[match] || match;
+    });
+    
+    // Loại bỏ khoảng trắng thừa
+    cleaned = cleaned.replace(/\s+/g, ' ').trim();
+    
+    return cleaned;
+  } catch (error) {
+    console.error('Error processing content:', error);
+    // Fallback: sử dụng DOMParser nếu có thể
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(content, 'text/html');
+      const fallbackContent = doc.body.textContent || doc.body.innerText || '';
+      return fallbackContent.replace(/\s+/g, ' ').trim();
+    } catch (fallbackError) {
+      console.error('Fallback error:', fallbackError);
+      // Fallback cuối cùng: trả về nội dung gốc đã được làm sạch
+      return content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+    }
+  }
 };
 interface NewsResponse {
   news: INews[];

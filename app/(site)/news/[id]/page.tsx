@@ -120,8 +120,8 @@ export default function NewsDetail() {
   return (
     <div className="w-full bg-white py-8 pt-45">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <article className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="max-w-5xl mx-auto">
+          <article className="bg-white overflow-hidden">
             {news.image && (
               <div className="w-full h-96">
                 <OptimizedImage
