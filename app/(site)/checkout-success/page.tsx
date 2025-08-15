@@ -46,15 +46,11 @@ function CheckoutSuccessContent() {
         } finally {
           setIsProcessing(false);
         }
-
-        // Xử lý localStorage
         const buyNowSession = localStorage.getItem("buyNowSession");
         
         if (buyNowSession) {
-          // Nếu là mua ngay, chỉ cần xóa session
           localStorage.removeItem("buyNowSession");
         } else {
-          // Xử lý giỏ hàng bình thường
           const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
           const fullCart = JSON.parse(localStorage.getItem("cart") || "[]");
           const updatedCart = fullCart.filter((item: { _id: string }) => !selectedIds.includes(item._id));

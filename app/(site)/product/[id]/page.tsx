@@ -8,6 +8,7 @@ import StarRating from "../../components/StarRating";
 import Image from "next/image";
 import BuyNow from "../../components/BuyNow";
 import AddToCart from "../../components/AddToCart";
+import WishlistButton from "../../components/WishlistButton";
 import { useParams } from 'next/navigation';
 import { getProductImageUrl } from '@/app/utils/imageUtils';
 import axios from 'axios';
@@ -19,18 +20,16 @@ export default function ProductDetail() {
   const [showZoom, setShowZoom] = useState(false);
   const [tab, setTab] = useState<"desc" | "review">("desc");
   const [stats, setStats] = useState<IStats | null>(null);
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
   const refetchBinhLuan = useRef<() => void>(() => {});
   const hasIncrementedView = useRef(false);
   const isInitialLoad = useRef(true);
 
-  // Hàm xử lý HTML entities và tags, giữ lại hình ảnh
   const decodeHtmlEntities = (text: string): string => {
     if (!text) return '';
     
     let decodedText = text;
-    
-    // Xử lý các HTML entities phổ biến trước
     decodedText = decodedText
       .replace(/&nbsp;/g, ' ')
       .replace(/&amp;/g, '&')
@@ -135,9 +134,32 @@ export default function ProductDetail() {
   }, [id]);
 
   useEffect(() => {
-    if (!id) return;
+    const checkWishlistStatus = async () => {
+      const token = localStorage.getItem("token");
+      if (!token || !id) return;
 
-    // Reset isInitialLoad khi ID thay đổi
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const wishlistItems = await response.json();
+          const isInWishlist = wishlistItems.some((item: { product_id: string }) => item.product_id === id);
+          setIsWishlisted(isInWishlist);
+        }
+      } catch (error) {
+        console.error('Lỗi kiểm tra trạng thái yêu thích:', error);
+      }
+    };
+
+    checkWishlistStatus();
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
     isInitialLoad.current = true;
 
     async function fetchProduct() {
@@ -162,8 +184,6 @@ export default function ProductDetail() {
         
 
         setProduct(cleanProduct);
-
-        // Kiểm tra và tăng lượt xem nếu chưa xem trong phiên này
         if (id && !hasViewedInSession(id)) {
           incrementView();
         }
@@ -175,7 +195,6 @@ export default function ProductDetail() {
     fetchProduct();
   }, [id, hasViewedInSession, incrementView]);
 
-  // Reset currentImg khi product thay đổi
   useEffect(() => {
     if (product && isInitialLoad.current) {
       setCurrentImg(0);
@@ -276,10 +295,8 @@ export default function ProductDetail() {
                 {product.price.toLocaleString("vi-VN")}đ
               </span>
               <div className="relative inline-block">
-                {/* Bookmark ribbon style */}
                 <div className="bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-t-md relative shadow-lg">
                   -{Math.round(((product.price - product.sale_price) / product.price) * 100)}%
-                  {/* Bookmark tail - tạo hình tam giác ở dưới */}
                   <div className="absolute left-1/2 top-full transform -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[4px] border-l-transparent border-r-transparent border-t-red-700"></div>
                 </div>
               </div>
@@ -297,6 +314,7 @@ export default function ProductDetail() {
             <div className="flex gap-4 mb-4">
               <AddToCart sp={product} disabled={product.quantity === 0} />
               <BuyNow sp={product} disabled={product.quantity === 0} />
+              <WishlistButton productId={product._id} initialIsWishlisted={isWishlisted} variant="large" />
             </div>
             <ul className="list-disc list-inside text-gray-700 text-sm space-y-1 w-100">
             </ul>

@@ -7,7 +7,6 @@ export default function BuyNow({ sp, disabled }: { sp: IProduct; disabled?: bool
   const { setSelectedItems } = useCart();
   const router = useRouter();
   
-  // Kiểm tra nếu sản phẩm hết hàng
   const isOutOfStock = sp.quantity === 0 || disabled;
 
   const handleBuyNow = () => {
@@ -65,21 +64,16 @@ export default function BuyNow({ sp, disabled }: { sp: IProduct; disabled?: bool
       brand: sp.brand_id,
       quantity: sp.quantity,
     };
-
-    // Tạo session tạm thời cho mua ngay mà không ảnh hưởng đến giỏ hàng
     const buyNowSession = {
       items: [item],
       isBuyNow: true,
       timestamp: new Date().getTime()
     };
     
-    // Lưu session mua ngay vào localStorage
     localStorage.setItem("buyNowSession", JSON.stringify(buyNowSession));
     
-    // Cập nhật selectedItems chỉ cho item này
     setSelectedItems([item._id]);
     
-    // Chuyển đến checkout với tham số buyNow=true
     router.push('/checkout?buyNow=true');
   };
 

@@ -1,11 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
-// Cấu hình
-const OLD_API_KEY = 'Y3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf';
-const NEW_API_KEY = '3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf'; // Thay thế bằng API key mới của bạn
 
-// Danh sách các file cần cập nhật
+const OLD_API_KEY = 'Y3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf';
+const NEW_API_KEY = '3n407w2hrdm50486yfaarb459wuuvhbzuzs8d2grfyt4bouf'; 
+
+
 const filesToUpdate = [
   'app/admin/layout.tsx',
   'app/admin/news/addNew/page.tsx',
@@ -22,7 +22,7 @@ function updateFile(filePath) {
   const fullPath = path.join(__dirname, '..', filePath);
   
   if (!fs.existsSync(fullPath)) {
-    console.log(`❌ File không tồn tại: ${filePath}`);
+    console.log(` File không tồn tại: ${filePath}`);
     return false;
   }
 
@@ -30,13 +30,11 @@ function updateFile(filePath) {
     let content = fs.readFileSync(fullPath, 'utf8');
     const originalContent = content;
     
-    // Thay thế API key trong tinymceScriptSrc
     content = content.replace(
       new RegExp(`tinymceScriptSrc="https://cdn\\.tiny\\.cloud/1/${OLD_API_KEY}/tinymce/6/tinymce\\.min\\.js"`, 'g'),
       `tinymceScriptSrc="https://cdn.tiny.cloud/1/${NEW_API_KEY}/tinymce/6/tinymce.min.js"`
     );
     
-    // Thay thế API key trong các link CSS
     content = content.replace(
       new RegExp(`https://cdn\\.tiny\\.cloud/1/${OLD_API_KEY}/tinymce/6/skins/ui/oxide/skin\\.min\\.css`, 'g'),
       `https://cdn.tiny.cloud/1/${NEW_API_KEY}/tinymce/6/skins/ui/oxide/skin.min.css`
@@ -59,24 +57,24 @@ function updateFile(filePath) {
     
     if (content !== originalContent) {
       fs.writeFileSync(fullPath, content, 'utf8');
-      console.log(`✅ Đã cập nhật: ${filePath}`);
+      console.log(` Đã cập nhật: ${filePath}`);
       return true;
     } else {
-      console.log(`⚠️  Không có thay đổi: ${filePath}`);
+      console.log(` Không có thay đổi: ${filePath}`);
       return false;
     }
   } catch (error) {
-    console.log(`❌ Lỗi khi cập nhật ${filePath}:`, error.message);
+    console.log(`Lỗi khi cập nhật ${filePath}:`, error.message);
     return false;
   }
 }
 
 function main() {
-  console.log('🔄 Bắt đầu cập nhật API key TinyMCE...\n');
+  console.log(' Bắt đầu cập nhật API key TinyMCE...\n');
   
   if (NEW_API_KEY === 'YOUR_NEW_API_KEY_HERE') {
-    console.log('❌ Vui lòng cập nhật NEW_API_KEY trong script trước khi chạy!');
-    console.log('📝 Hướng dẫn:');
+    console.log('Vui lòng cập nhật NEW_API_KEY trong script trước khi chạy!');
+    console.log(' Hướng dẫn:');
     console.log('1. Đăng ký tài khoản tại https://www.tiny.cloud/');
     console.log('2. Lấy API key từ dashboard');
     console.log('3. Thay thế YOUR_NEW_API_KEY_HERE bằng API key mới');
@@ -95,7 +93,7 @@ function main() {
   console.log(`\n📊 Kết quả: Đã cập nhật ${updatedCount}/${filesToUpdate.length} file`);
   
   if (updatedCount > 0) {
-    console.log('\n✅ Hoàn thành! Vui lòng:');
+    console.log('\n Hoàn thành! Vui lòng:');
     console.log('1. Kiểm tra lại các file đã được cập nhật');
     console.log('2. Khởi động lại server để áp dụng thay đổi');
     console.log('3. Kiểm tra TinyMCE hoạt động bình thường');

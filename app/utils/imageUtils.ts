@@ -1,25 +1,17 @@
-/**
- * Utility function để xử lý đường dẫn hình ảnh
- * Nếu là URL Cloudinary (bắt đầu với http), trả về nguyên vẹn
- * Nếu là đường dẫn local, thêm prefix /images/
- */
+
 
 export const getImageUrl = (imagePath: string | undefined | null, folder?: string): string => {
   if (!imagePath) {
     return '/images/avatar-default.png';
   }
 
-  // Nếu đã là URL đầy đủ (Cloudinary), trả về nguyên vẹn
   if (imagePath.startsWith('http')) {
     return imagePath;
   }
 
-  // Nếu là đường dẫn local, thêm prefix
   if (folder) {
     return `/images/${folder}/${imagePath}`;
   }
-
-  // Nếu không có folder, kiểm tra xem đã có /images/ chưa
   if (imagePath.startsWith('/images/')) {
     return imagePath;
   }

@@ -27,21 +27,17 @@ export default function TypewriterPlaceholder({
     
     const timer = setTimeout(() => {
       if (isTyping) {
-        // Đang gõ chữ
         if (charIndex < currentSuggestion.length) {
           setCurrentText(currentSuggestion.substring(0, charIndex + 1));
           setCharIndex(charIndex + 1);
         } else {
-          // Hoàn thành gõ, chờ một chút rồi bắt đầu xóa
           setTimeout(() => setIsTyping(false), pauseTime);
         }
       } else {
-        // Đang xóa chữ
         if (charIndex > 0) {
           setCurrentText(currentSuggestion.substring(0, charIndex - 1));
           setCharIndex(charIndex - 1);
         } else {
-          // Hoàn thành xóa, chuyển sang từ tiếp theo
           setIsTyping(true);
           setCurrentIndex((currentIndex + 1) % suggestions.length);
         }

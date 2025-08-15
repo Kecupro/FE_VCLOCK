@@ -24,7 +24,7 @@ export default function News() {
       const response = await axios.get<{ news: INews[]; currentPage: number; totalPages: number; totalNews: number }>(`${process.env.NEXT_PUBLIC_API_URL}/api/news?page=1&limit=6`);
       setNewsList(response.data.news);
       } catch (error: unknown) {
-              console.error('❌ Lỗi tải tin tức:', error);
+              console.error('Lỗi tải tin tức:', error);
       const errorMessage = error instanceof Error ? error.message : 'Không thể tải tin tức';
       const axiosError = error as { response?: { data?: { error?: string } } };
       setError(axiosError.response?.data?.error || errorMessage);
@@ -107,15 +107,11 @@ export default function News() {
                     {news.content ? 
                       (() => {
                         try {
-                          // Loại bỏ HTML tags
                           let cleanContent = news.content.replace(/<[^>]*>/g, '');
                           
-                          // Tạo một element tạm để decode HTML entities
                           const tempDiv = document.createElement('div');
                           tempDiv.innerHTML = cleanContent;
                           cleanContent = tempDiv.textContent || tempDiv.innerText || '';
-                          
-                          // Xử lý các HTML entities phổ biến từ TinyMCE
                           const htmlEntities: { [key: string]: string } = {
                             '&nbsp;': ' ',
                             '&amp;': '&',
@@ -207,15 +203,12 @@ export default function News() {
                             '&Ucirc;': 'Û'
                           };
                           
-                          // Thay thế HTML entities còn lại
                           cleanContent = cleanContent.replace(/&[a-zA-Z0-9#]+;/g, (match) => {
                             return htmlEntities[match] || match;
                           });
                           
-                          // Loại bỏ khoảng trắng thừa
                           cleanContent = cleanContent.replace(/\s+/g, ' ').trim();
                           
-                          // Giới hạn độ dài
                           const maxLength = 120;
                           if (cleanContent.length > maxLength) {
                             return cleanContent.substring(0, maxLength).trim() + '...';
@@ -224,7 +217,6 @@ export default function News() {
                           return cleanContent;
                         } catch (error) {
                           console.error('Error processing news content:', error);
-                          // Fallback: sử dụng DOMParser nếu có thể
                           try {
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(news.content, 'text/html');
@@ -235,7 +227,6 @@ export default function News() {
                               : cleanFallback;
                           } catch (fallbackError) {
                             console.error('Fallback error:', fallbackError);
-                            // Fallback cuối cùng: trả về nội dung gốc đã được cắt ngắn
                             const fallbackContent = news.content.replace(/<[^>]*>/g, '').trim();
                             return fallbackContent.length > 120 
                               ? fallbackContent.substring(0, 120) + '...' 

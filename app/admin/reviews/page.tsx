@@ -264,7 +264,6 @@ const RatingPage = () => {
           </table>
         </div>
 
-        {/* Fixed Pagination */}
         <div className={styles.pagination}>
           <div className={styles.paginationInfo}>
             Hiển thị {(currentPage - 1) * limit + 1}
@@ -273,7 +272,6 @@ const RatingPage = () => {
           </div>
 
           <div className={styles.paginationButtons}>
-            {/* First Page Button */}
             <button
               onClick={() => setCurrentPage(1)}
               disabled={currentPage == 1}
@@ -284,7 +282,6 @@ const RatingPage = () => {
               Trang đầu
             </button>
 
-            {/* Previous Button */}
             <button
               disabled={currentPage == 1}
               onClick={() => setCurrentPage(currentPage - 1)}
@@ -294,8 +291,6 @@ const RatingPage = () => {
             >
               &laquo;
             </button>
-
-            {/* Page Numbers - Sử dụng function generatePaginationNumbers */}
             {generatePaginationNumbers().map((page) => (
               <button
                 key={page}
@@ -307,8 +302,6 @@ const RatingPage = () => {
                 {page}
               </button>
             ))}
-
-            {/* Next Button */}
             <button
               disabled={currentPage == totalPages || totalPages == 0}
               onClick={() => setCurrentPage(currentPage + 1)}
@@ -318,8 +311,6 @@ const RatingPage = () => {
             >
               &raquo;
             </button>
-
-            {/* Last Page Button */}
             <button
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage == totalPages || totalPages == 0}

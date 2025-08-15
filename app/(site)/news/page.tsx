@@ -7,20 +7,14 @@ import { INews, ICateNews } from "../cautrucdata";
 import OptimizedImage from "../components/OptimizedImage";
 import { getNewsImageUrl } from '@/app/utils/imageUtils';
 
-// Hàm helper để xử lý HTML entities và tags
 const cleanContent = (content: string | undefined): string => {
   if (!content) return '';
   
   try {
-    // Loại bỏ HTML tags
     let cleaned = content.replace(/<[^>]*>/g, '');
-    
-    // Tạo một element tạm để decode HTML entities
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = cleaned;
     cleaned = tempDiv.textContent || tempDiv.innerText || '';
-    
-    // Xử lý các HTML entities phổ biến từ TinyMCE
     const htmlEntities: { [key: string]: string } = {
       '&nbsp;': ' ',
       '&amp;': '&',
@@ -112,18 +106,15 @@ const cleanContent = (content: string | undefined): string => {
       '&Ucirc;': 'Û'
     };
     
-    // Thay thế HTML entities còn lại
     cleaned = cleaned.replace(/&[a-zA-Z0-9#]+;/g, (match) => {
       return htmlEntities[match] || match;
     });
     
-    // Loại bỏ khoảng trắng thừa
     cleaned = cleaned.replace(/\s+/g, ' ').trim();
     
     return cleaned;
   } catch (error) {
-    console.error('Error processing content:', error);
-    // Fallback: sử dụng DOMParser nếu có thể
+    console.error('Error processing content:', error)
     try {
       const parser = new DOMParser();
       const doc = parser.parseFromString(content, 'text/html');
@@ -131,7 +122,6 @@ const cleanContent = (content: string | undefined): string => {
       return fallbackContent.replace(/\s+/g, ' ').trim();
     } catch (fallbackError) {
       console.error('Fallback error:', fallbackError);
-      // Fallback cuối cùng: trả về nội dung gốc đã được làm sạch
       return content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
     }
   }

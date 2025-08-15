@@ -151,11 +151,8 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
               <FaTachometerAlt className="me-2" />
               {!isSidebarCollapsed && <span className="nav-link-text">Bảng điều khiển</span>}
             </Nav.Link>
-
-            {/* Quản lý */}
             {!isSidebarCollapsed && <div className="mb-2 fw-bold category-title">QUẢN LÝ</div>}
 
-            {/* Quản lý sản phẩm */}
             <div className="sidebar-item-with-dropdown">
               <Nav.Link
                 onClick={(e: React.MouseEvent) => {
@@ -186,8 +183,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
                 </Nav.Link>
               </div>
             </div>
-
-            {/* Quản lý danh mục sản phẩm*/}
             <div className="sidebar-item-with-dropdown">
               <Nav.Link
                 onClick={(e: React.MouseEvent) => {
@@ -219,7 +214,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
               </div>
             </div>
 
-            {/* Quản lý danh mục tin tức*/}
             <div className="sidebar-item-with-dropdown">
               <Nav.Link
                 onClick={(e: React.MouseEvent) => {
@@ -250,8 +244,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
                 </Nav.Link>
               </div>
             </div>
-
-            {/* Quản lý tin tức */}
             <div className="sidebar-item-with-dropdown">
               <Nav.Link
                 onClick={(e: React.MouseEvent) => {
@@ -282,8 +274,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
                 </Nav.Link>
               </div>
             </div>
-
-            {/* Quản lý voucher */}
             <div className="sidebar-item-with-dropdown">
               <Nav.Link
                 onClick={(e: React.MouseEvent) => {
@@ -315,7 +305,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
               </div>
             </div>
 
-            {/* Quản lý đơn hàng */}
             <div className="sidebar-item-with-dropdown">
               <Nav.Link
                 onClick={(e: React.MouseEvent) => {
@@ -343,8 +332,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
                 </Nav.Link>
               </div>
             </div>
-
-            {/* Quản lý đánh giá */}
             <div className="sidebar-item-with-dropdown">
               <Nav.Link
                 onClick={(e: React.MouseEvent) => {
@@ -372,8 +359,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
                 </Nav.Link>
               </div>
             </div>
-
-            {/* Quản lý người dùng */}
             <div className="sidebar-item-with-dropdown">
               <Nav.Link
                 onClick={(e: React.MouseEvent) => {
@@ -404,8 +389,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
                 </Nav.Link>
               </div>
             </div>
-
-            {/* Quản lý thương hiệu */}
             <div className="sidebar-item-with-dropdown">
               <Nav.Link
                 onClick={(e: React.MouseEvent) => {
@@ -437,7 +420,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
               </div>
             </div>
 
-            {/* Quản lý phương thức thanh toán */}
             <div className="sidebar-item-with-dropdown">
               <Nav.Link
                 onClick={(e: React.MouseEvent) => {
@@ -469,7 +451,6 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
               </div>
             </div>
 
-            {/* Quản lý chatbox */}
             <div className="sidebar-item-with-dropdown">
               <Nav.Link
                 className="d-flex justify-content-between align-items-center"
@@ -482,14 +463,12 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
               </Nav.Link>
             </div>
 
-            {/* Tài khoản */}
             {!isSidebarCollapsed && <div className="mb-2 fw-bold category-title">THÔNG TIN</div>}
             <Nav.Link as={Link} href="/admin/account" className="sidebar-item">
               <FaUserCircle className="me-2" />
               {!isSidebarCollapsed && <span className="nav-link-text">Tài khoản</span>}
             </Nav.Link>
 
-            {/* Tới trang chủ (client) */}
             <Nav.Link as={Link} href="/" className="mt-3 bg-dark sidebar-item d-flex align-items-center justify-content-center go-home-button">
               <FaDoorOpen className="me-2" />
               {!isSidebarCollapsed && <span className="nav-link-text">ĐI TỚI TRANG CHỦ</span>}
@@ -498,10 +477,8 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
         </Nav>
       </div>
 
-      {/* Nội dung chính */}
       <div className="main-content flex-grow-1" style={{ marginLeft: isSidebarCollapsed ? '80px' : '300px' }}>
         <Navbar className={`header px-3 pb-2 pt-0 ${isDarkMode ? 'dark-mode' : ''}`} expand="lg" style={{ left: isSidebarCollapsed ? '80px' : '300px', width: isSidebarCollapsed ? 'calc(100% - 80px)' : 'calc(100% - 300px)'}}>
-          {/* Toggle Menu */}
           <button className="toggle-btn btn btn-sm" onClick={toggleSidebar}>
             <FaBars />
           </button>

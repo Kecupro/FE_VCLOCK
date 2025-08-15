@@ -123,9 +123,8 @@ const EditNews = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log('Form data:', formData); // Debug log
+    console.log('Form data:', formData); 
 
-    // Kiểm tra các trường bắt buộc
     if (!formData.title?.trim()) {
       toast.error('Vui lòng nhập tiêu đề.');
       return;
@@ -136,9 +135,7 @@ const EditNews = () => {
       return;
     }
 
-    // Kiểm tra mô tả - cho phép rỗng nếu là bản nháp
     if (formData.status === 'Công khai') {
-      // Kiểm tra nếu description là undefined hoặc null
       if (!formData.description) {
         toast.error('Vui lòng nhập mô tả khi chọn trạng thái Công khai.');
         return;
@@ -153,7 +150,7 @@ const EditNews = () => {
 
     const body = new FormData();
     body.append('title', formData.title);
-    body.append('content', formData.description || ''); // Đảm bảo không gửi undefined
+    body.append('content', formData.description || ''); 
     body.append('categorynews_id', formData.category);
     body.append('news_status', formData.status == 'Công khai' ? '0' : '1');
 

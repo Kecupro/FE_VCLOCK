@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 export default function AddToCart({ sp, disabled }: { sp: IProduct; disabled?: boolean }) {
   const { addToCart } = useCart();
   
-  // Kiểm tra nếu sản phẩm hết hàng
   const isOutOfStock = sp.quantity === 0 || disabled;
 
   const handleAddToCart = () => {
@@ -37,7 +36,6 @@ export default function AddToCart({ sp, disabled }: { sp: IProduct; disabled?: b
         mainImage = sp.main_image;
       }
     } else if (sp.images && sp.images.length > 0) {
-      // Fallback: lấy ảnh đầu tiên từ images array
       const firstImage = sp.images[0];
       if (typeof firstImage === 'string') {
         mainImage = {
@@ -65,7 +63,6 @@ export default function AddToCart({ sp, disabled }: { sp: IProduct; disabled?: b
       quantity: sp.quantity,
     };
 
-    // Check if adding this item would exceed limits
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
     const existingItem = existingCart.find((i: ICart) => i._id === sp._id);
     const currentQuantityInCart = existingItem ? existingItem.so_luong : 0;

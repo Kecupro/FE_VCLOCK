@@ -27,7 +27,6 @@ export default function GoogleSuccess() {
             newValue: JSON.stringify(user)
           }));
           
-          // Kiểm tra preventRedirect
           const preventRedirect = localStorage.getItem('auth_prevent_redirect');
           const returnUrl = localStorage.getItem('auth_return_url');
           

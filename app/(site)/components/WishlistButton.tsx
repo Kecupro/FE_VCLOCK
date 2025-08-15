@@ -5,9 +5,10 @@ import { useWishlist } from "./WishlistContext";
 interface WishlistButtonProps {
     productId: string;
     initialIsWishlisted: boolean;
+    variant?: "default" | "large";
 }
 
-export default function WishlistButton({ productId, initialIsWishlisted }: WishlistButtonProps) {
+export default function WishlistButton({ productId, initialIsWishlisted, variant = "default" }: WishlistButtonProps) {
     const [isWishlisted, setIsWishlisted] = useState(initialIsWishlisted);
     const [isLoading, setIsLoading] = useState(false);
     const { addToWishlist, removeFromWishlist, getWishlistStatus } = useWishlist();
@@ -59,6 +60,14 @@ export default function WishlistButton({ productId, initialIsWishlisted }: Wishl
         }
     };
 
+    const baseClasses = "transition-colors duration-200";
+    const sizeClasses = variant === "large" 
+        ? "text-2xl p-3 rounded-lg border-2 hover:bg-red-50" 
+        : "text-xl";
+    const colorClasses = isWishlisted 
+        ? "text-red-500" 
+        : "text-gray-400 hover:text-red-500";
+
     return (
         <button
             onClick={(e) => {
@@ -66,8 +75,8 @@ export default function WishlistButton({ productId, initialIsWishlisted }: Wishl
                 e.stopPropagation();
                 handleWishlist();
             }}
-            className={`text-2xl transition-colors duration-200 ${
-                isWishlisted ? "text-red-500" : "text-gray-400 hover:text-red-500"
+            className={`${baseClasses} ${sizeClasses} ${colorClasses} ${
+                variant === "large" && isWishlisted ? "border-red-500 bg-red-50" : ""
             }`}
             disabled={isLoading}
             title={isWishlisted ? "Xóa khỏi danh sách yêu thích" : "Thêm vào danh sách yêu thích"}

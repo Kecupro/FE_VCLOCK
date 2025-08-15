@@ -27,24 +27,19 @@ export default function CartPage() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [stockInfo, setStockInfo] = useState<{[key: string]: {name: string, quantity: number}}>({});
 
-  // Kiểm tra xem có sản phẩm nào vượt quá tồn kho không
   const hasStockIssue = selectedItems.some(itemId => {
     const item = cart.find(cartItem => cartItem._id === itemId);
     if (!item) return false;
     return stockInfo[item._id] && item.so_luong > stockInfo[item._id].quantity;
   });
 
-  // Kiểm tra sản phẩm hết hàng
   const outOfStockItems = cart.filter(item => 
     stockInfo[item._id] && stockInfo[item._id].quantity === 0
   );
 
-  // Kiểm tra sản phẩm vượt quá tồn kho
   const overStockItems = cart.filter(item => 
     stockInfo[item._id] && item.so_luong > stockInfo[item._id].quantity && stockInfo[item._id].quantity > 0
   );
-
-  // Hàm lấy thông tin tồn kho real-time
   const fetchStockInfo = useCallback(async () => {
     if (cart.length === 0) return;
     
@@ -61,18 +56,16 @@ export default function CartPage() {
     }
   }, [cart]);
 
-  // Cập nhật thông tin tồn kho khi cart thay đổi
   useEffect(() => {
     fetchStockInfo();
   }, [fetchStockInfo]);
 
-  // Tự động cập nhật tồn kho mỗi 30 giây
   useEffect(() => {
     const interval = setInterval(() => {
       if (cart.length > 0) {
         fetchStockInfo();
       }
-    }, 30000); // 30 giây
+    }, 30000); 
 
     return () => clearInterval(interval);
   }, [cart.length, fetchStockInfo]);
@@ -104,7 +97,6 @@ export default function CartPage() {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               
-              {/* Cảnh báo sản phẩm hết hàng */}
               {outOfStockItems.length > 0 && (
                 <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
                   <div className="flex">
@@ -133,7 +125,6 @@ export default function CartPage() {
                 </div>
               )}
 
-              {/* Cảnh báo sản phẩm vượt quá tồn kho */}
               {overStockItems.length > 0 && (
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
                   <div className="flex">
@@ -222,7 +213,6 @@ export default function CartPage() {
                                 if (item.so_luong > 1) {
                                   updateQuantity(item._id, item.so_luong - 1);
                                 } else if (item.so_luong === 1) {
-                                  // Khi số lượng = 1, giảm về 0 sẽ xóa sản phẩm khỏi giỏ hàng
                                   removeItem(item._id);
                                 }
                               }}
@@ -293,7 +283,6 @@ export default function CartPage() {
                             </button>
                           </div>
                           
-                          {/* Cảnh báo tồn kho */}
                           {stockInfo[item._id] && item.so_luong > stockInfo[item._id].quantity && stockInfo[item._id].quantity > 1 && (
                             <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
                               <div className="flex items-center gap-2 text-red-700 text-sm">

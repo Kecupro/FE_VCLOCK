@@ -39,7 +39,7 @@ export default function ReviewForm({
           setMessage('Gửi đánh giá thành công!');
           setRating(0);
           setComment('');
-          onSuccess?.(rating); // Gửi số sao lên component cha
+          onSuccess?.(rating); 
         }        
       } else {
         setMessage(data.error || 'Lỗi khi gửi đánh giá');

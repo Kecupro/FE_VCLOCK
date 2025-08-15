@@ -163,7 +163,6 @@ const VoucherBoxList = () => {
             return (
               <SwiperSlide key={v._id}>
                 <div className="relative flex w-full h-[120px] bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                  {/* Left column */}
                   <div className="flex flex-col items-center justify-center bg-gradient-to-br from-red-600 to-red-700 text-white px-3 py-2 w-[120px] rounded-l-lg relative z-20">
                     <FaTicketAlt size={24} color="#fff" />
                     <span className="font-bold text-xs text-center leading-tight line-clamp-2 mt-1">{v.voucher_name}</span>
@@ -171,7 +170,6 @@ const VoucherBoxList = () => {
                     <span className="text-[9px] mt-1 text-center">HSD: {formatDate(v.end_date)}</span>
                   </div>
                   
-                  {/* Right column */}
                   <div className="flex-1 min-w-0 flex flex-col justify-between pl-4 px-3 py-2 bg-white">
                     <div className="space-y-1 overflow-hidden">
                       <div className="text-red-500 font-bold text-sm leading-tight truncate">

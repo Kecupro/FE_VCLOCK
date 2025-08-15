@@ -11,8 +11,6 @@ const NotificationBell = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Fetch notifications
   useEffect(() => {
     if (!user) return;
 
@@ -36,13 +34,10 @@ const NotificationBell = () => {
     };
 
     fetchNotifications();
-    
-    // Poll for new notifications every 30 seconds
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [user]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -54,7 +49,6 @@ const NotificationBell = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Mark notification as read
   const markAsRead = async (notificationId: string) => {
     try {
       const token = localStorage.getItem('token');
@@ -78,7 +72,6 @@ const NotificationBell = () => {
     }
   };
 
-  // Mark all as read
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -140,7 +133,6 @@ const NotificationBell = () => {
 
       {showDropdown && (
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 w-120 max-h-126 overflow-hidden">
-          {/* Header */}
           <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-gray-800">Thông báo</h3>
@@ -155,7 +147,6 @@ const NotificationBell = () => {
             </div>
           </div>
 
-          {/* Notifications List */}
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="p-4 text-center text-gray-500">
@@ -223,7 +214,6 @@ const NotificationBell = () => {
             )}
           </div>
 
-          {/* Footer */}
           {notifications.length > 0 && (
             <div className="px-4 py-3 border-t border-gray-100 bg-gray-50">
               <button

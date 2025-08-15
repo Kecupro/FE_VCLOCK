@@ -41,26 +41,19 @@ const AddProduct = () => {
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
   const { isDarkMode } = useAppContext();
-
-  // Filter brands based on search term
   const filteredBrands = brands.filter(brand =>
     brand.name.toLowerCase().includes(brandSearchTerm.toLowerCase())
   );
 
-  // Filter categories based on search term
   const filteredCategories = categories.filter(category =>
     category.name.toLowerCase().includes(categorySearchTerm.toLowerCase())
   );
 
-  // Get selected brand name for display
   const selectedBrandName = brands.find(brand => brand._id === selectedBrand)?.name || '--- Chọn thương hiệu ---';
-
-  // Get selected categories names for display
   const selectedCategoriesNames = selectedCategories.length > 0 
     ? selectedCategories.map(id => categories.find(cat => cat._id === id)?.name).filter(Boolean).join(', ')
     : '--- Chọn danh mục ---';
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
@@ -103,7 +96,6 @@ const AddProduct = () => {
           try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/brand`);
             const data = await res.json();
-            // Filter only active brands (brand_status: 0)
             const activeBrands = data.filter((brand: IBrand) => brand.brand_status === 0);
             setBrands(activeBrands || []);
           } catch {

@@ -73,7 +73,7 @@ summary,
 
 .top-rated-swiper .swiper-button-next,
 .top-rated-swiper .swiper-button-prev {
-  color: #dc2626 !important; /* Màu đỏ mặc định */
+  color: #dc2626 !important; 
 }
 .swiper-pagination-bullet {
   background: #dc2626 !important;
@@ -83,7 +83,7 @@ summary,
   background: #dc2626 !important;
 }
 
-/* Voucher slider specific styles */
+
 .voucher-swiper .swiper-slide {
   height: auto;
 }

@@ -164,7 +164,7 @@ export default function AdminDashboardPage() {
   return date.getMonth() == selectedMonth && date.getFullYear() == selectedYear;
   });
 
-  // ! Phân trang đơn hàng
+
   const ordersPerPage = 3;
   const [currentPage, setCurrentPage] = useState(1);
   
@@ -184,9 +184,6 @@ export default function AdminDashboardPage() {
       setCurrentPage(currentPage + 1);
     }
   };
-  // ! End Phân trang đơn hàng
-
-  // ! < == Status Order + Payment ==>
   const statusMap: Record<string, string> = {
     choXuLy: 'Chờ xử lý',
     dangXuLy: 'Đang xử lý',
@@ -203,7 +200,6 @@ export default function AdminDashboardPage() {
     choHoanTien: 'Chờ hoàn tiền',
     hoanTien: 'Đã hoàn tiền',
   };
-  // ! < == End Status Order ==>
 
   const formatNumber = (value: number): string => {
   if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(1) + 'B';
@@ -302,7 +298,6 @@ export default function AdminDashboardPage() {
       </Nav.Link>
       </Col>
 
-    {/* Quản lý thương hiệu */}
       <Col md={3}>
      <Nav.Link href="/admin/brands" className="card-link">
       <Card className="overview-card">

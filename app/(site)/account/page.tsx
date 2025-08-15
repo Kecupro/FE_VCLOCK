@@ -51,7 +51,6 @@ function AccountPageContent() {
   });
   const [tab, setTab] = useState<"info" | "orders" | "favorites" | "addresses" | "voucher">("info");
   
-  // Modal states
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteAddressModal, setShowDeleteAddressModal] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
@@ -198,7 +197,6 @@ function AccountPageContent() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    // Validation
     if (!editForm.fullName.trim()) {
       toast.error("Vui lòng nhập họ tên");
       return;
@@ -214,7 +212,6 @@ function AccountPageContent() {
       return;
     }
 
-    // Check if fullName contains valid characters
     const nameRegex = /^[a-zA-ZÀ-ỹ\s]+$/;
     if (!nameRegex.test(editForm.fullName.trim())) {
       toast.error("Họ tên chỉ được chứa chữ cái và khoảng trắng");
@@ -287,7 +284,6 @@ const result = await response.json();
 
     const { receiver_name, phone, address } = newAddress;
     
-    // Kiểm tra đầy đủ thông tin
     if (!receiver_name.trim()) {
       toast.error("Vui lòng nhập tên người nhận!");
       return;
@@ -301,21 +297,18 @@ const result = await response.json();
       return;
     }
     
-    // Kiểm tra đã chọn đủ 3 dropdown (tỉnh, huyện, xã)
     const addressParts = address.split(', ');
     if (addressParts.length < 3) {
       toast.error("Vui lòng chọn đầy đủ địa chỉ!");
       return;
     }
     
-    // Kiểm tra đã nhập số nhà/tên đường
     const streetAddress = addressParts.slice(0, -3).join(', ').trim();
     if (!streetAddress) {
       toast.error("Vui lòng nhập số nhà và tên đường!");
       return;
     }
     
-    // Kiểm tra định dạng
     if (receiver_name.trim().length < 2) {
       toast.error("Tên người nhận phải có ít nhất 2 ký tự!");
       return;
@@ -419,7 +412,6 @@ address: address.address
 
     const { receiver_name, phone, address } = newAddress;
     
-    // Kiểm tra đầy đủ thông tin
     if (!receiver_name.trim()) {
       toast.error("Vui lòng nhập tên người nhận!");
       return;
@@ -432,22 +424,19 @@ address: address.address
       toast.error("Vui lòng nhập địa chỉ giao hàng!");
       return;
     }
-    
-    // Kiểm tra đã chọn đủ 3 dropdown (tỉnh, huyện, xã)
+  
     const addressParts = address.split(', ');
     if (addressParts.length < 3) {
       toast.error("Vui lòng chọn đầy đủ địa chỉ!");
       return;
     }
     
-    // Kiểm tra đã nhập số nhà/tên đường
     const streetAddress = addressParts.slice(0, -3).join(', ').trim();
     if (!streetAddress) {
       toast.error("Vui lòng nhập số nhà và tên đường!");
       return;
     }
     
-    // Kiểm tra định dạng
     if (receiver_name.trim().length < 2) {
       toast.error("Tên người nhận phải có ít nhất 2 ký tự!");
       return;
@@ -602,7 +591,6 @@ return (
     <main className="max-w-6xl mx-auto py-10 px-4 pt-40 font-sans bg-gray-50 min-h-screen">
       <div className="bg-white rounded-2xl overflow-hidden">
         <div className="flex flex-col md:flex-row">
-          {/* Sidebar */}
           <aside className="w-full md:w-1/4 bg-gray-800 border border-gray-200 p-6 ">
             <div className="flex flex-col items-center mb-8">
               <div className="relative w-15 h-15 mb-4 group">
@@ -672,8 +660,6 @@ return (
               </button>
             </nav>
           </aside>
-
-          {/* Main Content */}
           <section className="flex-1 p-8 bg-white">
             {tab === "info" && (
               <div className="max-w-2xl mx-auto relative">
@@ -773,7 +759,6 @@ className="bg-gray-600 text-sm text-white px-6 py-2 rounded-lg font-semibold hov
                 </div>
               </div>
             )}
-            {/* them */}
             {tab === "addresses" && (
               <div>
                 <div className="flex justify-between items-center mb-6">
@@ -808,7 +793,6 @@ className="bg-gray-600 text-sm text-white px-6 py-2 rounded-lg font-semibold hov
                            type="tel"
                            value={newAddress.phone}
                            onChange={(e) => {
-                             // Chỉ cho phép nhập số
                              const value = e.target.value.replace(/[^0-9]/g, '');
                              setNewAddress({ ...newAddress, phone: value });
                            }}
@@ -816,7 +800,6 @@ className="bg-gray-600 text-sm text-white px-6 py-2 rounded-lg font-semibold hov
                            placeholder="Ví dụ: 0901234567"
                            required={false}
                          />
-
                       </div>
                       <div className="md:col-span-2">
                         <label className="block text-gray-700 text-sm font-medium mb-2">Địa chỉ</label>
@@ -868,7 +851,6 @@ className="bg-gray-600 text-sm text-white px-6 py-2 rounded-lg font-semibold hov
                            type="tel"
                            value={newAddress.phone}
                            onChange={(e) => {
-                             // Chỉ cho phép nhập số
                              const value = e.target.value.replace(/[^0-9]/g, '');
                              setNewAddress({...newAddress, phone: value});
                            }}
@@ -1077,8 +1059,6 @@ type="submit"
           </section>
         </div>
       </div>
-
-      {/* Logout Modal */}
       <Dialog.Root open={showLogoutModal} onOpenChange={setShowLogoutModal}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/30" />
@@ -1103,8 +1083,6 @@ type="submit"
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
-
-      {/* Delete Address Modal */}
       <Dialog.Root open={showDeleteAddressModal} onOpenChange={setShowDeleteAddressModal}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/30" />
@@ -1130,7 +1108,6 @@ type="submit"
         </Dialog.Portal>
       </Dialog.Root>
 
-      {/* Remove Wishlist Item Modal */}
       <Dialog.Root open={showRemoveWishlistModal} onOpenChange={setShowRemoveWishlistModal}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/30" />
@@ -1156,7 +1133,6 @@ type="submit"
         </Dialog.Portal>
       </Dialog.Root>
 
-      {/* Clear Wishlist Modal */}
       <Dialog.Root open={showClearWishlistModal} onOpenChange={setShowClearWishlistModal}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/30" />

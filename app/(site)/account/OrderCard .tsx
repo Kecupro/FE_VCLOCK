@@ -15,7 +15,6 @@ interface OrderCardProps {
 
 const PAGE_SIZE = 5; 
 
-
 function mapOrderStatus(status?: string) {
   switch (status) {
     case "pending": return "choXuLy";
@@ -56,8 +55,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders?user_id=${user_id}`);
         const data = await res.json();
-        
-        // Kiểm tra xem data có phải là array không
+      
         if (!Array.isArray(data)) {
           console.warn("API trả về dữ liệu không phải array:", data);
           setOrders([]);
@@ -95,7 +93,6 @@ export default function OrderCard({ user_id }: OrderCardProps) {
       }
     };
     
-    // Chỉ fetch khi có user_id hợp lệ
     if (user_id && user_id.trim() !== '') {
       fetchOrders();
     } else {
@@ -117,8 +114,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
           },
         });
         const data = await res.json();
-        
-        // Kiểm tra xem data có phải là array không
+      
         if (!Array.isArray(data)) {
           console.warn("API reviews trả về dữ liệu không phải array:", data);
           setReviewedDetails({});
@@ -395,7 +391,6 @@ export default function OrderCard({ user_id }: OrderCardProps) {
         </div>
       ))}
 
-      {/* Modal chi tiết đơn hàng */}
       <Dialog.Root open={!!selectedOrderId} onOpenChange={() => setSelectedOrderId(null)}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
@@ -454,7 +449,6 @@ export default function OrderCard({ user_id }: OrderCardProps) {
                     <p className="text-sm font-semibold text-gray-800 mt-1">
                       {item.price.toLocaleString("vi-VN")}₫
                     </p>
-                    {/* Nút đánh giá nếu đơn đã giao */}
                     {selectedOrder?.order_status === "daGiaoHang" && (
                       reviewedDetails[item._id] ? (
                         <div className="mt-2 text-sm text-green-600">
@@ -510,7 +504,6 @@ export default function OrderCard({ user_id }: OrderCardProps) {
           </Dialog.Portal>
         </Dialog.Root>
 
-      {/* Phân trang */}
       {totalPages > 1 && (
         <div className="flex justify-center gap-2 mt-6">
           <button

@@ -94,7 +94,7 @@ export default function Categories() {
 				THƯƠNG HIỆU SẢN PHẨM
 			</h3>
 			<div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
-			<div className="max-w-6xl mx-auto mb-[-100px]">
+			<div className="max-w-6xl mx-auto mb-[-50px]">
 				<Swiper
 					modules={[Navigation, Autoplay]}
 					spaceBetween={24}

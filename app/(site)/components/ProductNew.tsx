@@ -177,7 +177,6 @@ export default function ProductNew() {
                                             }`}
                                         />
                                         
-                                        {/* Overlay "Đã bán hết" khi quantity = 0 */}
                                         {sp.quantity === 0 && (
                                             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
                                                 <div className="bg-black text-white w-40 h-6 flex items-center justify-center font-bold text-xs shadow-lg relative overflow-hidden">
@@ -205,11 +204,9 @@ export default function ProductNew() {
                                             <>
                                                 <div className="absolute top-0 left-0 z-10">
                                                     <div className="relative">
-                                                        {/* Bookmark ribbon style */}
                                                         <div className="bg-gradient-to-r from-red-600 to-red-500 text-white text-[11px] font-bold px-2 py-1.5 min-w-[45px] text-center shadow-lg">
                                                             -{Math.round(((sp.price - sp.sale_price) / sp.price) * 100)}%
                                                         </div>
-                                                        {/* Bookmark tail - tạo hình tam giác ở dưới */}
                                                         <div className="absolute left-1/2 top-full transform -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-l-transparent border-r-transparent border-t-red-700"></div>
                                                     </div>
                                                 </div>

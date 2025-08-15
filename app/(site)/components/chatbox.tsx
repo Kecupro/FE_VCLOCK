@@ -329,12 +329,9 @@ const conversationIdRef = useRef<string>("guest-conversation");
         </div>
       ) : (
         <div className="relative group">
-          {/* Multiple pulse animation backgrounds for thicker effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping opacity-30 scale-150"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping opacity-20 scale-125 delay-75"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping opacity-15 scale-110 delay-150"></div>
-          
-          {/* Main button */}
           <button
             onClick={() => setIsOpen(true)}
             className="relative bg-gradient-to-r from-red-500 via-red-600 to-pink-500 p-4 rounded-full shadow-2xl hover:shadow-red-500/25 hover:scale-110 transition-all duration-300 transform group-hover:rotate-12"
@@ -344,7 +341,6 @@ const conversationIdRef = useRef<string>("guest-conversation");
             }}
           >
             <div className="relative">
-              {/* Messenger Icon */}
               <svg 
   xmlns="http://www.w3.org/2000/svg" 
   className="text-white w-6 h-6 drop-shadow-sm" 
@@ -355,8 +351,6 @@ const conversationIdRef = useRef<string>("guest-conversation");
 </svg>
             </div>
           </button>
-          
-          {/* Tooltip */}
           <div className="absolute bottom-full right-0 mb-3 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
             Chat với chúng tôi
             <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
