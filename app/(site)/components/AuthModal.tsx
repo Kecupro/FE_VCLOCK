@@ -85,12 +85,10 @@ const AuthModal = ({ isOpen, onClose, preventRedirect = false, onLoginSuccess }:
         setError("");
         toast.success('Đăng nhập thành công!');
         
-        // Gọi callback nếu có
         if (onLoginSuccess) {
           onLoginSuccess();
         }
         
-        // Chỉ redirect nếu không preventRedirect
         if (!preventRedirect) {
           router.refresh();
           if (data.user.role === '1' || data.user.role === '2') {
@@ -133,7 +131,6 @@ const AuthModal = ({ isOpen, onClose, preventRedirect = false, onLoginSuccess }:
         toast.error("Tên tài khoản không được quá 20 ký tự");
         return;
     }
-    // Kiểm tra ký tự hợp lệ cho username
     if (!/^[a-zA-Z0-9._]+$/.test(username.trim())) {
         setError("Tên tài khoản chỉ được chứa chữ, số, dấu chấm và gạch dưới");
         toast.error("Tên tài khoản chỉ được chứa chữ, số, dấu chấm và gạch dưới");
@@ -162,7 +159,6 @@ const AuthModal = ({ isOpen, onClose, preventRedirect = false, onLoginSuccess }:
         toast.error("Mật khẩu phải có ít nhất 6 ký tự");
         return;
     }
-    // Kiểm tra mật khẩu có chứa chữ cái và số
     if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) {
         setError("Mật khẩu phải chứa ít nhất 1 chữ cái và 1 số");
         toast.error("Mật khẩu phải chứa ít nhất 1 chữ cái và 1 số");
@@ -226,7 +222,6 @@ const AuthModal = ({ isOpen, onClose, preventRedirect = false, onLoginSuccess }:
       toast.error("Mã OTP phải có 6 chữ số.");
       return;
     }
-    // Kiểm tra OTP chỉ chứa số
     if (!/^\d{6}$/.test(otp.trim())) {
       setError("Mã OTP chỉ được chứa số.");
       toast.error("Mã OTP chỉ được chứa số.");
@@ -324,7 +319,6 @@ const AuthModal = ({ isOpen, onClose, preventRedirect = false, onLoginSuccess }:
       return;
     }
     
-    // Kiểm tra mật khẩu có chứa chữ cái và số
     if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) {
       setError("Mật khẩu phải chứa ít nhất 1 chữ cái và 1 số");
       toast.error("Mật khẩu phải chứa ít nhất 1 chữ cái và 1 số");
@@ -626,9 +620,7 @@ const AuthModal = ({ isOpen, onClose, preventRedirect = false, onLoginSuccess }:
                 Không nhận được mã?{" "}
                 <button
                   type="button"
-                  // Sẽ làm chức năng gửi lại sau
                   className="text-red-600 hover:underline font-semibold opacity-50 cursor-not-allowed"
-                  // onClick={handleResendOtp}
                 >
                   Gửi lại
                 </button>

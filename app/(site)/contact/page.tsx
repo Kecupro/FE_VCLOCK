@@ -21,7 +21,6 @@ export default function ContactPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Validation function
   const validateForm = () => {
     const { name, email, phone, message } = formData;
 
@@ -303,11 +302,9 @@ export default function ContactPage() {
                   <a href="tel:0909123456" className="hover:text-red-600">0909 123 456</a>
                 </li>
                 <li className="flex items-center">
-                  {/* Icon removed */}
                   <a href="mailto:contact@vclock.vn" className="hover:text-red-600">contact@vclock.vn</a>
                 </li>
                 <li className="flex items-start">
-                  {/* Icon removed */}
                   <span>
                     <strong>Giờ làm việc:</strong><br />
                     Thứ 2 - Thứ 7: 8:00 - 20:00<br />

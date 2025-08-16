@@ -241,7 +241,6 @@ export default function AdminChat() {
 
   const currentConv = conversations.find(c => c.conversationId == activeConversation);
 
-  // Lọc cuộc hội thoại theo từ khóa tìm kiếm
   const filteredConversations = conversations.filter(conv => {
     const userName = conv.participants[0]?.userName || "";
     const lastMessage = conv.lastMessage || "";
@@ -249,7 +248,6 @@ export default function AdminChat() {
            lastMessage.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  // Hàm format ngày tháng năm đầy đủ
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();

@@ -287,7 +287,7 @@ export default function AddressSelector({ value, onChange }: {
         }}
         onBlur={() => {
           if (street.trim() === '') {
-            // Có thể thêm validation ở đây nếu cần
+
           }
         }}
       />

@@ -22,7 +22,6 @@ import { clearAuthData } from '../../utils/authUtils';
 import NotificationBell from './NotificationBell';
 import { INotification } from '../cautrucdata';
 
-// Mobile Notification Components
 const MobileToast = ({ message, type = 'info', onClose }: { message: string, type?: 'info' | 'success' | 'error', onClose: () => void }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -43,7 +42,6 @@ const MobileToast = ({ message, type = 'info', onClose }: { message: string, typ
   );
 };
 
-// Bottom Sheet Notification with full functionality
 const MobileBottomSheet = ({ isOpen, onClose, onNotificationsChange }: { 
   isOpen: boolean; 
   onClose: () => void; 
@@ -53,7 +51,6 @@ const MobileBottomSheet = ({ isOpen, onClose, onNotificationsChange }: {
   const [notifications, setNotifications] = useState<INotification[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Format time function (same as NotificationBell)
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -109,7 +106,6 @@ const MobileBottomSheet = ({ isOpen, onClose, onNotificationsChange }: {
           'Authorization': `Bearer ${token}`
         }
       });
-      // Refresh notifications
       fetchNotifications();
     } catch (error) {
       console.error('Lỗi đánh dấu đã đọc:', error);
@@ -200,7 +196,6 @@ const MobileBottomSheet = ({ isOpen, onClose, onNotificationsChange }: {
   );
 };
 
-// Floating Action Button
 const MobileFAB = ({ onClick, hasNotifications = false }: { onClick: () => void, hasNotifications?: boolean }) => {
   return (
     <button
@@ -217,7 +212,6 @@ const MobileFAB = ({ onClick, hasNotifications = false }: { onClick: () => void,
   );
 };
 
-// Status Bar Notification
 const MobileStatusBar = ({ message, type = 'info', onClose }: { message: string, type?: 'info' | 'success' | 'error', onClose: () => void }) => {
   const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
   
@@ -281,7 +275,6 @@ const Header = () => {
   const [hasNotifications, setHasNotifications] = useState(false);
   const dropdownTimeout = useRef<NodeJS.Timeout | null>(null);
   
-  // Modal states
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const hasRefreshed = useRef(false);
   const router = useRouter();
@@ -657,7 +650,6 @@ const Header = () => {
               </button>
             </form>
 
-            {/* Mobile Search Suggestions */}
             {showSuggestions && (searchValue || searchHistory.length > 0) && (
               <div className="absolute left-6 right-6 top-20 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-60 overflow-y-auto">
                 {searchValue && searchSuggestions.length > 0 && (
@@ -959,7 +951,6 @@ const Header = () => {
         onClose={() => setShowAuthModal(false)} 
       />
       
-      {/* Mobile Toast Notifications */}
       {mobileToast && (
         <MobileToast
           message={mobileToast.message}
@@ -968,14 +959,12 @@ const Header = () => {
         />
       )}
 
-      {/* Mobile Bottom Sheet */}
       <MobileBottomSheet 
         isOpen={showBottomSheet} 
         onClose={() => setShowBottomSheet(false)}
         onNotificationsChange={setHasNotifications}
       />
 
-      {/* Mobile Status Bar */}
       {showStatusBar && (
         <MobileStatusBar
           message="Có thông báo mới!"
@@ -984,13 +973,11 @@ const Header = () => {
         />
       )}
 
-      {/* Mobile FAB - Floating Action Button */}
       <MobileFAB 
         onClick={() => setShowBottomSheet(true)} 
         hasNotifications={hasNotifications}
       />
 
-      {/* Logout Modal */}
       <Dialog.Root open={showLogoutModal} onOpenChange={setShowLogoutModal}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/30" />

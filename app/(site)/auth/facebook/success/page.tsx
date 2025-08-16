@@ -26,8 +26,6 @@ export default function FacebookSuccess() {
             key: 'user',
             newValue: JSON.stringify(user)
           }));
-          
-          // Kiểm tra preventRedirect
           const preventRedirect = localStorage.getItem('auth_prevent_redirect');
           const returnUrl = localStorage.getItem('auth_return_url');
           

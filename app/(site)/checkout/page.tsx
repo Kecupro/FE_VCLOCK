@@ -104,8 +104,6 @@ export default function CheckoutPage() {
 			});
 			if (response.ok) {
 				const data = await response.json();
-	
-				// Đảo ngược thứ tự mảng
 				const reversedData = [...data].reverse();
 	
 				setAddresses(reversedData);
@@ -128,9 +126,6 @@ export default function CheckoutPage() {
 		}
 	}, [token, fetchAddresses]);
 
-
-
-		// Lắng nghe sự kiện auth_success từ Google/Facebook OAuth
 	useEffect(() => {
 		const handleAuthSuccess = (event: CustomEvent) => {
 			const { returnUrl } = event.detail;
@@ -149,12 +144,10 @@ export default function CheckoutPage() {
 
 	useEffect(() => {
 		if (addresses.length > 0 && !selectedAddressId && !showNewAddressForm) {
-			// Ưu tiên địa chỉ mặc định
 			const defaultAddr = addresses.find(addr => addr.is_default);
 			if (defaultAddr) {
 				setSelectedAddressId(defaultAddr._id);
 			} else {
-				// Nếu không có mặc định, lấy địa chỉ mới nhất
 				const latest = getLatestAddress();
 				if (latest) setSelectedAddressId(latest._id);
 			}
@@ -162,13 +155,13 @@ export default function CheckoutPage() {
 	}, [addresses, selectedAddressId, showNewAddressForm, getLatestAddress]);
 	  
 	  const handleChangeAddressClick = () => {
-		setIsSubmittingAddress(true); // Bắt đầu loading
+		setIsSubmittingAddress(true); 
 	  
 		setTimeout(() => {
 		  setIsChangingAddress(true);
 		  setTempSelectedAddressId(selectedAddressId);
-		  setIsSubmittingAddress(false); // Kết thúc loading
-		}, 800); // Giả lập loading trong 0.8 giây
+		  setIsSubmittingAddress(false); 
+		}, 800); 
 	  };
 	  
 
@@ -208,22 +201,18 @@ export default function CheckoutPage() {
 
 
 	  useEffect(() => {
-    // Kiểm tra xem có phải là mua ngay không
     const urlParams = new URLSearchParams(window.location.search);
     const isBuyNow = urlParams.get('buyNow') === 'true';
     
     if (isBuyNow) {
-      // Lấy session mua ngay
       const buyNowSession = localStorage.getItem("buyNowSession");
       if (buyNowSession) {
         const session = JSON.parse(buyNowSession);
         setCart(session.items);
         subtotal(session.items);
-        // Xóa session mua ngay sau khi đã sử dụng
         localStorage.removeItem("buyNowSession");
       }
     } else {
-      // Xử lý giỏ hàng bình thường
       const storedCart = localStorage.getItem("cart");
       const storedSelected = localStorage.getItem("selectedItems");
         
@@ -231,7 +220,6 @@ export default function CheckoutPage() {
         const parsedCart = JSON.parse(storedCart);
         const selectedIds: string[] = storedSelected ? JSON.parse(storedSelected) : [];
       
-        // Nếu có selectedIds thì chỉ lấy những sản phẩm được chọn
         const filteredCart =
           selectedIds.length > 0
             ? parsedCart.filter((item: ICart) => selectedIds.includes(item._id))
@@ -292,15 +280,12 @@ export default function CheckoutPage() {
 	const handlePostOrderSuccess = () => {
     toast.success("Đặt hàng thành công!");
 
-    // Kiểm tra xem có phải là mua ngay không
     const urlParams = new URLSearchParams(window.location.search);
     const isBuyNow = urlParams.get('buyNow') === 'true';
     
     if (isBuyNow) {
-      // Nếu là mua ngay, chỉ cần xóa session và chuyển hướng
       localStorage.removeItem("buyNowSession");
     } else {
-      // Xử lý giỏ hàng bình thường
       const selectedIds = JSON.parse(localStorage.getItem("selectedItems") || "[]");
       const fullCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
@@ -324,7 +309,6 @@ export default function CheckoutPage() {
 };	
 	
 	const submitOrder = async (addressId?: string) => {
-		// Kiểm tra đăng nhập trước khi đặt hàng
 		if (!user) {
 			toast.error("Vui lòng đăng nhập để tiếp tục thanh toán!");
 			setShowAuthModal(true);
@@ -376,7 +360,6 @@ export default function CheckoutPage() {
 			if (resData.checkoutUrl) {
 			  window.location.href = resData.checkoutUrl;
 			} else if (resData.errors && Array.isArray(resData.errors)) {
-			  // Xử lý lỗi tồn kho cho thanh toán qua ngân hàng
 			  const errorMessages = resData.errors.map((error: { message: string }) => error.message).join('\n');
 			  toast.error(`\n${errorMessages} `, {
 				autoClose: 5000,
@@ -399,7 +382,6 @@ export default function CheckoutPage() {
 			if (data?.order_id) {
 			  handlePostOrderSuccess();
 			} else {
-			  // Xử lý lỗi tồn kho
 			  if (data.errors && Array.isArray(data.errors)) {
 				const errorMessages = data.errors.map((error: { message: string }) => error.message).join('\n');
 				toast.error(`\n${errorMessages}`, {
@@ -426,7 +408,7 @@ export default function CheckoutPage() {
 	
 	  const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setIsLoading(true); // Bắt đầu loading
+		setIsLoading(true); 
 	
 		try {
 
@@ -440,10 +422,7 @@ export default function CheckoutPage() {
 	
 
 			if (!user) {
-				// Kiểm tra thông tin địa chỉ cho user chưa đăng nhập
 				const { name, phone, address } = form;
-				
-				// Kiểm tra đầy đủ thông tin
 				if (!name.trim()) {
 					toast.error("Vui lòng nhập tên người nhận!");
 					return;
@@ -456,8 +435,6 @@ export default function CheckoutPage() {
 					toast.error("Vui lòng nhập địa chỉ giao hàng!");
 					return;
 				}
-				
-				// Kiểm tra định dạng
 				if (name.trim().length < 2) {
 					toast.error("Tên người nhận phải có ít nhất 2 ký tự!");
 					return;
@@ -478,8 +455,6 @@ export default function CheckoutPage() {
 					toast.error("Địa chỉ chứa ký tự không hợp lệ!");
 					return;
 				}
-				
-				// Tiếp tục với đặt hàng cho user chưa đăng nhập
 				await submitOrder();
 				return;
 			}
@@ -498,7 +473,6 @@ export default function CheckoutPage() {
 			if (showNewAddressForm) {
 				const { receiver_name, phone, address } = newAddress;
 				
-				// Kiểm tra đầy đủ thông tin
 				if (!receiver_name.trim()) {
 					toast.error("Vui lòng nhập tên người nhận!");
 					return;
@@ -512,7 +486,6 @@ export default function CheckoutPage() {
 					return;
 				}
 				
-				// Kiểm tra định dạng
 				if (receiver_name.trim().length < 2) {
 					toast.error("Tên người nhận phải có ít nhất 2 ký tự!");
 					return;
@@ -525,14 +498,12 @@ export default function CheckoutPage() {
 					toast.error("Số điện thoại phải có 10-11 chữ số!");
 					return;
 				}
-				// Kiểm tra đã chọn đủ 3 dropdown (tỉnh, huyện, xã)
 				const addressParts = address.split(', ');
 				if (addressParts.length < 3) {
 					toast.error("Vui lòng chọn đầy đủ địa chỉ!");
 					return;
 				}
 				
-				// Kiểm tra đã nhập số nhà/tên đường
 				const streetAddress = addressParts.slice(0, -3).join(', ').trim();
 				if (!streetAddress) {
 					toast.error("Vui lòng nhập số nhà và tên đường!");
@@ -1129,7 +1100,6 @@ export default function CheckoutPage() {
 												height={20}
 												className="h-5 w-5 object-contain"
 												onError={(e) => {
-													// Fallback khi ảnh lỗi
 													const target = e.target as HTMLImageElement;
 													target.src = "/images/payment-Method/placeholder.png";
 												}}
@@ -1186,7 +1156,6 @@ export default function CheckoutPage() {
 					</div>
 			</form>
 
-			{/* AuthModal */}
 			<AuthModal
 				isOpen={showAuthModal}
 				onClose={() => setShowAuthModal(false)}

@@ -24,7 +24,6 @@ const ProductDetailPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
 
   const productId = params?.id as string;
-  // const baseImageUrl = "/images/product/"; // Replaced with utility function
 
   useEffect(() => {
     document.documentElement.classList.toggle(styles['dark-mode'], isDarkMode);

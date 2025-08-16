@@ -184,7 +184,6 @@ export default function Feedback() {
             <SwiperSlide key={product._id}>
               <div className="bg-white rounded-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
                 <div className="flex flex-col lg:flex-row">
-                  {/* Product Image - Left Side */}
                   <div className="lg:w-1/2 relative h-64 lg:h-auto overflow-hidden">
                     <Link href={`/product/${product._id}`}>
                       <OptimizedImage
@@ -205,7 +204,6 @@ export default function Feedback() {
                       />
                     </Link>
                     
-                    {/* Overlay "Đã bán hết" khi quantity = 0 */}
                     {product.quantity === 0 && (
                       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
                         <div className="bg-black text-white w-40 h-6 flex items-center justify-center font-bold text-xs shadow-lg relative overflow-hidden">
@@ -224,11 +222,9 @@ export default function Feedback() {
                     {product.sale_price > 0 && (
                       <div className="absolute top-3 right-3">
                         <div className="relative">
-                          {/* Bookmark ribbon style */}
                           <div className="bg-gradient-to-r from-red-600 to-red-500 text-white text-[11px] font-bold px-2 py-1.5 min-w-[45px] text-center shadow-lg rounded-t-md">
                             -{Math.round(((product.price - product.sale_price) / product.price) * 100)}%
                           </div>
-                          {/* Bookmark tail - tạo hình tam giác ở dưới */}
                           <div className="absolute left-1/2 top-full transform -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[6px] border-l-transparent border-r-transparent border-t-red-700"></div>
                         </div>
                       </div>
@@ -244,7 +240,6 @@ export default function Feedback() {
                         </h3>
                       </Link>
                     </div>
-                    
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex gap-1">
               {Array.from({ length: 5 }).map((_, i) => (
