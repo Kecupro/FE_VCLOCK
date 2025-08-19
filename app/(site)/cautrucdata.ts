@@ -19,6 +19,7 @@ export interface IProduct {
   machine_type: string;
   strap_material: string;
   case_material: string;
+  sold: number;
   categories: ICategory[];
   main_image: IHinh | string;
   images: IHinh[];
