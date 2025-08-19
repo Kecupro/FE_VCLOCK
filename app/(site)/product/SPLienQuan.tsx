@@ -6,11 +6,12 @@ import Link from "next/link";
 import { IProduct } from "../cautrucdata";
 import AddToCart from "../components/AddToCart";
 import BuyNow from "../components/BuyNow";
-import { useEffect, useState  } from "react";
+import { useEffect, useState, useRef } from "react";
 import WishlistButton from "../components/WishlistButton";
 import { useAuth } from "../context/AuthContext";
 import OptimizedImage from "../components/OptimizedImage";
 import { getProductImageUrl } from '@/app/utils/imageUtils';
+import type { Swiper as SwiperType } from 'swiper';
 interface WishlistItem {
     _id: string;
     product_id: string;
@@ -23,6 +24,7 @@ export default function SPLienQuan({id} : {id:string}) {
     const [products, setProducts] = useState<IProduct[]>([]);
     const [wishlistStatus, setWishlistStatus] = useState<{[key: string]: boolean}>({});
     const { user } = useAuth();
+    const swiperRef = useRef<SwiperType | null>(null);
 
     useEffect(() => {
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sp_lien_quan/${id}`)
@@ -67,13 +69,29 @@ export default function SPLienQuan({id} : {id:string}) {
             fetchWishlist();
         }, [user]); 
 
+    const handleMouseEnter = () => {
+        if (swiperRef.current && swiperRef.current.autoplay) {
+            swiperRef.current.autoplay.stop();
+        }
+    };
+
+    const handleMouseLeave = () => {
+        if (swiperRef.current && swiperRef.current.autoplay) {
+            swiperRef.current.autoplay.start();
+        }
+    };
+
     return (
         <div className="w-full bg-gray-50 py-8">
 			<h3 className="text-center font-bold text-2xl mb-3">
 				SẢN PHẨM LIÊN QUAN
 			</h3>
 			<div className="mx-auto mb-8 w-30 h-1  bg-red-700 rounded"></div>
-			<div className="max-w-6xl mx-auto">
+			<div 
+                className="max-w-6xl mx-auto"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+            >
 				<Swiper
 					modules={[Navigation, Autoplay]}
 					spaceBetween={24}
@@ -86,6 +104,9 @@ export default function SPLienQuan({id} : {id:string}) {
 						1024: { slidesPerView: 4 },
 					}}
 					loop
+                    onSwiper={(swiper) => {
+                        swiperRef.current = swiper;
+                    }}
 				>
 					{products.map((sp, idx) => {
                         const slug = `${sp.name?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '')}-${sp._id}`;

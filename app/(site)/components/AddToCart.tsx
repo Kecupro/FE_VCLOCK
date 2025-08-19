@@ -2,7 +2,7 @@ import { ICart, IProduct, IHinh } from "../cautrucdata";
 import { useCart } from "./CartContext";
 import { toast } from "react-toastify";
 
-export default function AddToCart({ sp, disabled }: { sp: IProduct; disabled?: boolean }) {
+export default function AddToCart({ sp, disabled, variant = "icon", size = "default" }: { sp: IProduct; disabled?: boolean; variant?: "icon" | "text"; size?: "default" | "small" }) {
   const { addToCart } = useCart();
   
   const isOutOfStock = sp.quantity === 0 || disabled;
@@ -82,17 +82,23 @@ export default function AddToCart({ sp, disabled }: { sp: IProduct; disabled?: b
 
   return (
     <button
-      className={`flex-1 mx-auto font-normal block p-2 rounded-sm mt-1 transition-colors duration-200 ${
+      className={`flex-1 mx-auto font-normal block ${size === "small" ? "p-2 h-10" : "p-3 h-12"} rounded-sm mt-1 transition-colors duration-200 ${
         isOutOfStock 
           ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
-          : 'bg-gray-300 text-black hover:bg-gray-400'
+          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
       }`}
       onClick={handleAddToCart}
       disabled={isOutOfStock}
       title={isOutOfStock ? "Sản phẩm đã hết hàng" : "Thêm vào giỏ hàng"}
     >
       <div className="flex items-center justify-center">
-        <i className={`fa-solid fa-cart-plus text-base ${isOutOfStock ? 'opacity-50' : ''}`}></i>
+        {variant === "text" ? (
+          <span className={`text-sm font-medium ${isOutOfStock ? 'opacity-50' : ''}`}>
+            Thêm vào giỏ hàng
+          </span>
+        ) : (
+          <i className={`fa-solid fa-cart-plus text-base ${isOutOfStock ? 'opacity-50' : ''}`}></i>
+        )}
       </div>
     </button>
   );

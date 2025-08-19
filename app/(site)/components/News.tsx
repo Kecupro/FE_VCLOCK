@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from "next/link";
 import axios from 'axios';
 import { INews } from '../cautrucdata';
@@ -9,10 +9,13 @@ import 'swiper/css/navigation';
 import { Navigation, Autoplay } from 'swiper/modules';
 import OptimizedImage from './OptimizedImage';
 import { getNewsImageUrl } from '@/app/utils/imageUtils';
+import type { Swiper as SwiperType } from 'swiper';
+
 export default function News() {
   const [newsList, setNewsList] = useState<INews[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const swiperRef = useRef<SwiperType | null>(null);
 
   useEffect(() => {
     fetchNews();
@@ -73,11 +76,27 @@ export default function News() {
     );
   }
 
+  const handleMouseEnter = () => {
+    if (swiperRef.current && swiperRef.current.autoplay) {
+      swiperRef.current.autoplay.stop();
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (swiperRef.current && swiperRef.current.autoplay) {
+      swiperRef.current.autoplay.start();
+    }
+  };
+
   return (
     <div className="w-full bg-white py-8">
       <h3 className="text-center font-bold text-2xl mb-3">TIN TỨC SỰ KIỆN</h3>
       <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
-      <div className="max-w-6xl mx-auto">
+      <div 
+        className="max-w-6xl mx-auto"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <Swiper
           modules={[Navigation, Autoplay]}
           autoplay={{ delay: 3000, disableOnInteraction: false }}
@@ -88,6 +107,9 @@ export default function News() {
             1024: { slidesPerView: 3 },
           }}
           className="!pb-10"
+          onSwiper={(swiper) => {
+            swiperRef.current = swiper;
+          }}
         >
           {newsList.slice(0, 6).map((news) => (
             <SwiperSlide key={news._id}>

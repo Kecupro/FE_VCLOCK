@@ -54,8 +54,7 @@ function AccountPageContent() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteAddressModal, setShowDeleteAddressModal] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
-  const [showRemoveWishlistModal, setShowRemoveWishlistModal] = useState(false);
-  const [productToRemove, setProductToRemove] = useState<string | null>(null);
+
   const [showClearWishlistModal, setShowClearWishlistModal] = useState(false);
   
 
@@ -492,18 +491,11 @@ address: address.address
   };
 
   const handleRemoveFromWishlist = async (productId: string) => {
-    setProductToRemove(productId);
-    setShowRemoveWishlistModal(true);
-  };
-
-  const confirmRemoveFromWishlist = async () => {
-    if (!productToRemove) return;
-    
     const token = localStorage.getItem("token");
     if (!token) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist/${productToRemove}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -511,18 +503,17 @@ address: address.address
       });
 
       if (response.ok) {
-        setWishlistItems(wishlistItems.filter(item => item.product_id !== productToRemove));
+        setWishlistItems(wishlistItems.filter(item => item.product_id !== productId));
         refreshWishlistCount(); 
-        toast.success('Đã xóa sản phẩm khỏi danh sách yêu thích!');
+        toast.success('Đã hủy yêu thích sản phẩm!');
       }
     } catch (error) {
-      console.error("Lỗi xóa khỏi danh sách yêu thích:", error);
-      toast.error('Có lỗi xảy ra khi xóa sản phẩm khỏi danh sách yêu thích.');
-    } finally {
-      setShowRemoveWishlistModal(false);
-      setProductToRemove(null);
+      console.error("Lỗi hủy yêu thích:", error);
+      toast.error('Có lỗi xảy ra khi hủy yêu thích sản phẩm.');
     }
   };
+
+
 
   const handleSetDefaultAddress = async (id: string) => {
     try {
@@ -565,7 +556,7 @@ address: address.address
       if (response.ok) {
         setWishlistItems([]);
         refreshWishlistCount();
-        toast.success('Đã xóa toàn bộ sản phẩm khỏi danh sách yêu thích!');
+        toast.success('Đã hủy toàn bộ sản phẩm khỏi danh sách yêu thích!');
       } else {
         toast.error(result.message || 'Có lỗi xảy ra khi xóa toàn bộ wishlist.');
       }
@@ -591,7 +582,7 @@ return (
     <main className="max-w-6xl mx-auto py-10 px-4 pt-40 font-sans bg-gray-50 min-h-screen">
       <div className="bg-white rounded-2xl overflow-hidden">
         <div className="flex flex-col md:flex-row">
-          <aside className="w-full md:w-1/4 bg-gray-800 border border-gray-200 p-6 ">
+          <aside className="w-full md:w-1/4 bg-gradient-to-b from-red-600 to-black border border-gray-200 p-6 min-h-screen">
             <div className="flex flex-col items-center mb-8">
               <div className="relative w-15 h-15 mb-4 group">
                 <div 
@@ -644,7 +635,7 @@ return (
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 ${
                     tab === key
                       ? "bg-red-50 text-red-600"
-                      : "text-white hover:bg-gray-700"
+                      : "text-white hover:bg-red-500 hover:bg-opacity-20"
                   }`}
                 >
                   <i className={`${icon} w-5 h-5`}></i>
@@ -652,7 +643,7 @@ return (
                 </button>
               ))}
               <button
-                className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-white hover:bg-gray-100 hover:text-black transition-all duration-200"
+                className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-white hover:bg-red-500 hover:bg-opacity-20 transition-all duration-200"
                 onClick={handleLogout}
               >
                 <i className="fa-solid fa-right-from-bracket w-5 h-5"></i>
@@ -892,17 +883,17 @@ type="submit"
                   </form>
                 )}
 
-                <div className="grid grid-cols-1 gap-6">
+                <div className="grid grid-cols-1 gap-3">
                   {addresses.map((addr) => (
                     <div
                       key={addr._id}
-                      className={`bg-white p-6 rounded-xl border transition-all duration-200 ${
+                      className={`bg-white p-4 rounded-xl border transition-all duration-200 ${
                         addr.is_default ? "border-red-500 bg-red-50" : "border-gray-200 hover:border-red-300 hover:bg-gray-50"
                       }`}
                     >
                       <div className="flex justify-between items-start">
                         <div className="w-full">
-                          <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center justify-between mb-2">
                             <h3 className="font-bold text-gray-800 text-sm">{addr.receiver_name}</h3>
                             <div className="flex space-x-2">
                               <button
@@ -920,7 +911,7 @@ type="submit"
                             </div>
                           </div>
 
-                          <div className="flex flex-wrap items-center gap-x-8 gap-y-2 mt-2">
+                          <div className="flex flex-wrap items-center gap-x-8 gap-y-1 mt-1">
                             <span className="flex items-center text-sm text-gray-500">
                               <i className="fa-solid fa-phone text-gray-400 mr-1"></i>
                               <span className="font-semibold">Số điện thoại:</span>
@@ -932,7 +923,7 @@ type="submit"
                               <span className="ml-1 text-gray-800">{addr.address}</span>
                             </span>
                           </div>
-                  <div className="mt-4 flex items-center justify-between">
+                  <div className="mt-2 flex items-center justify-between">
                             {addr.is_default ? (
                               <span className="text-sm text-red-600 font-semibold">
                                 <i className="fa-solid fa-check-circle mr-1"></i> Địa chỉ mặc định
@@ -1022,10 +1013,10 @@ type="submit"
                             </button>
                             <button
                               onClick={() => handleRemoveFromWishlist(item.product_id)}
-                              className="flex items-center justify-center px-2 py-1 rounded bg-gray-100 text-red-400 hover:bg-red-100 hover:text-red-600 transition-all duration-150"
-                              title="Xóa khỏi yêu thích"
+                              className="flex items-center justify-center px-2 py-1 rounded bg-gray-100 text-red-500 hover:bg-red-50 transition-all duration-150"
+                              title="Hủy yêu thích"
                             >
-                              <i className="fa-solid fa-trash text-xs"></i>
+                              <i className="fa-solid fa-heart text-xs"></i>
                             </button>
                           </div>
                         </div>
@@ -1108,30 +1099,7 @@ type="submit"
         </Dialog.Portal>
       </Dialog.Root>
 
-      <Dialog.Root open={showRemoveWishlistModal} onOpenChange={setShowRemoveWishlistModal}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/30" />
-          <Dialog.Content className="bg-white rounded-xl shadow-xl p-6 max-w-sm mx-auto fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 space-y-4 z-50">
-            <Dialog.Title className="text-lg font-semibold text-red-600">Xóa khỏi yêu thích</Dialog.Title>
-            <div className="text-sm text-gray-600">
-              Bạn có chắc chắn muốn xóa sản phẩm này khỏi danh sách yêu thích?
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Dialog.Close asChild>
-                <button className="px-4 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-100">
-                  Hủy
-                </button>
-              </Dialog.Close>
-              <button
-                onClick={confirmRemoveFromWishlist}
-                className="px-4 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700"
-              >
-                Xóa
-              </button>
-            </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+
 
       <Dialog.Root open={showClearWishlistModal} onOpenChange={setShowClearWishlistModal}>
         <Dialog.Portal>

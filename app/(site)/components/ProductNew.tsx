@@ -3,7 +3,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { IProduct } from "../cautrucdata";
 import WishlistButton from "./WishlistButton";
 import AddToCart from "./AddToCart";
@@ -11,6 +11,7 @@ import BuyNow from "./BuyNow";
 import { useAuth } from "../context/AuthContext";
 import OptimizedImage from "./OptimizedImage";
 import { getProductImageUrl } from '@/app/utils/imageUtils';
+import type { Swiper as SwiperType } from 'swiper';
 interface WishlistItem {
     _id: string;
     product_id: string;
@@ -25,6 +26,7 @@ export default function ProductNew() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { user } = useAuth();
+    const swiperRef = useRef<SwiperType | null>(null);
 
     useEffect(() => {
         setLoading(true);
@@ -137,13 +139,29 @@ export default function ProductNew() {
         );
     }
 
+    const handleMouseEnter = () => {
+        if (swiperRef.current && swiperRef.current.autoplay) {
+            swiperRef.current.autoplay.stop();
+        }
+    };
+
+    const handleMouseLeave = () => {
+        if (swiperRef.current && swiperRef.current.autoplay) {
+            swiperRef.current.autoplay.start();
+        }
+    };
+
     return (
         <div className="w-full bg-gray-50 py-8">
             <h3 className="text-center font-bold text-2xl mb-3">
                 SẢN PHẨM MỚI NHẤT
             </h3>
             <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div 
+                className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+            >
                 <Swiper
                     modules={[Navigation, Autoplay]}
                     spaceBetween={24}
@@ -155,6 +173,9 @@ export default function ProductNew() {
                         1024: { slidesPerView: 4 },
                     }}
                     loop
+                    onSwiper={(swiper) => {
+                        swiperRef.current = swiper;
+                    }}
                 >
                     {products.map((sp, idx) => {
                         const slug = `${sp.name?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '')}-${sp._id}`;

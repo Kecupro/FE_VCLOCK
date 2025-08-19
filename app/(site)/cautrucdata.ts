@@ -23,7 +23,6 @@ export interface IProduct {
   main_image: IHinh | string;
   images: IHinh[];
   slug: string;
-  sold: number;
   created_at: string;
   updated_at: string;
 }

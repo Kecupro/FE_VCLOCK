@@ -312,10 +312,32 @@ export default function ProductDetail() {
           <p className="mb-2 text-gray-700 font-medium">{(product.brand_id?.name || product.brand?.name) ?? "Không rõ thương hiệu"}</p>
           <div className="mb-6">
             <div className="flex gap-4 mb-4">
-              <AddToCart sp={product} disabled={product.quantity === 0} />
+              <AddToCart sp={product} disabled={product.quantity === 0} variant="text" />
               <BuyNow sp={product} disabled={product.quantity === 0} />
               <WishlistButton productId={product._id} initialIsWishlisted={isWishlisted} variant="large" />
             </div>
+            
+            {/* Hiển thị lượt xem và thông tin bổ sung */}
+            <div className="bg-gray-50 rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between text-gray-600 text-sm">
+                <div className="flex items-center gap-2">
+                  <i className="fa-solid fa-eye text-red-500"></i>
+                  <span className="font-medium">{product.views || 0}</span>
+                  <span>lượt xem</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <i className={`fa-solid fa-box ${product.quantity > 0 ? 'text-red-500' : 'text-red-500'}`}></i>
+                  <span className={`font-medium ${product.quantity > 0 ? 'text-red-600' : 'text-red-600'}`}>{product.quantity}</span>
+                  <span>{product.quantity > 0 ? 'sản phẩm có sẵn' : 'hết hàng'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <i className="fa-solid fa-star text-red-500"></i>
+                  <span className="font-medium">{stats?.totalReviews || 0}</span>
+                  <span>đánh giá</span>
+                </div>
+              </div>
+            </div>
+            
             <ul className="list-disc list-inside text-gray-700 text-sm space-y-1 w-100">
             </ul>
           </div>

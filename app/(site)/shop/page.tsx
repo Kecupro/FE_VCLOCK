@@ -562,8 +562,8 @@ function ShopPageContent() {
                     </div>
                   )}
                   <div className="mt-2 flex gap-2">
-                    <AddToCart sp={sp} disabled={sp.quantity === 0} />
-                    <BuyNow sp={sp} disabled={sp.quantity === 0} />
+                    <AddToCart sp={sp} disabled={sp.quantity === 0} size="small" />
+                    <BuyNow sp={sp} disabled={sp.quantity === 0} size="small" />
                   </div>
                 </div>
                 <div className="absolute top-2 right-2 z-10">

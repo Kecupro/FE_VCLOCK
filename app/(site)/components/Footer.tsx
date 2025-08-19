@@ -30,7 +30,7 @@ const Footer = () => {
           <p className="text-sm mb-2">1073/23 CMT8, P7, Q.Tân Bình, TP.HCM</p>
           <p className="text-sm mb-2">Hotline: <a href="tel:090912" className="hover:text-red-400">(+84) 313-728-397
           </a></p>
-          <p className="text-sm mb-2">Email: <a href="mailto:vclock.com" className="hover:text-red-400">vclock.com</a></p>
+          <p className="text-sm mb-2">Email: <a href="mailto:vclock.com" className="hover:text-red-400">vclock</a></p>
         </div>
         <div>
           <h3 className="font-bold text-xl mb-2">MENU</h3>
@@ -70,7 +70,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="border-t border-gray-700 mt-6 pt-4 text-center text-sm text-gray-400">
-        © {new Date().getFullYear()} VCLOCK.COM.
+        © {new Date().getFullYear()} VCLOCK.STORE
       </div>
     </footer>
   );

@@ -3,7 +3,7 @@ import { useCart } from "./CartContext";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-export default function BuyNow({ sp, disabled }: { sp: IProduct; disabled?: boolean }) {
+export default function BuyNow({ sp, disabled, size = "default" }: { sp: IProduct; disabled?: boolean; size?: "default" | "small" }) {
   const { setSelectedItems } = useCart();
   const router = useRouter();
   
@@ -79,10 +79,10 @@ export default function BuyNow({ sp, disabled }: { sp: IProduct; disabled?: bool
 
   return (
     <button
-      className={`flex-1 mx-auto font-normal block p-3 rounded-sm mt-1 transition-colors duration-200 ${
+      className={`flex-1 mx-auto font-normal block ${size === "small" ? "p-2 h-10" : "p-3 h-12"} rounded-sm mt-1 transition-all duration-200 ${
         isOutOfStock 
           ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
-          : 'bg-black text-white hover:bg-red-600'
+          : 'bg-gradient-to-r from-red-600 to-red-800 text-white hover:from-black hover:to-gray-800 shadow-lg hover:shadow-xl'
       }`}
       onClick={handleBuyNow}
       disabled={isOutOfStock}

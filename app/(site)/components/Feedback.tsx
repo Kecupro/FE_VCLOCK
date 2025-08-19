@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
@@ -10,6 +10,8 @@ import BuyNow from "./BuyNow";
 import { IProduct } from "../cautrucdata";
 import OptimizedImage from "./OptimizedImage";
 import { getProductImageUrl } from '@/app/utils/imageUtils';
+import type { Swiper as SwiperType } from 'swiper';
+
 interface TopRatedProduct {
   _id: string;
   name: string;
@@ -32,6 +34,7 @@ export default function Feedback() {
   const [products, setProducts] = useState<TopRatedProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const swiperRef = useRef<SwiperType | null>(null);
 
   useEffect(() => {
     const fetchTopRatedProducts = async () => {
@@ -125,6 +128,18 @@ export default function Feedback() {
     };
   };
 
+  const handleMouseEnter = () => {
+    if (swiperRef.current && swiperRef.current.autoplay) {
+      swiperRef.current.autoplay.stop();
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (swiperRef.current && swiperRef.current.autoplay) {
+      swiperRef.current.autoplay.start();
+    }
+  };
+
   if (loading) {
     return (
       <div className="w-full bg-white py-8">
@@ -167,7 +182,11 @@ export default function Feedback() {
       <h3 className="text-center font-bold text-2xl mb-3">SẢN PHẨM NỔI BẬT</h3>
       <div className="mx-auto mb-6 w-24 h-1 bg-red-700 rounded"></div>
       
-      <div className="max-w-6xl mx-auto px-4">
+      <div 
+        className="max-w-6xl mx-auto px-4"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}
           spaceBetween={0}
@@ -179,6 +198,9 @@ export default function Feedback() {
             disableOnInteraction: false,
           }}
           className="top-rated-swiper"
+          onSwiper={(swiper) => {
+            swiperRef.current = swiper;
+          }}
         >
           {products.map((product) => (
             <SwiperSlide key={product._id}>

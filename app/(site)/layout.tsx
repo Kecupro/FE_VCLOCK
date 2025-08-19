@@ -13,6 +13,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import Preloader from "./components/Preloader";
 import ChatBox from "./components/chatbox";
+import ScrollToTop from "./components/ScrollToTop";
 import { CartProvider } from "./components/CartContext";
 import { WishlistProvider } from "./components/WishlistContext";
 
@@ -69,6 +70,7 @@ export default function RootLayout({
           
           {children}
           <ChatBox />
+          <ScrollToTop />
           <Footer />
           <ToastContainer
             position="top-right"

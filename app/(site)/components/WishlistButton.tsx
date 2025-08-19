@@ -49,7 +49,7 @@ export default function WishlistButton({ productId, initialIsWishlisted, variant
             if (success) {
                 const statusMap = await getWishlistStatus();
                 setIsWishlisted(statusMap[productId] || false);
-                toast.success(isWishlisted ? "Đã xóa khỏi danh sách yêu thích!" : "Đã thêm vào danh sách yêu thích!");
+                toast.success(isWishlisted ? "Đã hủy yêu thích!" : "Đã thêm vào danh sách yêu thích!");
             } else {
                 toast.error("Có lỗi xảy ra, vui lòng thử lại!");
             }
@@ -62,7 +62,7 @@ export default function WishlistButton({ productId, initialIsWishlisted, variant
 
     const baseClasses = "transition-colors duration-200";
     const sizeClasses = variant === "large" 
-        ? "text-2xl p-3 rounded-lg border-2 hover:bg-red-50" 
+        ? "text-xl p-3 h-12 rounded-sm bg-gray-100 hover:bg-red-50 flex items-center justify-center mt-1" 
         : "text-xl";
     const colorClasses = isWishlisted 
         ? "text-red-500" 
@@ -76,10 +76,10 @@ export default function WishlistButton({ productId, initialIsWishlisted, variant
                 handleWishlist();
             }}
             className={`${baseClasses} ${sizeClasses} ${colorClasses} ${
-                variant === "large" && isWishlisted ? "border-red-500 bg-red-50" : ""
+                variant === "large" && isWishlisted ? "bg-red-50" : ""
             }`}
             disabled={isLoading}
-            title={isWishlisted ? "Xóa khỏi danh sách yêu thích" : "Thêm vào danh sách yêu thích"}
+            title={isWishlisted ? "Hủy yêu thích" : "Thêm vào danh sách yêu thích"}
         >
             <i className={`fa-solid fa-heart ${isLoading ? "opacity-50" : ""}`}></i>
         </button>

@@ -160,7 +160,7 @@ const conversationIdRef = useRef<string>("guest-conversation");
   }, [messages]);
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-19 right-6 z-50">
       {isOpen ? (
         <div className="w-80 h-[400px] bg-white rounded-2xl shadow-2xl flex flex-col border border-gray-200 animate-in slide-in-from-bottom-2 duration-300">
           <div className="bg-gradient-to-r from-black via-red-500 to-black text-white rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative overflow-hidden">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FaTicketAlt } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -7,6 +7,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import { IVoucher } from "../cautrucdata";
+import type { Swiper as SwiperType } from 'swiper';
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
 }
@@ -29,6 +30,7 @@ const VoucherBoxList = () => {
   const [loading, setLoading] = useState(true);
   const [savingVoucher, setSavingVoucher] = useState<string | null>(null);
   const [savedVoucherStates, setSavedVoucherStates] = useState<{ id: string, used: boolean }[]>([]);
+  const swiperRef = useRef<SwiperType | null>(null);
 
   const refreshVoucherStates = async () => {
     const token = localStorage.getItem("token");
@@ -114,6 +116,17 @@ const VoucherBoxList = () => {
     }
   };
 
+  const handleMouseEnter = () => {
+    if (swiperRef.current && swiperRef.current.autoplay) {
+      swiperRef.current.autoplay.stop();
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (swiperRef.current && swiperRef.current.autoplay) {
+      swiperRef.current.autoplay.start();
+    }
+  };
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   if (!token) return null;
@@ -127,7 +140,11 @@ const VoucherBoxList = () => {
           VOUCHER KHUYẾN MÃI
         </h3>
         <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div 
+          className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
         
         <Swiper
           modules={[Autoplay]}
@@ -152,6 +169,9 @@ const VoucherBoxList = () => {
             },
           }}
           className="voucher-swiper"
+          onSwiper={(swiper) => {
+            swiperRef.current = swiper;
+          }}
         >
           {vouchers.map((v) => {
             const savedState = savedVoucherStates.find(s => s.id === v._id);

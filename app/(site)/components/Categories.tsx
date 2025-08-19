@@ -3,15 +3,17 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import { useEffect, useState  } from "react";
+import { useEffect, useState, useRef } from "react";
 import { IBrand } from "../cautrucdata";
 import OptimizedImage from "./OptimizedImage";
 import { getBrandImageUrl } from '@/app/utils/imageUtils';
+import type { Swiper as SwiperType } from 'swiper';
 
 export default function Categories() {
 	const [brands, setBrands] = useState<IBrand[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const swiperRef = useRef<SwiperType | null>(null);
 
 	useEffect(() => {
 		setLoading(true);
@@ -88,13 +90,29 @@ export default function Categories() {
 		);
 	}
 
+	const handleMouseEnter = () => {
+		if (swiperRef.current && swiperRef.current.autoplay) {
+			swiperRef.current.autoplay.stop();
+		}
+	};
+
+	const handleMouseLeave = () => {
+		if (swiperRef.current && swiperRef.current.autoplay) {
+			swiperRef.current.autoplay.start();
+		}
+	};
+
 	return (
 		<div className="w-full py-8">
 			<h3 className="text-center font-bold text-2xl mb-3">
 				THƯƠNG HIỆU SẢN PHẨM
 			</h3>
 			<div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
-			<div className="max-w-6xl mx-auto mb-[-50px]">
+			<div 
+                className="max-w-6xl mx-auto mb-[-50px]"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+            >
 				<Swiper
 					modules={[Navigation, Autoplay]}
 					spaceBetween={24}
@@ -105,6 +123,9 @@ export default function Categories() {
 						480: { slidesPerView: 3 },
 					}}
 					loop
+                    onSwiper={(swiper) => {
+                        swiperRef.current = swiper;
+                    }}
 				>
 					{brands.map((cat, idx) => (
 						<SwiperSlide key={cat._id || idx}>

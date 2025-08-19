@@ -58,7 +58,7 @@ export default function Banner() {
             <h2 className="text-2xl md:text-5xl font-bold mb-2 px-15">{slide.title}</h2>
             <p className="text-base md:text-lg bg-opacity-50 rounded mx-15 py-2 max-w-xl md:max-w-lg">{slide.desc}</p>
             <button
-        className="bg-black border-2 border-red-700 hover:bg-red-700 text-white font-semibold mx-15 px-6 py-2 rounded transition mt-4"
+        className="bg-gradient-to-r from-red-600 to-red-800 hover:from-black hover:to-gray-800 text-white font-semibold mx-15 px-6 py-2 rounded transition-all duration-200 shadow-lg hover:shadow-xl border-2 border-transparent hover:border-red-600 mt-4"
         onClick={() => window.location.href = "/shop"}
       >
         MUA NGAY 

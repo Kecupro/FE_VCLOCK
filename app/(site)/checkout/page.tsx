@@ -969,7 +969,7 @@ export default function CheckoutPage() {
 
 									<div className="flex justify-end mt-4">
 									<Dialog.Close asChild>
-										<button className="text-sm px-4 py-2 border rounded hover:bg-gray-100">
+										<button className="text-sm px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">
 										Đóng
 										</button>
 									</Dialog.Close>
