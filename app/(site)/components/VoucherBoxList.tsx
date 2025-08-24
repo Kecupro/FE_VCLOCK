@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState, useRef } from "react";
 import { FaTicketAlt } from "react-icons/fa";
 import axios from "axios";
@@ -7,7 +8,9 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import { IVoucher } from "../cautrucdata";
+import { calcStatus, VoucherStatus, checkEligibility, getEligibilityMessage } from "../utils/voucherUtils";
 import type { Swiper as SwiperType } from 'swiper';
+
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
 }
@@ -16,21 +19,54 @@ function formatDate(date: string | number | Date) {
   return new Date(date).toLocaleDateString('vi-VN');
 }
 
-function getVoucherStatus(start: string | number | Date, end: string | number | Date) {
-  const now = new Date();
-  const startDate = new Date(start);
-  const endDate = new Date(end);
-  if (now < startDate) return 2; 
-  if (now > endDate) return 1; 
-  return 0; 
-}
-
 const VoucherBoxList = () => {
   const [vouchers, setVouchers] = useState<IVoucher[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingVoucher, setSavingVoucher] = useState<string | null>(null);
   const [savedVoucherStates, setSavedVoucherStates] = useState<{ id: string, used: boolean }[]>([]);
   const swiperRef = useRef<SwiperType | null>(null);
+  const [now, setNow] = useState<Date>(new Date());
+  const [userOrderCount, setUserOrderCount] = useState<number>(0);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const fetchUserOrderCount = async () => {
+    const token = localStorage.getItem("token");
+    const userRaw = localStorage.getItem("user");
+    const userId = userRaw ? (JSON.parse(userRaw)?._id as string | undefined) : undefined;
+    if (!token || !userId) return;
+
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
+        params: { user_id: userId },
+      });
+      if (res.status === 200 && Array.isArray(res.data)) {
+        const completedOrders = (res.data as Array<{ order_status?: string }>).filter((order) => {
+          const st = (order.order_status || '').toLowerCase();
+          return st === 'hoanthanh' || st === 'dagiaohang' || st === 'completed' || st === 'delivered';
+        });
+        setUserOrderCount(completedOrders.length);
+      }
+    } catch (error) {
+      console.error("Lỗi tải số đơn hàng:", error);
+    }
+  };
+
+  const formatTimeRemaining = (target: Date, current: Date) => {
+    const diff = Math.max(0, target.getTime() - current.getTime());
+    const totalSeconds = Math.floor(diff / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    if (days > 0) {
+      return `${days}d ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  };
 
   const refreshVoucherStates = async () => {
     const token = localStorage.getItem("token");
@@ -54,7 +90,7 @@ const VoucherBoxList = () => {
         setSavedVoucherStates([]);
       }
     } catch (error) {
-              console.error("Lỗi làm mới trạng thái voucher:", error);
+      console.error("Lỗi làm mới trạng thái voucher:", error);
       setSavedVoucherStates([]);
     }
   };
@@ -63,7 +99,12 @@ const VoucherBoxList = () => {
     const fetchVouchers = async () => {
       try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher`);
-        setVouchers((res.data as { list: IVoucher[] }).list || []);
+        const allVouchers = (res.data as { list: IVoucher[] }).list || [];
+        
+        // Lọc bỏ các voucher đã hết hạn
+        const activeVouchers = allVouchers.filter(voucher => calcStatus(voucher, now) !== VoucherStatus.EXPIRED);
+        
+        setVouchers(activeVouchers);
       } catch {
         setVouchers([]);
       } finally {
@@ -71,12 +112,13 @@ const VoucherBoxList = () => {
       }
     };
     fetchVouchers();
-  }, []);
+  }, [now]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       refreshVoucherStates();
+      fetchUserOrderCount();
     }
   }, []);
 
@@ -107,9 +149,8 @@ const VoucherBoxList = () => {
       }, 1000);
       
     } catch (error: unknown) {
-      const errorMessage = error && typeof error === 'object' && 'response' in error
-        ? (error.response as { data?: { message?: string } })?.data?.message
-: "Có lỗi xảy ra khi lưu voucher!";
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      const errorMessage = axiosError?.response?.data?.message || "Có lỗi xảy ra khi lưu voucher!";
       toast.error(errorMessage);
     } finally {
       setSavingVoucher(null);
@@ -127,9 +168,6 @@ const VoucherBoxList = () => {
       swiperRef.current.autoplay.start();
     }
   };
-
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  if (!token) return null;
 
   if (loading) return null;
   if (!vouchers.length) return null;
@@ -173,12 +211,17 @@ const VoucherBoxList = () => {
             swiperRef.current = swiper;
           }}
         >
-          {vouchers.map((v) => {
+          {vouchers
+            .slice()
+            .sort((a, b) => calcStatus(a, now) - calcStatus(b, now))
+            .filter((v) => checkEligibility(v, userOrderCount, now).eligible)
+            .map((v) => {
             const savedState = savedVoucherStates.find(s => s.id === v._id);
             const isSaved = !!savedState;
             const isUsed = savedState?.used;
-            
-
+            const status = calcStatus(v, now);
+            const eligibility = checkEligibility(v, userOrderCount, now);
+            const eligibilityMessage = getEligibilityMessage(eligibility.reason, eligibility.reason === 'min_orders' ? 3 : undefined);
             
             return (
               <SwiperSlide key={v._id}>
@@ -200,19 +243,24 @@ const VoucherBoxList = () => {
                       </div>
                       <div className="text-gray-700 font-semibold text-xs truncate">Đơn tối thiểu: {formatCurrency(v.minimum_order_value || 0)}</div>
                       <span className={
-                        (getVoucherStatus(v.start_date || '', v.end_date) === 0 ? "bg-green-100 text-green-700" :
-                        getVoucherStatus(v.start_date || '', v.end_date) === 1 ? "bg-gray-200 text-gray-500" :
-                        "bg-yellow-100 text-yellow-700") +
+                        (status === VoucherStatus.ACTIVE ? "bg-green-100 text-green-700" :
+                        status === VoucherStatus.EXPIRED ? "bg-gray-200 text-gray-500" :
+                        "bg-yellow-100 text-yellow-700 animate-pulse") +
                         " text-[9px] font-semibold px-2 py-1 rounded inline-block w-fit mt-1"
                       }>
-                        {getVoucherStatus(v.start_date || '', v.end_date) === 0 ? "Còn hạn" :
-                        getVoucherStatus(v.start_date || '', v.end_date) === 1 ? "Hết hạn" : "Sắp bắt đầu"}
+                        {status === VoucherStatus.ACTIVE ? "Còn hạn" :
+                        status === VoucherStatus.EXPIRED ? "Hết hạn" : `Sắp bắt đầu • ${formatTimeRemaining(new Date(v.start_date), now)}`}
                       </span>
+                      {!eligibility.eligible && eligibility.reason && (
+                        <span className="bg-red-100 text-red-700 text-[9px] font-semibold px-2 py-1 rounded inline-block w-fit">
+                          {eligibilityMessage}
+                        </span>
+                      )}
                     </div>
                     <button
                       className={
                         `self-end mt-2 px-3 py-1 rounded-md font-bold transition text-xs disabled:opacity-50 disabled:cursor-not-allowed ` +
-                        (getVoucherStatus(v.start_date || '', v.end_date) === 1
+                        (status !== VoucherStatus.ACTIVE || !eligibility.eligible
                           ? 'bg-gray-400 text-white'
                           : isUsed
                           ? 'bg-gray-600 text-white'
@@ -221,10 +269,15 @@ const VoucherBoxList = () => {
                           : 'bg-red-600 hover:bg-red-700 text-white')
                       }
                       onClick={() => handleSaveVoucher(v._id)}
-                      disabled={getVoucherStatus(v.start_date || '', v.end_date) === 1 || savingVoucher === v._id || isSaved || isUsed}
+                      disabled={status !== VoucherStatus.ACTIVE || !eligibility.eligible || savingVoucher === v._id || isSaved || isUsed}
+                      title={!eligibility.eligible ? eligibilityMessage : ''}
                     >
-                      {getVoucherStatus(v.start_date || '', v.end_date) === 1
+                      {status === VoucherStatus.EXPIRED
                         ? "Hết hạn"
+                        : status === VoucherStatus.UPCOMING
+                        ? "Sắp bắt đầu"
+                        : !eligibility.eligible
+                        ? "Không đủ điều kiện"
                         : isUsed
                         ? "Đã sử dụng"
                         : isSaved

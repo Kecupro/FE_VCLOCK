@@ -1,68 +1,8 @@
 .container {
-  padding: 0px 10px 20px 10px;
-}
-
-.title {
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--text-color-light);
-  margin: 0;
-  padding-right: 20px;
-}
-
-html.dark-mode .title {
-  color: var(--text-color-dark) !important;
-}
-
-.modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modalContainer {
-  background: white;
-  border-radius: 8px;
-  max-width: 900px;
-  max-height: 90vh;
-  width: 95%;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-}
-
-.closeButton {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  z-index: 1001;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background-color: #f3f4f6;
-  transition: background-color 0.2s;
-}
-
-.closeButton:hover {
-  background-color: #e5e7eb;
-}
-
-.container {
-  padding: 24px;
+  padding: 20px;
   margin: 0 auto;
+  max-width: 1400px;
+  overflow-x: hidden;
 }
 
 .header {
@@ -72,6 +12,17 @@ html.dark-mode .title {
   margin-bottom: 24px;
   padding-bottom: 16px;
   border-bottom: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-color-light);
+  margin: 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .returnButton {
@@ -86,6 +37,7 @@ html.dark-mode .title {
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
 }
 
 .returnButton:hover {
@@ -150,7 +102,7 @@ html.dark-mode .title {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: 100%;
+  width: 100%;
   overflow-x: hidden;
 }
 
@@ -273,6 +225,7 @@ html.dark-mode .title {
   background-color: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
+  overflow: hidden;
 }
 
 html.dark-mode .detailSection {
@@ -300,6 +253,8 @@ html.dark-mode .sectionTitle {
   align-items: center;
   padding: 8px 0;
   border-bottom: 1px solid #f3f4f6;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 html.dark-mode .detailRow {
@@ -311,10 +266,9 @@ html.dark-mode .detailRow {
 }
 
 .detailLabel {
-  font-size: 14px;
-  color: #6b7280;
-  font-weight: 500;
-  flex: 1;
+  font-weight: 600;
+  color: #374151;
+  min-width: 120px;
 }
 
 html.dark-mode .detailLabel {
@@ -322,11 +276,10 @@ html.dark-mode .detailLabel {
 }
 
 .detailValue {
-  font-size: 14px;
-  color: #111827;
-  font-weight: 500;
+  color: #6b7280;
   text-align: right;
   flex: 1;
+  word-break: break-word;
 }
 
 html.dark-mode .detailValue {
@@ -335,10 +288,10 @@ html.dark-mode .detailValue {
 
 .statusSection {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 16px;
   padding: 20px;
-  background-color: #f9fafb;
+  background-color: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
@@ -349,9 +302,8 @@ html.dark-mode .statusSection {
 }
 
 .statusLabel {
-  font-size: 16px;
   font-weight: 600;
-  color: #111827;
+  color: #374151;
 }
 
 html.dark-mode .statusLabel {
@@ -368,58 +320,71 @@ html.dark-mode .statusLabel {
 
 .formActions {
   display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  padding-top: 20px;
-  border-top: 1px solid #e5e7eb;
+  gap: 16px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.createButton,
+.cancelButton {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
 }
 
 .createButton {
-  background-color: #2563eb;
+  background-color: #3b82f6;
   color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.2s;
 }
 
 .createButton:hover {
-  background-color: #1d4ed8;
+  background-color: #2563eb;
 }
 
 .cancelButton {
-  background-color: #dc2626;
+  background-color: #ef4444;
   color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.2s;
 }
 
 .cancelButton:hover {
-  background-color: #b91c1c;
+  background-color: #dc2626;
 }
 
 .contentBox {
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
   padding: 16px;
-  flex: 1;
+  background-color: #f9fafb;
 }
 
 .contentText {
-  color: #495057;
   line-height: 1.6;
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
+  color: #374151;
+}
+
+.contentText img {
+  max-width: 100%;
+  height: auto;
+}
+
+.contentText table {
+  max-width: 100%;
+  overflow-x: auto;
+  display: block;
+}
+
+.contentText iframe {
+  max-width: 100%;
 }
 
 .dark-mode .contentBox {
@@ -445,12 +410,16 @@ html.dark-mode .statusLabel {
   
   .header {
     flex-direction: column;
-    gap: 16px;
     align-items: flex-start;
+    gap: 12px;
   }
   
   .title {
-    font-size: 20px;
+    font-size: 1.5rem;
+  }
+  
+  .topGrid {
+    gap: 16px;
   }
   
   .productHeader {
@@ -469,7 +438,7 @@ html.dark-mode .statusLabel {
   .detailRow {
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    text-align: left;
   }
   
   .detailValue {
@@ -776,34 +745,47 @@ html.dark-mode .createButton:hover {
 }
 
 .topGrid {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 400px;
   gap: 24px;
   width: 100%;
-  align-items: stretch;
+  align-items: start;
+}
+
+@media (max-width: 1200px) {
+  .topGrid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .rightColumn {
+    order: -1;
+  }
 }
 
 .leftColumn,
 .rightColumn {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.leftColumn {
-  flex-basis: 60%;
-}
-
-.rightColumn {
-  flex-basis: 40%;
+  min-width: 0;
 }
 
 .image {
-  border-radius: 5px;
+  width: 100%;
+  height: auto;
+  max-width: 400px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .imageName {
-  color: var(--text-color-light);
+  font-size: 12px;
+  color: #6b7280;
+  text-align: center;
+  max-width: 100%;
+  word-break: break-word;
+  padding: 0 8px;
 }
 
 .productName {
@@ -819,3 +801,143 @@ html.dark-mode .imageName {
 }
 
 /* ! 28/06/2025 End Thái status */
+
+/* Modal styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.modalHeader {
+  padding: 20px 20px 0 20px;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.modalBody {
+  padding: 20px;
+}
+
+.modalBody p {
+  margin: 0 0 12px 0;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.modalFooter {
+  padding: 0 20px 20px 20px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.modalcancelButton {
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.modalcancelButton:hover {
+  background-color: #4b5563;
+}
+
+.deleteButton {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.deleteButton:hover {
+  background-color: #b91c1c;
+}
+
+/* Dark mode support */
+html.dark-mode .title {
+  color: var(--text-color-dark) !important;
+}
+
+html.dark-mode .detailSection {
+  background-color: var(--sidebar-bg-dark);
+  border: 1px solid var(--border-color-dark);
+}
+
+html.dark-mode .sectionTitle {
+  color: var(--text-color-dark);
+  border-bottom: 1px solid var(--border-color-dark);
+}
+
+html.dark-mode .modal {
+  background-color: var(--sidebar-bg-dark);
+  color: var(--text-color-dark);
+}
+
+html.dark-mode .modalHeader h3 {
+  color: var(--text-color-dark);
+}
+
+html.dark-mode .modalBody p {
+  color: var(--text-color-dark);
+}
+
+html.dark-mode .productName {
+  color: var(--text-color-dark);
+}
+
+html.dark-mode .imageName {
+  color: var(--text-color-dark);
+}
+
+/* Responsive improvements */
+@media (max-width: 480px) {
+  .modalOverlay {
+    padding: 16px;
+  }
+  
+  .modal {
+    max-height: 95vh;
+  }
+  
+  .modalFooter {
+    flex-direction: column;
+  }
+  
+  .modalcancelButton,
+  .deleteButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

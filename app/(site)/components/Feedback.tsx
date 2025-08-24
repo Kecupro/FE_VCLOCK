@@ -313,7 +313,7 @@ export default function Feedback() {
                       </ul>
                     </div>
                     <div className="w-full mb-3 flex gap-2">
-                      <AddToCart sp={createProductForCart(product)} disabled={product.quantity === 0} />
+                      <AddToCart sp={createProductForCart(product)} disabled={product.quantity === 0} variant="text" />
                       <BuyNow sp={createProductForCart(product)} disabled={product.quantity === 0} />
                     </div>
 

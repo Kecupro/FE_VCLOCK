@@ -12,7 +12,7 @@ let socket: Socket | null = null;
 
 const getSocket = (): Socket => {
   if (!socket) {
-    socket = io(process.env.NEXT_PUBLIC_API_URL, {
+    socket = io("${process.env.NEXT_PUBLIC_API_URL}", {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,

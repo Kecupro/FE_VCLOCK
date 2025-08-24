@@ -247,7 +247,7 @@ const AddUser = () => {
     router.push("/admin/users");
   };
 
-  const canCreateAdmin = currentUser && Number(currentUser.role) == 2;
+  const canCreateAdmin = currentUser && Number(currentUser.role) >= 1;
 
   if (fetchLoading) {
     return (
@@ -278,7 +278,9 @@ const AddUser = () => {
   return (
     <main className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Tạo quản trị viên mới</h1>
+        <h1 className={styles.title}>
+          {currentUser && Number(currentUser.role) == 2 ? "Tạo quản trị viên mới" : "Thêm người dùng mới"}
+        </h1>
         <button className={styles.returnButton} onClick={handleReturn}>
           Quay lại
         </button>
@@ -294,7 +296,10 @@ const AddUser = () => {
             
           >
             <option value="">--- Chọn vai trò ---</option>
-            <option value="moderator">Quản trị viên</option>
+            {currentUser && Number(currentUser.role) == 2 && (
+              <option value="moderator">Quản trị viên</option>
+            )}
+            <option value="user">Người dùng</option>
           </select>
         </div>
 
@@ -372,8 +377,14 @@ const AddUser = () => {
           <div className={styles.infoBox}>
             <h4 className={styles.infoTitle}>📋 Thông tin quan trọng:</h4>
             <ul className={styles.infoList}>
-              <li>Chỉ có thể tạo tài khoản quản trị viên, không thể tạo quản trị viên cấp cao</li>
-              <li>Tài khoản mặc định sẽ bị khóa, cần kích hoạt thủ công</li>
+              {currentUser && Number(currentUser.role) == 2 ? (
+                <>
+                  <li>Chỉ có thể tạo tài khoản quản trị viên, không thể tạo quản trị viên cấp cao</li>
+                  <li>Tài khoản mặc định sẽ bị khóa, cần kích hoạt thủ công</li>
+                </>
+              ) : (
+                <li>Chỉ có thể tạo tài khoản người dùng thường</li>
+              )}
               <li>Username và email phải duy nhất trong hệ thống</li>
               <li>Tên đầy đủ là bắt buộc</li>
               <li>Mật khẩu phải có ít nhất 6 kí tự</li>

@@ -277,6 +277,7 @@ html.dark-mode .headerName {
   background: var(--sidebar-bg-light);
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 136, 204, 0.3) transparent;
+  word-wrap: break-word;
 }
 
 html.dark-mode .messagesContainer {
@@ -297,11 +298,19 @@ html.dark-mode .messagesContainer {
   border-radius: 10px;
 }
 
+/* Special handling for very long messages */
+.messageWrapper .messageBubble {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
 .messageWrapper {
   display: flex;
   align-items: flex-end;
   gap: 8px;
   max-width: 80%;
+  min-width: 200px;
 }
 
 .messageWrapper.sent {
@@ -323,14 +332,19 @@ html.dark-mode .messagesContainer {
 
 .messageBubble {
   max-width: 100%;
+  min-width: 120px;
   padding: 10px 14px;
   border-radius: 18px;
   font-size: 14px;
   line-height: 1.4;
   word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
   position: relative;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   animation: messageSlideIn 0.3s ease-out;
+  white-space: pre-wrap;
 }
 
 @keyframes messageSlideIn {
@@ -383,6 +397,10 @@ html.dark-mode .messagesContainer {
   display: block;
   margin-top: 4px;
   text-align: right;
+  word-break: keep-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .messageBubble.received .messageTime {
@@ -576,6 +594,38 @@ html.dark-mode .messageInput::placeholder {
 
   .messageWrapper {
     max-width: 90%;
+    min-width: 150px;
+  }
+  
+  .messageBubble {
+    min-width: 100px;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+  
+  .messageImage {
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .messageWrapper {
+    max-width: 95%;
+    min-width: 120px;
+  }
+  
+  .messageBubble {
+    min-width: 80px;
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  
+  .messagesContainer {
+    padding: 12px;
+  }
+  
+  .inputContainer {
+    padding: 12px 16px;
   }
 }
 

@@ -157,7 +157,15 @@ const UsersPage = () => {
     const currentRole = Number(currentUser.role);
     const targetRole = Number(targetUser.role);
 
-    return currentRole == 2 && currentUser.userId != targetUser._id && targetRole < 2;
+    if (currentRole == 2) {
+      return currentUser.userId != targetUser._id && targetRole < 2;
+    }
+    
+    if (currentRole == 1) {
+      return targetRole == 0;
+    }
+    
+    return false;
   };
 
   const canEditUser = (targetUser: IUser): boolean => {
@@ -165,7 +173,15 @@ const UsersPage = () => {
     const currentRole = Number(currentUser.role);
     const targetRole = Number(targetUser.role);
 
-    return currentRole == 2 && currentUser.userId != targetUser._id && targetRole < 2;
+    if (currentRole == 2) {
+      return currentUser.userId != targetUser._id;
+    }
+    
+    if (currentRole == 1) {
+      return targetRole == 0;
+    }
+    
+    return false;
   };
 
   const getUserDisplayName = (user: IUser): string => {
@@ -479,11 +495,11 @@ const UsersPage = () => {
           <h1 className={styles.title}>Quản lý người dùng</h1>
         </div>
         <div className={styles.headerActions}>
-          {isSuperAdmin && (
+          {(isSuperAdmin || (currentUser && Number(currentUser.role) >= 1)) && (
             <Link href={"users/addUser"}>
               <button className={styles.addButton}>
                 <Plus size={16} />
-                Thêm quản trị viên
+                {isSuperAdmin ? "Thêm quản trị viên" : "Thêm người dùng"}
               </button>
             </Link>
           )}

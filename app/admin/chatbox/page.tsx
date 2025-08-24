@@ -12,7 +12,7 @@ import { useAppContext } from "../../context/AppContext"
 import Image from "next/image";
 import { getAvatarImageUrl } from "@/app/utils/imageUtils";
 
-const socket = io(process.env.NEXT_PUBLIC_API_URL);
+const socket = io("${process.env.NEXT_PUBLIC_API_URL}");
 
 interface Message {
   _id?: string;

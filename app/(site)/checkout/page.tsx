@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Image from "next/image";
 import { ICart, IAddress, IPaymentMethod, IVoucher } from "../cautrucdata";
+import { calcStatus, VoucherStatus, calcDiscount, checkEligibility, getEligibilityMessage } from "../utils/voucherUtils";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import * as Dialog from "@radix-ui/react-dialog"; 
@@ -34,6 +35,7 @@ export default function CheckoutPage() {
 	const [isSubmittingAddress, setIsSubmittingAddress] = useState(false);  
 	const [tempSelectedAddressId, setTempSelectedAddressId] = useState(""); 
 	const [isLoading, setIsLoading] = useState(false);
+	const [userOrderCount, setUserOrderCount] = useState<number>(0);
 
 	const [newAddress, setNewAddress] = useState({
 		receiver_name: '',
@@ -56,6 +58,29 @@ export default function CheckoutPage() {
 	const [vouchers, setVouchers] = useState<IVoucher[]>([]);
 	const [selectedVoucher, setSelectedVoucher] = useState<IVoucher | null>(null);
 		
+	const fetchUserOrderCount = useCallback(async () => {
+		const token = localStorage.getItem("token");
+		const userRaw = localStorage.getItem("user");
+		const userId = userRaw ? (JSON.parse(userRaw)?._id as string | undefined) : undefined;
+		if (!token || !userId) return;
+
+		try {
+			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders?user_id=${encodeURIComponent(userId)}`);
+			if (res.ok) {
+				const orders = await res.json();
+				if (Array.isArray(orders)) {
+					const completedOrders = orders.filter((o: { order_status?: string }) => {
+						const st = (o.order_status || '').toLowerCase();
+						return st === 'hoanthanh' || st === 'dagiaohang' || st === 'completed' || st === 'delivered';
+					});
+					setUserOrderCount(completedOrders.length);
+				}
+			}
+		} catch (error) {
+			console.error("Lỗi tải số đơn hàng:", error);
+		}
+	}, []);
+
 	  const fetchVouchers = useCallback(async () => {
 		try {
 		  const token = localStorage.getItem("token");
@@ -74,7 +99,7 @@ export default function CheckoutPage() {
 			const data: IVoucher[] = await res.json();
 			if (Array.isArray(data)) {
 				const unusedVouchers = data.filter(
-					(v) => !v.used && new Date(v.end_date) > new Date()
+					(v: IVoucher & { used?: boolean }) => !v.used && calcStatus(v) === VoucherStatus.ACTIVE
 				);
 				setVouchers(unusedVouchers);
 			} else {
@@ -91,7 +116,8 @@ export default function CheckoutPage() {
 
 	useEffect(() => {
 		fetchVouchers();
-	}, [fetchVouchers]);	  
+		fetchUserOrderCount();
+	}, [fetchVouchers, fetchUserOrderCount]);	  
 
 
 	  const fetchAddresses = useCallback(async () => {
@@ -181,20 +207,8 @@ export default function CheckoutPage() {
 
 	const finalTotal = useMemo(() => {
 		if (!selectedVoucher) return originalTotal;
-	  	
-		if (originalTotal < (selectedVoucher.minimum_order_value || 0)) {
-		  return originalTotal;
-		}
-	  	
-		if (selectedVoucher.discount_type === "percentage") {
-		  const rawDiscount = (originalTotal * selectedVoucher.discount_value) / 100;
-		  const maxDiscount = selectedVoucher.max_discount || Infinity;
-		  const discount = Math.min(rawDiscount, maxDiscount);
-		  return originalTotal - discount;
-		}
-	  	
-
-		return originalTotal - selectedVoucher.discount_value;
+		const discount = calcDiscount(selectedVoucher, originalTotal);
+		return originalTotal - discount;
 	}, [originalTotal, selectedVoucher]);
 	  
 
@@ -885,7 +899,13 @@ export default function CheckoutPage() {
 									<Dialog.Title className="text-lg font-bold mb-2">Chọn voucher</Dialog.Title>
 									
 									{vouchers.length > 0 ? (
-									vouchers.map((v) => (
+									vouchers.filter(v => checkEligibility(v, userOrderCount).eligible).map((v) => {
+										const eligibility = checkEligibility(v, userOrderCount);
+										const eligibilityMessage = getEligibilityMessage(eligibility.reason, eligibility.reason === 'min_orders' ? 3 : undefined);
+										const meetsMin = originalTotal >= (v.minimum_order_value || 0);
+										const disabled = !eligibility.eligible || !meetsMin;
+										
+										return (
 										<div
 										key={v._id}
 										className="flex w-full h-[120px] bg-white rounded-lg shadow-md border border-gray-300 overflow-hidden relative"
@@ -929,35 +949,42 @@ export default function CheckoutPage() {
 												Đơn tối thiểu: {formatCurrency(v.minimum_order_value || 0)}
 											</div>
 
-											{new Date(v.end_date) > new Date() ? (
-												<span className="bg-green-100 text-green-700 text-[10px] font-semibold px-1.5 py-0.5 rounded inline-block w-fit">
-												Còn hiệu lực
+											{(() => { const status = calcStatus(v); return (
+												<span className={`${status === VoucherStatus.ACTIVE ? 'bg-green-100 text-green-700' : status === VoucherStatus.EXPIRED ? 'bg-gray-200 text-gray-500' : 'bg-yellow-100 text-yellow-700'} text-[10px] font-semibold px-1.5 py-0.5 rounded inline-block w-fit`}>
+													{status === VoucherStatus.ACTIVE ? 'Còn hiệu lực' : status === VoucherStatus.EXPIRED ? 'Hết hạn' : 'Sắp bắt đầu'}
 												</span>
-											) : (
-												<span className="bg-gray-200 text-gray-500 text-[10px] font-semibold px-1.5 py-0.5 rounded inline-block w-fit">
-												Hết hạn
+											); })()}
+											
+											{!eligibility.eligible && eligibility.reason && (
+												<span className="bg-red-100 text-red-700 text-[10px] font-semibold px-1.5 py-0.5 rounded inline-block w-fit">
+													{eligibilityMessage}
 												</span>
 											)}
 											</div>
 
 											<div className="flex justify-end">
-											<Dialog.Close asChild>
-												<button
-													onClick={() => setSelectedVoucher(v)}
-													className={`px-3 py-2 rounded text-white font-bold text-xs shadow transition ${
-														new Date(v.end_date) > new Date()
-														? "bg-red-600 hover:bg-red-700"
-														: "bg-gray-400 cursor-not-allowed"
-													}`}
-													disabled={new Date(v.end_date) <= new Date()}
-													>
-													{new Date(v.end_date) > new Date() ? "Sử Dụng" : "Hết hạn"}
-												</button>
-											</Dialog.Close>
+											{(() => {
+												const label = eligibility.eligible 
+													? (meetsMin ? 'Sử Dụng' : 'Chưa đạt tối thiểu') 
+													: (eligibility.reason === 'new_user_only' ? 'Chỉ khách mới' : 'Không đủ điều kiện');
+												return (
+													<Dialog.Close asChild>
+														<button
+															onClick={() => setSelectedVoucher(v)}
+															title={!meetsMin && eligibility.eligible ? `Chưa đạt đơn tối thiểu ${formatCurrency(v.minimum_order_value || 0)}` : !eligibility.eligible ? eligibilityMessage : ''}
+															className={`px-3 py-2 rounded text-white font-bold text-xs shadow transition ${disabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'}`}
+															disabled={disabled}
+														>
+															{label}
+														</button>
+													</Dialog.Close>
+												);
+											})()}
 											</div>
 										</div>
 										</div>
-									))
+										);
+									})
 									) : (
 									<div className="flex flex-col items-center justify-center w-full py-10 bg-gray-50 rounded-lg border border-dashed border-gray-300">
 										<i className="fa-solid fa-ticket text-4xl text-gray-400 mb-3"></i>
