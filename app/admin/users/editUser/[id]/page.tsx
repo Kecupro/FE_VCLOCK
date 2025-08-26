@@ -363,20 +363,71 @@ const EditUser = () => {
   };
 
   const canEditUser = currentUser && Number(currentUser.role) >= 1;
-
   const canEditThisUser =
     currentUser &&
     userToEdit &&
-    (Number(currentUser.role) == 2 ||
-      (Number(currentUser.role) == 1 && Number(userToEdit.role) == 0));
+    (() => {
+      const currentRole = Number(currentUser.role);
+      const targetRole = Number(userToEdit.role);
+      
+      const currentUserId = (currentUser as IUser & { userId?: string })._id || (currentUser as IUser & { userId?: string }).userId;
+      
+      if (currentRole === 2) {
+        if (currentUserId === userToEdit._id) {
+          return true; 
+        }
+        if (targetRole === 2) {
+          return false; 
+        }
+        return true; 
+      }
+      
+      if (currentRole === 1) {
+        if (currentUserId === userToEdit._id) {
+          return true; 
+        }
+        if (targetRole === 0) {
+          return true; 
+        }
+        return false; 
+      }
+      
+      return false;
+    })();
 
   const canChangeRole = currentUser && Number(currentUser.role) == 2;
 
   const canEditAccountStatus =
     currentUser &&
     userToEdit &&
-    (Number(currentUser.role) == 2 ||
-      (Number(currentUser.role) == 1 && Number(userToEdit.role) == 0));
+    (() => {
+      const currentRole = Number(currentUser.role);
+      const targetRole = Number(userToEdit.role);
+      
+      const currentUserId = (currentUser as IUser & { userId?: string })._id || (currentUser as IUser & { userId?: string }).userId;
+      
+      if (currentRole === 2) {
+        if (currentUserId === userToEdit._id) {
+          return true; 
+        }
+        if (targetRole === 2) {
+          return false; 
+        }
+        return true; 
+      }
+      
+      if (currentRole === 1) {
+        if (currentUserId === userToEdit._id) {
+          return true; 
+        }
+        if (targetRole === 0) {
+          return true; 
+        }
+        return false; 
+      }
+      
+      return false;
+    })();
 
   if (fetchLoading) {
     return (
@@ -388,11 +439,41 @@ const EditUser = () => {
     );
   }
 
-  if (!canEditUser || !canEditThisUser) {
+  if (!canEditUser) {
     return (
       <main className={styles.container}>
         <div className={styles.header}>
           <h1 className={styles.title}>Không có quyền truy cập</h1>
+          <p style={{ color: "#ff4757", marginTop: "10px" }}>
+            Bạn không có quyền chỉnh sửa người dùng trong hệ thống.
+          </p>
+          <button className={styles.returnButton} onClick={handleReturn}>
+            Quay lại
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  if (!canEditThisUser) {
+    return (
+      <main className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Không có quyền truy cập</h1>
+          <p style={{ color: "#ff4757", marginTop: "10px" }}>
+            {(() => {
+              if (!userToEdit) return "Không tìm thấy thông tin người dùng cần chỉnh sửa.";
+              
+              const currentUserId = (currentUser as IUser & { userId?: string })._id || (currentUser as IUser & { userId?: string }).userId;
+              if (currentUserId === userToEdit._id) {
+                return "Bạn có thể chỉnh sửa tài khoản của chính mình từ trang này.";
+              }
+              if (Number(currentUser.role) === 2 && Number(userToEdit.role) === 2) {
+                return "Quản trị viên cấp cao không thể chỉnh sửa tài khoản của các quản trị viên cấp cao khác.";
+              }
+              return "Bạn không có quyền chỉnh sửa người dùng này.";
+            })()}
+          </p>
           <button className={styles.returnButton} onClick={handleReturn}>
             Quay lại
           </button>
@@ -411,6 +492,14 @@ const EditUser = () => {
       </div>
 
       <form className={styles.form} onSubmit={handleSubmit}>
+        {currentUser && userToEdit && (() => {
+          const currentUserId = (currentUser as IUser & { userId?: string })._id || (currentUser as IUser & { userId?: string }).userId;
+          return currentUserId === userToEdit._id;
+        })() && (
+          <div className={styles.formGroup}>
+          </div>
+        )}
+        
         <div className={styles.formGroup}>
           <label className={styles.label}>Vai trò <span style={{color: "red"}}>*</span></label>
           <select
@@ -519,6 +608,9 @@ const EditUser = () => {
               <li>Email không thể thay đổi</li>
               <li>Tên đầy đủ là bắt buộc</li>
               <li>Mật khẩu phải có ít nhất 6 kí tự, bao gồm chữ cái, số và ký tự đặc biệt</li>
+              <li>Quản trị viên cấp cao có thể chỉnh sửa tài khoản của chính mình</li>
+              <li>Quản trị viên cấp cao không thể chỉnh sửa tài khoản của các quản trị viên cấp cao khác</li>
+              <li>Quản trị viên thường có thể chỉnh sửa tài khoản của chính mình và người dùng thường</li>
             </ul>
           </div>
         </div>

@@ -174,11 +174,22 @@ const UsersPage = () => {
     const targetRole = Number(targetUser.role);
 
     if (currentRole == 2) {
-      return currentUser.userId != targetUser._id;
+      // Super admin: có thể chỉnh sửa chính mình và tài khoản khác (trừ super admin khác)
+      if (currentUser.userId === targetUser._id) {
+        return true; // Có thể chỉnh sửa chính mình
+      }
+      return targetRole < 2; // Không thể chỉnh sửa super admin khác
     }
     
     if (currentRole == 1) {
-      return targetRole == 0;
+      // Moderator: có thể chỉnh sửa chính mình và user thường
+      if (currentUser.userId === targetUser._id) {
+        return true; // Có thể chỉnh sửa chính mình
+      }
+      if (targetRole == 0) {
+        return true; // Có thể chỉnh sửa user thường
+      }
+      return false; // Không thể chỉnh sửa admin khác
     }
     
     return false;
@@ -492,7 +503,7 @@ const UsersPage = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Quản lý người dùng</h1>
+                      <h1 className={styles.title}>Quản lý người dùng</h1>
         </div>
         <div className={styles.headerActions}>
           {(isSuperAdmin || (currentUser && Number(currentUser.role) >= 1)) && (
