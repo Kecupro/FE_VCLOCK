@@ -282,8 +282,8 @@ export default function ProductDetail() {
           </div>
         </div>
         <div>
-          <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
-          <div className="mb-2 flex items-center gap-3">
+          <h2 className="text-2xl font-bold mb-4">{product.name}</h2>
+          <div className="mb-2 flex items-center gap-3 ">
 									
 
             {product.sale_price > 0 && (
@@ -332,7 +332,7 @@ export default function ProductDetail() {
                 </div>
                 <div className="flex items-center gap-2">
                   <i className="fa-solid fa-star text-red-500"></i>
-                  <span className="font-medium">{stats?.totalReviews || 0}</span>
+                  <span className="font-normal">{stats?.totalReviews || 0}</span>
                   <span>đánh giá</span>
                 </div>
               </div>
@@ -391,65 +391,175 @@ export default function ProductDetail() {
         </div>
       </div>
       <div className="w-full mt-10">
-        <div className="flex justify-center gap-2 mb-6">
+        {/* Modern Tab Navigation */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Tab Headers */}
+          <div className="flex bg-gray-50/50 border-b border-gray-100">
           <button
-            className={`px-6 py-2 rounded-t font-semibold transition border-b-2 ${
+              className={`flex-1 flex items-center justify-center gap-3 px-6 py-4 font-medium text-sm sm:text-base transition-all duration-300 relative group ${
               tab === "desc"
-                ? "border-black text-black bg-white"
-                : "border-transparent text-gray-500 bg-gray-100 hover:text-black"
+                  ? "text-red-600 bg-white border-b-2 border-red-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
             }`}
             onClick={() => setTab("desc")}
           >
-            Mô tả sản phẩm
+              <svg 
+                className={`w-5 h-5 transition-all duration-300 ${
+                  tab === "desc" ? "text-red-600 scale-110" : "text-gray-400 group-hover:text-gray-600"
+                }`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Mô tả sản phẩm</span>
+              {tab === "desc" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 animate-pulse"></div>
+              )}
           </button>
+            
           <button
-            className={`px-6 py-2 rounded-t font-semibold transition border-b-2 ${
+              className={`flex-1 flex items-center justify-center gap-3 px-6 py-4 font-medium text-sm sm:text-base transition-all duration-300 relative group ${
               tab === "review"
-                ? "border-black text-black bg-white"
-                : "border-transparent text-gray-500 bg-gray-100 hover:text-black"
+                  ? "text-red-600 bg-white border-b-2 border-red-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
             }`}
             onClick={() => setTab("review")}
           >
-            Đánh giá
+              <svg 
+                className={`w-5 h-5 transition-all duration-300 ${
+                  tab === "review" ? "text-red-600 scale-110" : "text-gray-400 group-hover:text-gray-600"
+                }`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+              <span>Đánh giá khách hàng</span>
+              {tab === "review" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 animate-pulse"></div>
+              )}
           </button>
         </div>
-        <div className="w-full bg-white border border-gray-300  px-6 py-8">
-          {tab === "desc" && (
-            <div>
-              <h3 className="font-bold text-text-lg mb-2">Mô tả sản phẩm</h3>
-              <div 
-                className="text-gray-700 text-base mb-4 [&>img]:max-w-full [&>img]:h-auto [&>img]:rounded-lg [&>img]:shadow-md [&>img]:my-4 [&>p]:mb-4 [&>p]:leading-relaxed [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mb-4 [&>h2]:text-xl [&>h2]:font-semibold [&>h2]:mb-3 [&>h3]:text-lg [&>h3]:font-medium [&>h3]:mb-2 [&>ul]:list-disc [&>ul]:list-inside [&>ul]:mb-4 [&>ol]:list-decimal [&>ol]:list-inside [&>ol]:mb-4 [&>li]:mb-1 [&>strong]:font-bold [&>em]:italic"
-                dangerouslySetInnerHTML={{ 
-                  __html: product.description ? decodeHtmlEntities(product.description) : 'Không có mô tả' 
-                }}
-              />
-              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-1">
-                <li>Thiết kế mặt số tối giản, sang trọng, phù hợp cả nam và nữ.</li>
-                <li>Dây da thật mềm mại, màu sắc trẻ trung, dễ phối đồ.</li>
-                <li>Máy Thụy Sĩ Automatic, vận hành bền bỉ, chính xác.</li>
-                <li>Có chống nước, thoải mái rửa tay, đi mưa nhỏ.</li>
-                <li>Tính năng Moon phase độc đáo, tạo điểm nhấn cho cổ tay.</li>
-                <li>Bảo hành chính hãng 1-2 năm, hỗ trợ trọn đời tại GWatch.</li>
-              </ul>
-              <p className="text-gray-700 text-base mb-2">
-                Sản phẩm phù hợp cho mọi dịp: đi làm, dự tiệc, gặp gỡ bạn bè hoặc làm quà tặng ý nghĩa cho người thân, đối tác.
-              </p>
-              <p className="text-gray-700 text-base">
-                <b>Lưu ý:</b> Hình ảnh sản phẩm có thể chênh lệch nhẹ do ánh sáng và màn hình hiển thị. Vui lòng liên hệ tư vấn để chọn Sản phẩm phù hợp nhất với bạn!
-              </p>
-            </div>
-          )}
-          {tab === "review" && (
-            <div>
-              <div className="flex items-center justify-center gap-2 mb-8 w-full">
-                <StarRating rating={stats?.averageRating || 0} className="text-red-500 text-xl sm:text-3xl" />
-                <span className="ml-2 font-semibold text-base sm:text-lg text-gray-800">{stats?.averageRating}</span>
-                <span className="text-gray-500 text-xs sm:text-sm">({stats?.totalReviews} đánh giá)</span>
+
+          {/* Tab Content */}
+          <div className="bg-white">
+            {/* Description Tab */}
+            <div 
+              className={`transition-all duration-500 ease-in-out ${
+                tab === "desc" 
+                  ? "opacity-100 translate-y-0" 
+                  : "opacity-0 translate-y-4 absolute pointer-events-none"
+              }`}
+              style={{ display: tab === "desc" ? "block" : "none" }}
+            >
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Mô tả chi tiết</h3>
+                    <p className="text-gray-600 text-sm sm:text-base">Thông tin chi tiết về sản phẩm</p>
+                  </div>
               </div>
 
-              <HienBinhLuanSP productId={product._id} onRefetchReady={(fn) => { refetchBinhLuan.current = fn; }} />
+                <div className="prose prose-gray max-w-none">
+                  <div 
+                    className="text-gray-700 text-base mb-6 [&>img]:max-w-full [&>img]:h-auto [&>img]:rounded-lg [&>img]:shadow-md [&>img]:my-4 [&>p]:mb-4 [&>p]:leading-relaxed [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mb-4 [&>h2]:text-xl [&>h2]:font-semibold [&>h2]:mb-3 [&>h3]:text-lg [&>h3]:font-medium [&>h3]:mb-2 [&>ul]:list-disc [&>ul]:list-inside [&>ul]:mb-4 [&>ol]:list-decimal [&>ol]:list-inside [&>ol]:mb-4 [&>li]:mb-1 [&>strong]:font-bold [&>em]:italic"
+                    dangerouslySetInnerHTML={{ 
+                      __html: product.description ? decodeHtmlEntities(product.description) : 'Không có mô tả' 
+                    }}
+                  />
+                  
+                  <div className=" rounded-xl p-6 border border-red-100">
+                    <h4 className="text-lg font-semibold text-red-900 mb-4 flex items-center gap-2">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                  Đặc điểm nổi bật
+                </h4>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <li className="flex items-start gap-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-700">Thiết kế mặt số tối giản, sang trọng, phù hợp cả nam và nữ.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-700">Dây da thật mềm mại, màu sắc trẻ trung, dễ phối đồ.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-700">Máy Thụy Sĩ Automatic, vận hành bền bỉ, chính xác.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-700">Có chống nước, thoải mái rửa tay, đi mưa nhỏ.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-700">Tính năng Moon phase độc đáo, tạo điểm nhấn cho cổ tay.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-700">Bảo hành chính hãng 1-2 năm, hỗ trợ trọn đời tại VCLOCK.</span>
+                      </li>
+                    </ul>
+                      </div>
+
+                  <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <svg className="w-6 h-6 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                      <div>
+                        <p className="text-red-800 font-medium mb-1">Lưu ý:</p>
+                        <p className="text-red-700 text-sm">
+                          Hình ảnh sản phẩm có thể chênh lệch nhẹ do ánh sáng và màn hình hiển thị. Vui lòng liên hệ tư vấn để chọn sản phẩm phù hợp nhất với bạn!
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </div>
+
+            {/* Review Tab */}
+            <div 
+              className={`transition-all duration-500 ease-in-out ${
+                tab === "review" 
+                  ? "opacity-100 translate-y-0" 
+                  : "opacity-0 translate-y-4 absolute pointer-events-none"
+              }`}
+              style={{ display: tab === "review" ? "block" : "relative" }}
+            >
+              <div className="p-6 sm:p-8">
+                {/* Rating Summary */}
+                <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-6 border border-red-100 mb-8">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+                    <div className="text-center">
+                      <div className="text-3xl sm:text-4xl font-bold text-red-600 mb-2">
+                        {stats?.averageRating || 0}
+                      </div>
+                      <div className="flex items-center justify-center mb-2">
+                        <StarRating rating={stats?.averageRating || 0} className="text-red-500 text-xl sm:text-2xl" />
+                      </div>
+                      <div className="text-sm text-red-700 font-medium">
+                        {stats?.totalReviews || 0} đánh giá
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Reviews List */}
+                <HienBinhLuanSP productId={product._id} onRefetchReady={(fn) => { refetchBinhLuan.current = fn; }} />
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
       <div className="w-full mt-10">
