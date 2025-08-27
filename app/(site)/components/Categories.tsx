@@ -103,26 +103,35 @@ export default function Categories() {
 	};
 
 	return (
-		<div className="w-full py-8">
-			<h3 className="text-center font-bold text-2xl mb-3">
+		<div className="w-full py-12 bg-gradient-to-b from-gray-50 to-white">
+			<h3 className="text-center font-bold text-2xl mb-4 text-gray-800">
 				THƯƠNG HIỆU SẢN PHẨM
 			</h3>
-			<div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+			<div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
 			<div 
-                className="max-w-6xl mx-auto "
+                className="max-w-6xl mx-auto px-4"
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
             >
 				<Swiper
 					modules={[Navigation, Autoplay]}
-					spaceBetween={24}
-					slidesPerView={2}
-					autoplay={{ delay: 2500, disableOnInteraction: false }}
+					spaceBetween={16}
+					slidesPerView={5}
+					autoplay={{ 
+						delay: 0, 
+						disableOnInteraction: false,
+						pauseOnMouseEnter: true
+					}}
+					speed={3000}
+					effect="slide"
 					breakpoints={{
-						768: { slidesPerView: 4 },
-						480: { slidesPerView: 3 },
+						1280: { slidesPerView: 5 },
+						1024: { slidesPerView: 5 },
+						768: { slidesPerView: 5 },
+						480: { slidesPerView: 4 },
 					}}
 					loop
+					loopAdditionalSlides={4}
                     onSwiper={(swiper) => {
                         swiperRef.current = swiper;
                     }}
@@ -132,20 +141,22 @@ export default function Categories() {
 							<div className="w-full h-full p-2">
 								<Link
 									href={`/shop?brand=${encodeURIComponent(cat.name)}`}
-									className="flex flex-col items-center text-center bg-white rounded shadow hover:shadow-lg transition group w-full h-full"
+									className="flex flex-col items-center text-center bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 group w-full h-full border border-gray-100 hover:border-red-200 overflow-hidden"
 								>
-									<OptimizedImage
-										src={getBrandImageUrl(cat.image)}
-										alt={cat.name}
-										width={200}
-										height={200}
-										className="w-full h-full object-contain mb-3 transition-transform duration-700 group-hover:-translate-y-2"
-									/>
-									<div className="w-full px-2 py-2 transition-all duration-300 group-hover:bg-gray-900 group-hover:text-white group-hover:-translate-y-2">
-										<span className="block font-semibold text-base text-gray-800 group-hover:text-white transition">
+									<div className="w-full h-24 p-2 bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
+										<OptimizedImage
+											src={getBrandImageUrl(cat.image)}
+											alt={cat.name}
+											width={120}
+											height={100}
+											className="w-full h-full object-contain transition-all duration-500 group-hover:scale-105"
+										/>
+									</div>
+									<div className="w-full px-2 py-2 bg-gradient-to-r from-gray-50 to-white transition-all duration-300 group-hover:from-red-50 group-hover:to-red-100">
+										<span className="block font-semibold text-xs text-gray-800 group-hover:text-red-700 transition-colors duration-300 mb-1 truncate w-full">
 											{cat.name}
 										</span>
-										<span className="block text-[10px] text-gray-500 group-hover:text-white transition">
+										<span className="block text-[10px] text-gray-600 group-hover:text-red-600 transition-colors duration-300">
 											{cat.productCount || 0} SẢN PHẨM
 										</span>
 									</div>

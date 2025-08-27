@@ -265,7 +265,7 @@ function ShopPageContent() {
               <span className="flex items-center justify-center w-12 h-12 rounded-full bg-white border-2 border-red-200 group-hover:border-red-500 shadow transition-all duration-200 mb-1">
                 <FaThLarge className="text-2xl text-red-400 group-hover:text-red-600 transition-all duration-200" />
               </span>
-              <span className="text-xs text-gray-800 font-semibold mt-1">Tất cả</span>
+              <span className="text-xs text-gray-800 font-bold mt-1">Tất cả</span>
               <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none shadow-lg z-20">
                 Tất cả thương hiệu
               </span>
@@ -359,7 +359,7 @@ function ShopPageContent() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <aside className="md:col-span-1">
           <div className="bg-white border border-gray-200 rounded-md p-6 mb-8">
-            <h2 className="font-bold text-xl flex items-center gap-2 mb-5 text-gray-800">
+            <h2 className=" text-lg flex items-center gap-2 mb-5 text-gray-800 font-bold">
               <i className="fa-solid fa-list text-red-600"></i> Danh mục
             </h2>
             <ul className="flex flex-col gap-2">
@@ -400,7 +400,7 @@ function ShopPageContent() {
           </div>
 
           <div className="bg-white border border-gray-200 rounded-md p-6">
-            <h2 className="font-bold text-xl flex items-center gap-2 mb-5 text-gray-800">
+            <h2 className="text-lg flex items-center gap-2 mb-5 text-gray-800 font-bold ">
               <i className="fa-solid fa-fire text-red-600"></i> Sản phẩm bán chạy
             </h2>
             <ul className="flex flex-col gap-4">
@@ -612,78 +612,120 @@ function ShopPageContent() {
           onClick={() => setShowFilterModal(false)}
         >
           <div 
-            className="bg-white rounded-xl shadow-2xl border-2 border-gray-200 max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scale-in"
+            className="bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-3xl w-full max-h-[85vh] overflow-y-auto animate-scale-in"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <i className="fa-solid fa-filter text-red-500"></i>
+            <div className="flex items-center justify-between p-3 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+              <h3 className="text-lg text-gray-800 flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center">
+                  <i className="fa-solid fa-filter text-white text-sm"></i>
+                </div>
                 Lọc sản phẩm
               </h3>
               <button
                 onClick={() => setShowFilterModal(false)}
-                className="text-gray-400 hover:text-red-500 text-2xl font-bold transition"
+                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-red-100 text-gray-500 hover:text-red-500 text-xl font-bold transition-all duration-200 flex items-center justify-center"
               >
                 ×
               </button>
             </div>
 
             <div className="p-6">
-              <div className="mb-8">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4">Giá</h4>
-                <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="mb-6">
+                <h4 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <i className="fa-solid fa-tag text-red-500"></i>
+                  Khoảng giá
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {[
-                    { label: 'Dưới 5.000.000đ', range: [0, 5000000] },
-                    { label: '5.000.000đ - 10.000.000đ', range: [5000000, 10000000] },
-                    { label: '10.000.000đ - 20.000.000đ', range: [10000000, 20000000] },
-                    { label: '20.000.000đ - 50.000.000đ', range: [20000000, 50000000] },
-                    { label: '50.000.000đ - 100.000.000đ', range: [50000000, 100000000] },
-                    { label: '100.000.000đ - 200.000.000đ', range: [100000000, 200000000] },
-                    { label: '200.000.000đ - 500.000.000đ', range: [200000000, 500000000] },
-                    { label: 'Trên 500.000.000đ', range: [500000000, 999999999] }
+                    { label: 'Dưới 5.000.000đ', range: [0, 5000000], icon: 'fa-coins', color: 'from-green-500 to-green-600' },
+                    { label: '5.000.000đ - 10.000.000đ', range: [5000000, 10000000], icon: 'fa-wallet', color: 'from-blue-500 to-blue-600' },
+                    { label: '10.000.000đ - 20.000.000đ', range: [10000000, 20000000], icon: 'fa-credit-card', color: 'from-purple-500 to-purple-600' },
+                    { label: '20.000.000đ - 50.000.000đ', range: [20000000, 50000000], icon: 'fa-gem', color: 'from-pink-500 to-pink-600' },
+                    { label: '50.000.000đ - 100.000.000đ', range: [50000000, 100000000], icon: 'fa-crown', color: 'from-yellow-500 to-yellow-600' },
+                    { label: '100.000.000đ - 200.000.000đ', range: [100000000, 200000000], icon: 'fa-star', color: 'from-indigo-500 to-indigo-600' },
+                    { label: '200.000.000đ - 500.000.000đ', range: [200000000, 500000000], icon: 'fa-diamond', color: 'from-teal-500 to-teal-600' },
+                    { label: 'Trên 500.000.000đ', range: [500000000, 999999999], icon: 'fa-trophy', color: 'from-red-500 to-red-600' }
                   ].map((item, index) => (
                     <button
                       key={index}
-                      className={`px-4 py-3 rounded-lg border-2 transition-all duration-200 text-sm font-medium ${
+                      className={`group relative overflow-hidden rounded-lg border-2 transition-all duration-300 text-left p-3 hover:scale-105 hover:shadow-lg ${
                         priceRange[0] === item.range[0] && priceRange[1] === item.range[1]
-                          ? 'bg-red-500 text-white border-red-500 shadow-lg'
-                          : 'bg-white text-gray-700 border-gray-200 hover:border-red-400 hover:text-red-600 hover:bg-red-50'
+                          ? 'bg-gradient-to-r from-red-500 to-red-600 text-white border-red-500 shadow-xl transform scale-105'
+                          : 'bg-white text-gray-700 border-gray-200 hover:border-red-400 hover:shadow-md'
                       }`}
-                                             onClick={() => {
+                      onClick={() => {
                         setPriceRange(item.range as [number, number]);
                         toast.success(`Đã chọn khoảng giá: ${item.label}`);
                       }}
                     >
-                      {item.label}
+                      <div className="flex items-start gap-3">
+                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${item.color} flex items-center justify-center flex-shrink-0 ${
+                          priceRange[0] === item.range[0] && priceRange[1] === item.range[1]
+                            ? 'bg-white/20'
+                            : 'group-hover:scale-110 transition-transform duration-300'
+                        }`}>
+                          <i className={`fa-solid ${item.icon} text-lg ${
+                            priceRange[0] === item.range[0] && priceRange[1] === item.range[1]
+                              ? 'text-white'
+                              : 'text-white'
+                          }`}></i>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className={`font-semibold text-sm leading-tight ${
+                            priceRange[0] === item.range[0] && priceRange[1] === item.range[1]
+                              ? 'text-white'
+                              : 'text-gray-800 group-hover:text-red-600'
+                          }`}>
+                            {item.label}
+                          </div>
+                          <div className={`text-xs mt-1 ${
+                            priceRange[0] === item.range[0] && priceRange[1] === item.range[1]
+                              ? 'text-white/80'
+                              : 'text-gray-500 group-hover:text-red-500'
+                          }`}>
+                            {item.range[0] === 0 ? 'Từ 0đ' : `Từ ${formatMoney(item.range[0])}`} 
+                            {item.range[1] !== 999999999 ? ` đến ${formatMoney(item.range[1])}` : ' trở lên'}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {priceRange[0] === item.range[0] && priceRange[1] === item.range[1] && (
+                        <div className="absolute top-2 right-2">
+                          <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                            <i className="fa-solid fa-check text-red-500 text-sm"></i>
+                          </div>
+                        </div>
+                      )}
                     </button>
                   ))}
                 </div>
-
-
               </div>
-
-
             </div>
-            <div className="flex gap-3 p-6 border-t border-gray-200">
+
+            <div className="flex gap-4 p-6 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-white">
               <button
-                className="flex-1 px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition"
-                                 onClick={() => {
-                   setPriceRange([minPrice, maxPrice]);
-                   toast.success('Đã xóa tất cả bộ lọc!');
-                 }}
+                className="flex-1 px-6 py-3 bg-white border-2 border-gray-200 text-gray-700  rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 flex items-center justify-center gap-2"
+                onClick={() => {
+                  setPriceRange([minPrice, maxPrice]);
+                  setSelectedBrand(null);
+                  toast.success('Đã xóa tất cả bộ lọc!');
+                }}
               >
+                <i className="fa-solid fa-eraser"></i>
                 Xoá tất cả
               </button>
               <button
-                className="flex-1 px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                 onClick={() => {
                   setShowFilterModal(false);
-                  if (priceRange[0] !== minPrice || priceRange[1] !== maxPrice) {
-                    toast.success(`Đang hiển thị sản phẩm từ ${formatMoney(priceRange[0])} đến ${formatMoney(priceRange[1])}`);
+                  if (priceRange[0] !== minPrice || priceRange[1] !== maxPrice || selectedBrand) {
+                    toast.success('Đang áp dụng bộ lọc...');
                   }
                 }}
               >
-                Xem kết quả
+                <i className="fa-solid fa-check"></i>
+                Áp dụng bộ lọc
               </button>
             </div>
           </div>
