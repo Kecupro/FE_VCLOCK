@@ -143,8 +143,8 @@ export default function Feedback() {
   if (loading) {
     return (
       <div className="w-full bg-white py-8">
-        <h3 className="text-center font-bold text-2xl mb-3">SẢN PHẨM NỔI BẬT</h3>
-        <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+        <h3 className="text-center font-bold text-xl mb-4 text-gray-800">SẢN PHẨM NỔI BẬT</h3>
+        <div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
         <div className="max-w-6xl mx-auto text-center py-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-700 mx-auto"></div>
           <p className="mt-4 text-gray-600">Đang tải sản phẩm...</p>
@@ -156,8 +156,8 @@ export default function Feedback() {
   if (error) {
     return (
       <div className="w-full bg-white py-8">
-        <h3 className="text-center font-bold text-2xl mb-3">SẢN PHẨM NỔI BẬT</h3>
-        <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+        <h3 className="text-center font-bold text-xl mb-4 text-gray-800">SẢN PHẨM NỔI BẬT</h3>
+        <div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
         <div className="max-w-6xl mx-auto text-center text-red-600">
           Không thể tải sản phẩm nổi bật
         </div>
@@ -168,8 +168,8 @@ export default function Feedback() {
   if (!products || products.length === 0) {
     return (
       <div className="w-full bg-white py-8">
-        <h3 className="text-center font-bold text-2xl mb-3">SẢN PHẨM NỔI BẬT</h3>
-        <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+        <h3 className="text-center font-bold text-xl mb-4 text-gray-800 ">SẢN PHẨM NỔI BẬT</h3>
+        <div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
         <div className="max-w-6xl mx-auto text-center text-gray-500">
           Không có sản phẩm nổi bật nào
         </div>
@@ -179,8 +179,8 @@ export default function Feedback() {
 
   return (
     <div className="w-full bg-white py-6">
-      <h3 className="text-center font-bold text-2xl mb-3">SẢN PHẨM NỔI BẬT</h3>
-      <div className="mx-auto mb-6 w-24 h-1 bg-red-700 rounded"></div>
+      <h3 className="text-center font-bold text-xl mb-4 text-gray-800">SẢN PHẨM NỔI BẬT</h3>
+      <div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
       
       <div 
         className="max-w-6xl mx-auto px-4"

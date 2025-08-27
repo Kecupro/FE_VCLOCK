@@ -99,10 +99,10 @@ export default function ProductSale() {
     if (loading) {
         return (
             <div className="w-full bg-gray-50 py-8">
-                <h3 className="text-center font-bold text-2xl mb-3">
+                <h3 className="text-center font-bold text-xl mb-4 text-gray-800">
                     SẢN PHẨM GIẢM GIÁ
                 </h3>
-                <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+                <div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center items-center h-32">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
                 </div>
@@ -113,10 +113,10 @@ export default function ProductSale() {
     if (error) {
         return (
             <div className="w-full bg-gray-50 py-8">
-                <h3 className="text-center font-bold text-2xl mb-3">
+                <h3 className="text-center font-bold text-xl mb-4 text-gray-800">
                     SẢN PHẨM GIẢM GIÁ
                 </h3>
-                <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+                <div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-red-600">
                     Không thể tải sản phẩm giảm giá
                 </div>
@@ -127,10 +127,10 @@ export default function ProductSale() {
     if (!products || products.length === 0) {
         return (
             <div className="w-full bg-gray-50 py-8">
-                <h3 className="text-center font-bold text-2xl mb-3">
+                <h3 className="text-center font-bold text-xl mb-4 text-gray-800">
                     SẢN PHẨM GIẢM GIÁ
                 </h3>
-                <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+                <div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500">
                     Không có sản phẩm giảm giá nào
                 </div>
@@ -152,10 +152,10 @@ export default function ProductSale() {
 
     return (
         <div className="w-full bg-gray-50 py-8">
-            <h3 className="text-center font-bold text-2xl mb-3">
+            <h3 className="text-center font-bold text-xl mb-4 text-gray-800">
                 SẢN PHẨM GIẢM GIÁ
             </h3>
-            <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+            <div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
             <div 
                 className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative"
                 onMouseEnter={handleMouseEnter}

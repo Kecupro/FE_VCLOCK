@@ -121,7 +121,7 @@ export default function ContactPage() {
           className="object-cover opacity-50"
         />
         <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white p-4">
-          <h1 className="text-4xl md:text-6xl font-bold mt-20 mb-4 tracking-tight">
+          <h1 className="text-4xl md:text-5xl font-bold mt-20 mb-4 tracking-tight">
             Liên Hệ Với Chúng Tôi
           </h1>
           <p className="text-lg md:text-xl max-w-2xl">
@@ -135,7 +135,7 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
 
           <div className="lg:col-span-2 bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
-            <h2 className="text-3xl font-semibold text-gray-800 mb-2">Gửi Lời Nhắn</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">Gửi Lời Nhắn</h2>
             <p className="text-gray-600 mb-8">
               Điền thông tin vào biểu mẫu dưới đây, chúng tôi sẽ phản hồi trong thời gian sớm nhất.
             </p>
@@ -293,7 +293,7 @@ export default function ContactPage() {
 
           <div className="bg-white p-6 sm:p-8 rounded-xl shadow-2xl space-y-8">
             <div>
-              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Thông Tin Liên Hệ</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Thông Tin Liên Hệ</h3>
               <ul className="space-y-4 text-gray-700">
                 <li className="flex items-start">
                   <span>1073/23 Cách Mạng Tháng 8, Phường 7, Quận Tân Bình, TP. Hồ Chí Minh</span>
@@ -315,7 +315,7 @@ export default function ContactPage() {
             </div>
 
             <div>
-              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Tìm Chúng Tôi Trên Bản Đồ</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Tìm Chúng Tôi Trên Bản Đồ</h3>
               <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-md">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.486014709549!2d106.65587907589737!3d10.77337425923137!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752edb7e9a7b2b%3A0x6e7e1b7e736d919!2zMTA3My8yMyDEkC4gQ8O0bmcgTmfhu41jIFRow6FpLCBQaMaw4budbmcgNywgUXXhuq1uIFTDom4gQsOsbmgsIFRow6BuaCBwaOG7kSBI4buTIENow60gTWluaCwgVMOibiBCw6xuaCwgSOG7kyBDaMOtbmggTWluaA!5e0!3m2!1svi!2s!4v1717490000000!5m2!1svi!2s"

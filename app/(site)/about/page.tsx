@@ -93,7 +93,7 @@ export default function AboutPage() {
         }`}
       >
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <h2 className='text-2xl font-bold mb-3 text-center text-gray-800'>SỨ MỆNH & GIÁ TRỊ CỐT LÕI</h2>
+          <h2 className='text-xl font-bold mb-3 text-center text-gray-800'>SỨ MỆNH & GIÁ TRỊ CỐT LÕI</h2>
           <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
           <div className='grid md:grid-cols-3 gap-8'>
             <div className={`bg-slate-50 rounded-xl shadow-md p-6 flex flex-col items-center text-center hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ${
@@ -154,7 +154,7 @@ export default function AboutPage() {
         }`}
       >
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <h2 className='text-2xl font-bold mb-3 text-center text-white'>TẠI SAO CHỌN V-CLOCK?</h2>
+          <h2 className='text-xl font-bold mb-3 text-center text-white'>TẠI SAO CHỌN V-CLOCK?</h2>
           <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
           <div className='grid md:grid-cols-2 gap-12 items-center'>
             <div className={`flex flex-col justify-center ${

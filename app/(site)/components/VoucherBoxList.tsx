@@ -174,10 +174,10 @@ const VoucherBoxList = () => {
 
   return (
     <div className="w-full bg-gray-50 py-8">
-        <h3 className="text-center font-bold text-2xl mb-3">
+        <h3 className="text-center font-bold text-xl mb-4 text-gray-800">
           VOUCHER KHUYẾN MÃI
         </h3>
-        <div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+        <div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
         <div 
           className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative"
           onMouseEnter={handleMouseEnter}

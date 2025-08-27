@@ -51,10 +51,10 @@ export default function Categories() {
 	if (loading) {
 		return (
 			<div className="w-full py-8">
-				<h3 className="text-center font-bold text-2xl mb-3">
+				<h3 className="text-center font-bold text-2xl mb-4 text-gray-800">
 					THƯƠNG HIỆU SẢN PHẨM
 				</h3>
-				<div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+				<div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
 				<div className="max-w-6xl mx-auto flex justify-center items-center h-32">
 					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
 				</div>
@@ -65,10 +65,10 @@ export default function Categories() {
 	if (error) {
 		return (
 			<div className="w-full py-8">
-				<h3 className="text-center font-bold text-2xl mb-3">
+				<h3 className="text-center font-bold text-2xl mb-4 text-gray-800">
 					THƯƠNG HIỆU SẢN PHẨM
 				</h3>
-				<div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+				<div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
 				<div className="max-w-6xl mx-auto text-center text-red-600">
 					Không thể tải danh sách thương hiệu
 				</div>
@@ -79,10 +79,10 @@ export default function Categories() {
 	if (!brands || brands.length === 0) {
 		return (
 			<div className="w-full py-8">
-				<h3 className="text-center font-bold text-2xl mb-3">
+				<h3 className="text-center font-bold text-2xl mb-4 text-gray-800">
 					THƯƠNG HIỆU SẢN PHẨM
 				</h3>
-				<div className="mx-auto mb-8 w-30 h-1 bg-red-700 rounded"></div>
+				<div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
 				<div className="max-w-6xl mx-auto text-center text-gray-500">
 					Không có thương hiệu nào
 				</div>
@@ -104,7 +104,7 @@ export default function Categories() {
 
 	return (
 		<div className="w-full py-12 bg-gradient-to-b from-gray-50 to-white">
-			<h3 className="text-center font-bold text-2xl mb-4 text-gray-800">
+			<h3 className="text-center font-bold text-xl mb-4 text-gray-800">
 				THƯƠNG HIỆU SẢN PHẨM
 			</h3>
 			<div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>

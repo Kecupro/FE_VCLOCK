@@ -134,7 +134,7 @@ export default function NewsDetail() {
               </div>
             )}
             <div className="p-6">
-              <h1 className="text-3xl font-bold mb-4">{news.title}</h1>
+              <h2 className="text-2xl font-bold mb-4">{news.title}</h2>
               <div className="flex items-center text-gray-500 text-sm mb-6">
                 <span className="mr-4">
                   <i className="far fa-calendar-alt mr-2"></i>
