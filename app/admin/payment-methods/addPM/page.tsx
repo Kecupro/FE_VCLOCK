@@ -71,7 +71,7 @@ const AddPaymentMethodPage = () => {
     formData.append('image', selectedFile);
 
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/payment-method/them`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/payment-method/them`, {
         method: 'POST',
         body: formData,
       });

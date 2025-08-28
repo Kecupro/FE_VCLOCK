@@ -45,7 +45,7 @@ export default function CartPage() {
     
     try {
       const productIds = cart.map(item => item._id);
-      const response = await fetch(`http://localhost:3000/api/products/stock-info?${productIds.map(id => `productIds=${id}`).join('&')}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/stock-info?${productIds.map(id => `productIds=${id}`).join('&')}`);
       
       if (response.ok) {
         const data = await response.json();

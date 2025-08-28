@@ -42,7 +42,7 @@ const VoucherBoxList = () => {
     if (!token || !userId) return;
 
     try {
-      const res = await axios.get(`http://localhost:3000/api/orders`, {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
         params: { user_id: userId },
       });
       if (res.status === 200 && Array.isArray(res.data)) {
@@ -78,7 +78,7 @@ const VoucherBoxList = () => {
     }
     
     try {
-      const res = await axios.get(`http://localhost:3000/voucher-user`, {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/voucher-user`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -100,7 +100,7 @@ const VoucherBoxList = () => {
   useEffect(() => {
     const fetchVouchers = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/admin/voucher`);
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher`);
         const allVouchers = (res.data as { list: IVoucher[] }).list || [];
         
         // Lọc bỏ các voucher đã hết hạn
@@ -134,7 +134,7 @@ const VoucherBoxList = () => {
     setSavingVoucher(voucherId);
     try {
       const response = await axios.post(
-        `http://localhost:3000/api/voucher-user/save`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/voucher-user/save`,
         { voucher_id: voucherId },
         {
           headers: {

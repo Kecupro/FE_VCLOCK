@@ -48,7 +48,7 @@ const EditBrand = () => {
         }
         
         const response = await fetch(
-          `http://localhost:3000/api/admin/brand/${brandId}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand/${brandId}`,
           {
             method: 'GET',
             headers: {
@@ -264,7 +264,7 @@ const EditBrand = () => {
         formData.append('image_cu', currentImage);
       }
 
-      const response = await fetch(`http://localhost:3000/api/admin/brand/edit/${brandId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand/edit/${brandId}`, {
         method: 'PUT',
         body: formData,
       });

@@ -39,7 +39,7 @@ const SearchPage = () => {
         page: page.toString(),
         limit: productsPerPage.toString()
       });
-      const response = await fetch(`http://localhost:3000/api/search?${params}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/search?${params}`);
       const data = await response.json();
       setProducts(data.products || []);
       setTotalProducts(data.total || 0);
@@ -64,7 +64,7 @@ const SearchPage = () => {
       const token = localStorage.getItem("token");
       if (token) {
         try {
-          const res = await fetch(`http://localhost:3000/user/wishlist`, {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -93,7 +93,7 @@ const SearchPage = () => {
 
   useEffect(() => {
     if (!loading && products.length === 0) {
-      fetch(`http://localhost:3000/api/products/top-rated?limit=4`)
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/top-rated?limit=4`)
         .then(res => res.json())
         .then(data => setSuggestedProducts(data || []));
     } else {

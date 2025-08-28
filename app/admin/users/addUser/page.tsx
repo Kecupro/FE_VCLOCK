@@ -51,7 +51,7 @@ const AddUser = () => {
           return;
         }
 
-        const response = await fetch(`http://localhost:3000/check-role`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/check-role`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -197,7 +197,7 @@ const AddUser = () => {
         fullName: formData.fullName.trim(),
       };
 
-      const response = await fetch(`http://localhost:3000/api/admin/user/add`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/user/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

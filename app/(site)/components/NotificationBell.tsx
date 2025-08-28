@@ -17,7 +17,7 @@ const NotificationBell = () => {
     const fetchNotifications = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:3000/api/notifications`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -52,7 +52,7 @@ const NotificationBell = () => {
   const markAsRead = async (notificationId: string) => {
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:3000/api/notifications/${notificationId}/read`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/${notificationId}/read`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -75,7 +75,7 @@ const NotificationBell = () => {
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:3000/api/notifications/mark-all-read`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/mark-all-read`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`

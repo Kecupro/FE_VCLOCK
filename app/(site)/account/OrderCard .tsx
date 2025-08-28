@@ -53,7 +53,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/orders?user_id=${user_id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders?user_id=${user_id}`);
         const data = await res.json();
       
         if (!Array.isArray(data)) {
@@ -74,7 +74,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
         await Promise.all(
           mapped.map(async (order) => {
             try {
-              const detailRes = await fetch(`http://localhost:3000/api/order-details/${order._id}`);
+              const detailRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/order-details/${order._id}`);
               const details = await detailRes.json();
               detailMap[order._id] = Array.isArray(details) ? details : [];
             } catch (error) {
@@ -107,7 +107,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
       const token = localStorage.getItem("token");
       if (!token) return;
       try {
-        const res = await fetch(`http://localhost:3000/reviews/user`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reviews/user`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -136,7 +136,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
 
   const handleCancelOrder = async (order_id: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/cancel-order/${order_id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cancel-order/${order_id}`, {
         method: "PUT",
       });
       
@@ -159,7 +159,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
 
   const handleReturnOrder = async (order_id: string, reason: string) => {
   try {
-    const res = await fetch(`http://localhost:3000/api/return-order/${order_id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/return-order/${order_id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

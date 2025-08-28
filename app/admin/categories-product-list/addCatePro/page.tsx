@@ -69,7 +69,7 @@ const AddCatePro = () => {
     formData.append('image', selectedFile);
 
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/categoryProduct/them`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryProduct/them`, {
         method: 'POST',
         body: formData,
       });

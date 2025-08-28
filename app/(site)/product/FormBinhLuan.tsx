@@ -15,7 +15,7 @@ export default function ReviewForm({ productId, onSuccess }: { productId: string
     setMessage('');
 
     try {
-      const res = await fetch(`http://localhost:3000/api/reviews`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews`, {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ product_id: productId, rating, comment }),

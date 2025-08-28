@@ -30,7 +30,7 @@ const VoucherList: React.FC<Props> = ({ user_id }) => {
     if (!token) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/user/orders/count`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/orders/count`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -41,7 +41,7 @@ const VoucherList: React.FC<Props> = ({ user_id }) => {
       console.error("Lỗi tải số đơn hàng:", error);
       // Fallback: try to get from orders list
       try {
-        const ordersRes = await fetch(`http://localhost:3000/user/orders`, {
+        const ordersRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/orders`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (ordersRes.ok) {
@@ -69,7 +69,7 @@ const VoucherList: React.FC<Props> = ({ user_id }) => {
           return;
         }
 
-        const res = await fetch(`http://localhost:3000/voucher-user`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/voucher-user`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

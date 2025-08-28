@@ -7,7 +7,7 @@ const Footer = () => {
   const [categories, setCategories] = useState<{ name: string }[]>([]);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/category`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/category`)
       .then(res => res.json())
       .then((data) => {
         if (Array.isArray(data)) {

@@ -27,7 +27,7 @@ export default function SPLienQuan({id} : {id:string}) {
     const swiperRef = useRef<SwiperType | null>(null);
 
     useEffect(() => {
-        fetch(`http://localhost:3000/api/sp_lien_quan/${id}`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sp_lien_quan/${id}`)
             .then((res) => res.json())
             .then((data) => setProducts(data))
             .catch((err) => console.error("Lỗi tải sản phẩm:", err));
@@ -38,7 +38,7 @@ export default function SPLienQuan({id} : {id:string}) {
                 const token = localStorage.getItem("token");
                 if (token) {
                     try {
-                        const res = await fetch(`http://localhost:3000/user/wishlist`, {
+                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
                             headers: {
                                 'Authorization': `Bearer ${token}`
                             }

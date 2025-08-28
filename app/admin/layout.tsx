@@ -52,7 +52,7 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
 
     if (value.length >= 2) {
       try {
-        const res = await axios.get<SearchResult[]>(`http://localhost:3000/api/admin/search?q=${value}`);
+        const res = await axios.get<SearchResult[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/search?q=${value}`);
         setSearchResults(res.data);
       } catch (err) {
         console.error('Lỗi tìm kiếm:', err);

@@ -66,7 +66,7 @@ const AuthModal = ({ isOpen, onClose, preventRedirect = false, onLoginSuccess, f
 
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3000/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ const AuthModal = ({ isOpen, onClose, preventRedirect = false, onLoginSuccess, f
 
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3000/register`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -232,7 +232,7 @@ const AuthModal = ({ isOpen, onClose, preventRedirect = false, onLoginSuccess, f
 
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3000/verify-email`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/verify-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp }),
@@ -278,7 +278,7 @@ const AuthModal = ({ isOpen, onClose, preventRedirect = false, onLoginSuccess, f
     }
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3000/request-password-reset`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/request-password-reset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -340,7 +340,7 @@ const AuthModal = ({ isOpen, onClose, preventRedirect = false, onLoginSuccess, f
     }
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3000/reset-password`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp, newPassword: password }),
@@ -473,7 +473,7 @@ const AuthModal = ({ isOpen, onClose, preventRedirect = false, onLoginSuccess, f
                       localStorage.setItem('auth_prevent_redirect', 'true');
                       localStorage.setItem('auth_return_url', window.location.pathname);
                     }
-                    window.location.href = `http://localhost:3000/auth/google`;
+                    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
                   }}
                 >
                   <i className="fa-brands fa-google text-red-600"></i>
@@ -487,7 +487,7 @@ const AuthModal = ({ isOpen, onClose, preventRedirect = false, onLoginSuccess, f
                       localStorage.setItem('auth_prevent_redirect', 'true');
                       localStorage.setItem('auth_return_url', window.location.pathname);
                     }
-                    window.location.href = `http://localhost:3000/auth/facebook`;
+                    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`;
                   }}
                 >
                   <i className="fa-brands fa-facebook-f text-blue-600"></i>
