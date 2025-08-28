@@ -36,6 +36,7 @@ export default function CheckoutPage() {
 	const [tempSelectedAddressId, setTempSelectedAddressId] = useState(""); 
 	const [isLoading, setIsLoading] = useState(false);
 	const [userOrderCount, setUserOrderCount] = useState<number>(0);
+	const [userCreatedAt, setUserCreatedAt] = useState<string | null>(null);
 
 	const [newAddress, setNewAddress] = useState({
 		receiver_name: '',
@@ -65,6 +66,12 @@ export default function CheckoutPage() {
 		if (!token || !userId) return;
 
 		try {
+			// Lấy thông tin user để biết ngày tạo
+			const user = userRaw ? JSON.parse(userRaw) : null;
+			if (user) {
+				setUserCreatedAt(user.createdAt || user.created_at || null);
+			}
+
 			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders?user_id=${encodeURIComponent(userId)}`);
 			if (res.ok) {
 				const orders = await res.json();
@@ -899,9 +906,9 @@ export default function CheckoutPage() {
 									<Dialog.Title className="text-lg font-bold mb-2">Chọn voucher</Dialog.Title>
 									
 									{vouchers.length > 0 ? (
-									vouchers.filter(v => checkEligibility(v, userOrderCount).eligible).map((v) => {
-										const eligibility = checkEligibility(v, userOrderCount);
-										const eligibilityMessage = getEligibilityMessage(eligibility.reason, eligibility.reason === 'min_orders' ? 3 : undefined);
+									vouchers.filter(v => checkEligibility(v, userOrderCount, new Date(), userCreatedAt || undefined).eligible).map((v) => {
+										const eligibility = checkEligibility(v, userOrderCount, new Date(), userCreatedAt || undefined);
+										const eligibilityMessage = getEligibilityMessage(eligibility.reason, eligibility.customerType);
 										const meetsMin = originalTotal >= (v.minimum_order_value || 0);
 										const disabled = !eligibility.eligible || !meetsMin;
 										
@@ -966,7 +973,7 @@ export default function CheckoutPage() {
 											{(() => {
 												const label = eligibility.eligible 
 													? (meetsMin ? 'Sử Dụng' : 'Chưa đạt tối thiểu') 
-													: (eligibility.reason === 'new_user_only' ? 'Chỉ khách mới' : 'Không đủ điều kiện');
+													: 'Không đủ điều kiện';
 												return (
 													<Dialog.Close asChild>
 														<button

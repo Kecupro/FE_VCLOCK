@@ -68,7 +68,7 @@ export default function AddToCart({ sp, disabled, variant = "icon", size = "defa
     const currentQuantityInCart = existingItem ? existingItem.so_luong : 0;
     
     if (currentQuantityInCart + 1 > 10) {
-      toast.error("Số lượng tối đa cho mỗi sản phẩm là 10");
+      toast.error("Số lượng vượt quá mức cho phép vui lòng liên hệ");
       return;
     }
     

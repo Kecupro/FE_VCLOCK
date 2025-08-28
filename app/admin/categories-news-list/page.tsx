@@ -225,6 +225,7 @@ const CatenewsPage = () => {
           </div>
 
           <div className={styles.paginationButtons}>
+          <button disabled={currentPage == 1} onClick={() => setCurrentPage(1)} className={styles.paginationButton}>Trang đầu</button>
             <button
               disabled={currentPage == 1}
               onClick={() => setCurrentPage(currentPage - 1)}
@@ -235,6 +236,7 @@ const CatenewsPage = () => {
 
             {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
               (page) => (
+
                 <button
                   key={page}
                   className={`${styles.paginationButton} ${

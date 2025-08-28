@@ -1,7 +1,5 @@
 "use client";
 
-
-
 import React, { useEffect, useState } from 'react';
 import { Search, Eye, Zap, Truck, CheckCircle, XCircle, Clock, RefreshCw, DollarSign,} from 'lucide-react';
 import styles from '../assets/css/order.module.css';
@@ -54,7 +52,15 @@ const OrdersPage = () => {
     }
   } else if (modalAction == 'nextStatus') {
     const next = getNextStatus(selectedOrder.order_status);
-    if (next) await updateOrderStatus(selectedOrder._id, next);
+    if (next) {
+      await updateOrderStatus(selectedOrder._id, next);
+      
+      // Xử lý đặc biệt cho COD khi trả hàng
+      const isCODOrder = selectedOrder.payment_method_id?.name === 'Thanh toán khi nhận hàng (COD)';
+      if (next === 'hoanTra' && isCODOrder && selectedOrder.payment_status === 'thanhToan') {
+        await updatePaymentStatus(selectedOrder._id, 'choHoanTien');
+      }
+    }
   }
 
   setModalVisible(false);
@@ -79,7 +85,7 @@ const OrdersPage = () => {
     return null;
   };
 
-  const limit = 6;
+  const limit = 8;
   const { isDarkMode } = useAppContext();
 
   const statusMap = {
@@ -364,29 +370,30 @@ const OrdersPage = () => {
                 const productName = product?.name || 'Không rõ';
                 const productImage = product?.main_image;
                 const imagePath = getProductImageUrl(
-                    typeof productImage === 'string' ? 
+                    typeof productImage == 'string' ? 
                         productImage : 
                         productImage?.image
                 );
                 const orderStatusText = statusMap[order.order_status] || 'Không rõ';
                 const orderStatusLabel = orderStatusText as keyof typeof statusConfigs;
-                
-
-                
+                                
                 const lockedStatuses = ['daGiaoHang', 'hoanTra', 'hoanThanh', 'daHuy'];
                 const isLocked = lockedStatuses.includes(order.order_status);
                 const isBankTransfer = order.payment_method_id?.name == 'Chuyển khoản Ngân hàng';
-                const canRefund =
-                  isBankTransfer &&
-                  order.order_status == 'hoanTra' &&
-                  order.payment_status == 'choHoanTien';
                 const isCOD = order.payment_method_id?.name == 'Thanh toán khi nhận hàng (COD)';
+                const canRefund =
+                  (isBankTransfer &&
+                  order.order_status == 'hoanTra' &&
+                  order.payment_status == 'choHoanTien')||
+                  (order?.order_status == 'daHuy' && 
+                  order.payment_status == 'choHoanTien')||
+                  (isCOD &&
+                  order.order_status == 'hoanTra' &&
+                  order.payment_status == 'choHoanTien');
                 const canMarkPaid =
                   (isCOD &&
                   order.order_status == 'daGiaoHang' &&
-                  order.payment_status == 'chuaThanhToan') ||
-                  (order?.order_status == 'daHuy' && 
-                  order.payment_status == 'choHoanTien');
+                  order.payment_status == 'chuaThanhToan');
 
                 return (
                   <tr key={order._id}>
@@ -464,11 +471,11 @@ const OrdersPage = () => {
           <div className={styles.paginationInfo}>Hiển thị {(currentPage - 1) * limit + 1} đến {Math.min(currentPage * limit, total)} trong {total} đơn hàng</div>
           <div className={styles.paginationButtons}>
             <button disabled={currentPage == 1} onClick={() => setCurrentPage(1)} className={styles.paginationButton}>Trang đầu</button>
-            <button disabled={currentPage == 1} onClick={() => setCurrentPage(currentPage - 1)} className={styles.paginationButton}>&laquo;</button>
+            <button disabled={currentPage == 1} onClick={() => setCurrentPage(currentPage - 1)} className={styles.paginationButton}>&lt;</button>
             {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(page => (
               <button key={page} onClick={() => setCurrentPage(page)} className={`${styles.paginationButton} ${currentPage == page ? styles.paginationButtonActive : ''}`}>{page}</button>
             ))}
-            <button disabled={currentPage == totalPages} onClick={() => setCurrentPage(currentPage + 1)} className={styles.paginationButton}>&raquo;</button>
+            <button disabled={currentPage == totalPages} onClick={() => setCurrentPage(currentPage + 1)} className={styles.paginationButton}>&gt;</button>
             <button onClick={() => setCurrentPage(totalPages)} className={styles.paginationButton}>Trang cuối</button>
           </div>
         </div>

@@ -1,10 +1,8 @@
 "use client";
 
-
-
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Edit} from "lucide-react";
 import Image from "next/image";
 import styles from "../../assets/css/detailPro.module.css";
 import { useAppContext } from '../../../context/AppContext';
@@ -21,7 +19,6 @@ const ProductDetailPage: React.FC = () => {
   const [mainImageUrl, setMainImageUrl] = useState<string>('');
   const [subImageUrls, setSubImageUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
 
   const productId = params?.id as string;
 
@@ -68,28 +65,7 @@ const ProductDetailPage: React.FC = () => {
 
   const handleGoBack = () => router.back();
   const handleEdit = () => product && router.push(`/admin/products/edit?id=${product._id}`);
-  const handleDelete = async () => {
-    if (!product) return;
-
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product/xoa/${product._id}`, {
-        method: 'DELETE',
-      });
-
-      if (res.ok) {
-        toast.success('Sản phẩm đã được xóa thành công!');
-        setTimeout(() => router.push('/admin/products'), 1500);
-      } else {
-        const data = await res.json();
-        toast.error(`Không thể xóa: ${data.message || 'Lỗi không xác định'}`);
-      }
-    } catch {
-      toast.error('Có lỗi khi xóa sản phẩm');
-    } finally {
-      setShowModal(false);
-    }
-  };
-
+  
   if (loading) return <div className={styles.loadingContainer}><p>Đang tải...</p></div>;
   if (!product) return <div className={styles.errorContainer}><p>Không tìm thấy sản phẩm</p></div>;
 
@@ -250,27 +226,8 @@ const ProductDetailPage: React.FC = () => {
           <button className={styles.createButton} onClick={handleEdit}>
             <Edit size={16} /> Chỉnh sửa
           </button>
-          <button className={styles.cancelButton} onClick={() => setShowModal(true)}>
-            <Trash2 size={16} /> Xóa
-          </button>
         </div>
       </div>
-
-      {showModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <div className={styles.modalHeader}><h3>Xác nhận xóa</h3></div>
-            <div className={styles.modalBody}>
-              <p>Bạn có chắc chắn muốn xóa sản phẩm <strong>{product.name}</strong> không?</p>
-              <p style={{ color: "#ff4757", fontSize: "14px" }}>Hành động này không thể hoàn tác!</p>
-            </div>
-            <div className={styles.modalFooter}>
-              <button className={styles.modalcancelButton} onClick={() => setShowModal(false)}>Hủy</button>
-              <button className={styles.deleteButton} onClick={handleDelete}>Xóa</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <ToastContainer position="top-right" autoClose={3000} />
     </div>

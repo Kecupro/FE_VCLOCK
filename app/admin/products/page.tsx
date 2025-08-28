@@ -1,9 +1,7 @@
 "use client";
 
-
-
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Eye, Edit, Trash2 } from 'lucide-react';
+import { Search, Plus, Eye, Edit} from 'lucide-react';
 import styles from '../assets/css/all.module.css';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -23,10 +21,8 @@ const ProductsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [sortOption, setSortOption] = useState("newest");
-  const limit = 7;
+  const limit = 9;
 
-  const [showModal, setShowModal] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { isDarkMode } = useAppContext();
 
   useEffect(() => {
@@ -40,7 +36,7 @@ const ProductsPage = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, statusFilter, categoryFilter, brandFilter, sortOption, showModal]);
+  }, [searchTerm, statusFilter, categoryFilter, brandFilter, sortOption]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -76,12 +72,13 @@ const ProductsPage = () => {
           limit: limit.toString(),
           searchTerm,
           brandFilter,
-          statusFilter,
+          statusFilter, 
           categoryFilter,
           sort: sortOption
         });
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product?${params}`);
         const data = await res.json();
+        console.log(data);
         setProducts(data.list || []);
         setTotal(data.total || 0);
       } catch {
@@ -89,7 +86,7 @@ const ProductsPage = () => {
       }
     };
     fetchProducts();
-  }, [currentPage, searchTerm, statusFilter, categoryFilter, brandFilter, sortOption, showModal]);
+  }, [currentPage, searchTerm, statusFilter, categoryFilter, brandFilter, sortOption]);
 
   const handleReset = () => {
     setSearchTerm('');
@@ -100,30 +97,6 @@ const ProductsPage = () => {
     toast.info("Đã đặt lại bộ lọc!");
   };
 
-  const handleDeleteClick = (id: string) => {
-    setDeletingId(id);
-    setShowModal(true);
-  };
-
-  const confirmDelete = async () => {
-    if (!deletingId) return;
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product/xoa/${deletingId}`, { method: "DELETE" });
-      const data = await res.json();
-      if (res.ok) {
-        toast.success("Xóa thành công!");
-        setProducts(prev => prev.filter(item => item._id != deletingId));
-      } else {
-        toast.error(`Lỗi: ${data.error}`);
-      }
-    } catch {
-      toast.error("Lỗi khi xóa sản phẩm!");
-    } finally {
-      setShowModal(false);
-      setDeletingId(null);
-    }
-  };
-
   const formatCurrency = (num: number) => {
     return num.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
   };
@@ -132,8 +105,6 @@ const ProductsPage = () => {
   const maxPagesToShow = 5;
   const startPage = Math.max(1, Math.min(currentPage - Math.floor(maxPagesToShow / 2), totalPages - maxPagesToShow + 1));
   const endPage = Math.min(startPage + maxPagesToShow - 1, totalPages);
-
-  const deletingProduct = products.find(item => item._id == deletingId);
 
   return (
   <div className={styles.container}>
@@ -243,11 +214,11 @@ const ProductsPage = () => {
                 <td>
                   {product.main_image ? (
                     <Image
-                      src={typeof product.main_image === 'string' ? 
+                      src={typeof product.main_image == 'string' ? 
                         getProductImageUrl(product.main_image) : 
                         getProductImageUrl(product.main_image.image)
                       }
-                      alt={typeof product.main_image === 'string' ? 
+                      alt={typeof product.main_image == 'string' ? 
                         product.name : 
                         (product.main_image.alt || product.name)
                       }
@@ -285,9 +256,6 @@ const ProductsPage = () => {
                     <Link href={`/admin/products/edit?id=${product._id}`}>
                       <button className={styles.actionButton}><Edit size={14} /></button>
                     </Link>
-                    <button className={styles.actionButton} onClick={() => handleDeleteClick(product._id)}>
-                      <Trash2 size={14} />
-                    </button>
                   </div>
                 </td>
               </tr>
@@ -302,33 +270,15 @@ const ProductsPage = () => {
         </div>
         <div className={styles.paginationButtons}>
           <button disabled={currentPage == 1} onClick={() => setCurrentPage(1)} className={styles.paginationButton}>Trang đầu</button>
-          <button disabled={currentPage == 1} onClick={() => setCurrentPage(currentPage - 1)} className={styles.paginationButton}>&laquo;</button>
+          <button disabled={currentPage == 1} onClick={() => setCurrentPage(currentPage - 1)} className={styles.paginationButton}>&lt;</button>
           {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(page => (
             <button key={page} onClick={() => setCurrentPage(page)} className={`${styles.paginationButton} ${currentPage == page ? styles.paginationButtonActive : ""}`}>{page}</button>
           ))}
-          <button disabled={currentPage == totalPages} onClick={() => setCurrentPage(currentPage + 1)} className={styles.paginationButton}>&raquo;</button>
+          <button disabled={currentPage == totalPages} onClick={() => setCurrentPage(currentPage + 1)} className={styles.paginationButton}>&gt;</button>
           <button onClick={() => setCurrentPage(totalPages)} className={styles.paginationButton}>Trang cuối</button>
         </div>
       </div>
     </div>
-
-    {showModal && (
-      <div className={styles.modalOverlay}>
-        <div className={styles.modal}>
-          <div className={styles.modalHeader}>
-            <h3>Xác nhận xóa</h3>
-          </div>
-          <div className={styles.modalBody}>
-            <p>Bạn có chắc chắn muốn xóa sản phẩm <strong>{deletingProduct?.name}</strong> không?</p>
-            <p style={{ color: '#ff4757', fontSize: '14px' }}>Lưu ý: Hành động này không thể hoàn tác!</p>
-          </div>
-          <div className={styles.modalFooter}>
-            <button className={styles.modalcancelButton} onClick={() => setShowModal(false)}>Hủy</button>
-            <button className={styles.deleteButton} onClick={confirmDelete}>Xóa</button>
-          </div>
-        </div>
-      </div>
-    )}
 
     <ToastContainer position="top-right" autoClose={3000} />
   </div>

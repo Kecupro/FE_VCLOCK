@@ -265,7 +265,7 @@ const AddUser = () => {
         <div className={styles.header}>
           <h1 className={styles.title}>Không có quyền truy cập</h1>
           <p style={{ color: "#666", margin: "10px 0" }}>
-            Chỉ quản trị viên cấp cao (role 2) mới có thể thêm người dùng mới.
+            Chỉ quản trị viên cấp cao mới có thể thêm người dùng mới.
           </p>
           <button className={styles.returnButton} onClick={handleReturn}>
             Quay lại

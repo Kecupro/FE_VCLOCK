@@ -175,6 +175,7 @@ export interface IVoucher {
   discount_value: number;
   minimum_order_value: number;
   max_discount: number;
+  target_audience?: string;
   used?: boolean;
   created_at: string;
   updated_at: string;

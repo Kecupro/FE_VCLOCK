@@ -17,7 +17,7 @@ const VouchersPage = () => {
   const [vouchers, setVouchers] = useState<IVoucher[]>([]);
   const [total, setTotal] = useState(0);
   const [sortOption, setSortOption] = useState("newest");
-  const limit = 16;
+  const limit = 20;
 
   const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -50,7 +50,7 @@ const VouchersPage = () => {
         }
 
         setVouchers(filteredList);
-        setTotal(filteredList.length);
+        setTotal(data.total || 0);
       } catch {
         toast.error("Lỗi khi tải dữ liệu voucher!");
       }
@@ -185,6 +185,7 @@ const VouchersPage = () => {
                 <th>Giá trị</th>
                 <th>Bắt đầu</th>
                 <th>Hết hạn</th>
+                <th>Đối tượng</th>
                 <th>Trạng thái</th>
                 <th>Hành động</th>
               </tr>
@@ -207,6 +208,18 @@ const VouchersPage = () => {
                       {voucher.end_date
                         ? new Date(voucher.end_date).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })
                         : "---"}
+                    </td>
+                    <td className={styles.tableCell}>
+                      {(() => {
+                        const audience = voucher.target_audience || 'all';
+                        const audienceLabels: Record<string, string> = {
+                          'all': 'Tất cả',
+                          'new_customer': 'Khách hàng mới',
+                          'loyal_customer': 'Khách hàng thân thiết',
+                          'vip_customer': 'Khách hàng VIP'
+                        };
+                        return audienceLabels[audience] || 'Tất cả';
+                      })()}
                     </td>
                     <td className={styles.tableCell}>
                       {(() => {

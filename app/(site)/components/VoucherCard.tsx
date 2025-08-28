@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from "react";
 import { FaTicketAlt } from "react-icons/fa";
 import { IVoucher } from "../cautrucdata"; 
-import { calcStatus, VoucherStatus, checkEligibility, getEligibilityMessage } from "../utils/voucherUtils";
+import { calcStatus, VoucherStatus } from "../utils/voucherUtils";
 import Link from "next/link"; 
 
 function formatCurrency(value: number) {
@@ -23,41 +23,6 @@ const VoucherList: React.FC<Props> = ({ user_id }) => {
 
   const [vouchers, setVouchers] = useState<IVoucher[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userOrderCount, setUserOrderCount] = useState<number>(0);
-
-  const fetchUserOrderCount = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/orders/count`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setUserOrderCount(data.count || 0);
-      }
-    } catch (error) {
-      console.error("Lỗi tải số đơn hàng:", error);
-      // Fallback: try to get from orders list
-      try {
-        const ordersRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/orders`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (ordersRes.ok) {
-          const ordersData = await ordersRes.json();
-          if (Array.isArray(ordersData)) {
-            const completedOrders = ordersData.filter((order: { order_status: string }) => 
-              order.order_status === 'hoanThanh' || order.order_status === 'daGiaoHang'
-            );
-            setUserOrderCount(completedOrders.length);
-          }
-        }
-      } catch (fallbackError) {
-        console.error("Lỗi fallback tải đơn hàng:", fallbackError);
-      }
-    }
-  };
 
   useEffect(() => {
     const fetchVouchers = async () => {
@@ -94,25 +59,28 @@ const VoucherList: React.FC<Props> = ({ user_id }) => {
     };
 
     fetchVouchers();
-    fetchUserOrderCount();
   }, [user_id]);
 
   if (loading) return <p>Đang tải voucher...</p>;
-  const unusedVouchers = vouchers
-    .filter((v: IVoucher & { used?: boolean }) => !v.used && calcStatus(v) !== VoucherStatus.EXPIRED)
-    .filter((v) => checkEligibility(v, userOrderCount).eligible);
-  if (unusedVouchers.length === 0) return (
+  
+  // Lấy voucher đã lưu và chưa sử dụng (không cần kiểm tra eligibility)
+  const savedVouchers = vouchers
+    .filter((v: IVoucher & { used?: boolean }) => 
+      !v.used && calcStatus(v) !== VoucherStatus.EXPIRED
+    );
+    
+  if (savedVouchers.length === 0) return (
     <div className="text-center py-12">
       <i className="fa-solid fa-ticket text-6xl text-gray-400 mb-4"></i>
       <p className="text-gray-500 text-lg">Bạn chưa có voucher nào.</p>
     </div>
   );
+  
   return (
     <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 justify-center">
-      {unusedVouchers.map((v) => {
+      {savedVouchers.map((v: IVoucher & { used?: boolean }) => {
         const status = calcStatus(v);
-        const eligibility = checkEligibility(v, userOrderCount);
-        const eligibilityMessage = getEligibilityMessage(eligibility.reason, eligibility.reason === 'min_orders' ? 3 : undefined);
+        // Voucher đã lưu thì chắc chắn đủ điều kiện
         
         return (
         <div
@@ -140,26 +108,22 @@ const VoucherList: React.FC<Props> = ({ user_id }) => {
               </span>
             ); })()}
             
-            {!eligibility.eligible && eligibility.reason && (
-              <span className="bg-red-100 text-red-700 text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded inline-block w-fit">
-                {eligibilityMessage}
-              </span>
-            )}
+            {/* Voucher này đã được lưu */}
           </div>
           <div className="flex justify-end">
             {(() => { return (
-            <Link href={status === VoucherStatus.ACTIVE && eligibility.eligible ? "/shop" : "#"}>
+            <Link href={status === VoucherStatus.ACTIVE ? "/shop" : "#"}>
               <button
-                disabled={status !== VoucherStatus.ACTIVE || !eligibility.eligible}
+                disabled={status !== VoucherStatus.ACTIVE}
                 className={`px-2 sm:px-3 py-1 rounded font-bold text-[10px] sm:text-xs shadow transition
-                  ${status !== VoucherStatus.ACTIVE || !eligibility.eligible
+                  ${status !== VoucherStatus.ACTIVE
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-red-600 text-white hover:bg-red-700"}
                 `}
-                title={!eligibility.eligible ? eligibilityMessage : ''}
+                title={status !== VoucherStatus.ACTIVE ? 'Voucher không còn hiệu lực' : ''}
               >
                 {status === VoucherStatus.ACTIVE 
-                  ? (eligibility.eligible ? 'Sử Dụng' : 'Không đủ điều kiện')
+                  ? 'Sử Dụng'
                   : (status === VoucherStatus.UPCOMING ? 'Sắp bắt đầu' : 'Hết hạn')}
               </button>
             </Link>

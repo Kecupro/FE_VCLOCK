@@ -176,6 +176,7 @@ export default function OrderCard({ user_id }: OrderCardProps) {
           ? {
               ...o,
               order_status: "hoanTra",
+              payment_status: o.payment_status === "thanhToan" ? "choHoanTien" : o.payment_status,
               note: (o.note || "") + `\nTrả hàng: ${reason}`,
             }
           : o

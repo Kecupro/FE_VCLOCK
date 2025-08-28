@@ -276,7 +276,7 @@ const RatingPage = () => {
               onClick={() => setCurrentPage(1)}
               disabled={currentPage == 1}
               className={`${styles.paginationButton} ${
-                currentPage == 1 ? styles.paginationButtonInactive : ''
+                currentPage == 1 ? styles.paginationButton : ''
               }`}
             >
               Trang đầu
@@ -286,7 +286,7 @@ const RatingPage = () => {
               disabled={currentPage == 1}
               onClick={() => setCurrentPage(currentPage - 1)}
               className={`${styles.paginationButton} ${
-                currentPage == 1 ? styles.paginationButtonInactive : ''
+                currentPage == 1 ? styles.paginationButton : ''
               }`}
             >
               &laquo;

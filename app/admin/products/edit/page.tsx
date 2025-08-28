@@ -53,10 +53,10 @@ const EditProduct = () => {
     category.name.toLowerCase().includes(categorySearchTerm.toLowerCase())
   );
 
-  const selectedBrandName = brands.find(brand => brand._id === selectedBrand)?.name || '--- Chọn thương hiệu ---';
+  const selectedBrandName = brands.find(brand => brand._id == selectedBrand)?.name || '--- Chọn thương hiệu ---';
 
   const selectedCategoriesNames = selectedCategories.length > 0 
-    ? selectedCategories.map(id => categories.find(cat => cat._id === id)?.name).filter(Boolean).join(', ')
+    ? selectedCategories.map(id => categories.find(cat => cat._id == id)?.name).filter(Boolean).join(', ')
     : '--- Chọn danh mục ---';
 
   useEffect(() => {
@@ -97,7 +97,7 @@ const EditProduct = () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/brand`);
         const data = await res.json();
-        const activeBrands = data.filter((brand: IBrand) => brand.brand_status === 0);
+        const activeBrands = data.filter((brand: IBrand) => brand.brand_status == 0);
         setBrands(activeBrands || []);
       } catch {
         toast.error("Lỗi khi tải danh sách thương hiệu!");
@@ -208,6 +208,19 @@ const EditProduct = () => {
       return;
     }
 
+    if (selectedFile && selectedFile.size > 10 * 1024 * 1024) {
+      toast.error('Kích thước tệp ảnh chính không được vượt quá 10MB.');
+      return;
+    }
+
+    if (selectedFile) {
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(selectedFile.type)) {
+        toast.error('Chỉ cho phép file ảnh (.jpg, .jpeg, .png, .webp) cho ảnh chính!');
+        return;
+      }
+    }
+
     const formData = new FormData();
     formData.append('name', name);
     formData.append('price', parsedPrice.toString());
@@ -303,7 +316,7 @@ const EditProduct = () => {
                       className={`${styles.option} ${selectedCategories.includes(category._id) ? styles.selected : ''}`}
                       onClick={() => {
                         const newSelectedCategories = selectedCategories.includes(category._id)
-                          ? selectedCategories.filter(id => id !== category._id)
+                          ? selectedCategories.filter(id => id != category._id)
                           : [...selectedCategories, category._id];
                         setSelectedCategories(newSelectedCategories);
                       }}
@@ -318,7 +331,7 @@ const EditProduct = () => {
                     </div>
                   ))}
                   
-                  {filteredCategories.length === 0 && categorySearchTerm && (
+                  {filteredCategories.length == 0 && categorySearchTerm && (
                     <div className={styles.noResults}>
                       Không tìm thấy danh mục &quot;{categorySearchTerm}&quot;
                     </div>
@@ -368,7 +381,7 @@ const EditProduct = () => {
                   {filteredBrands.map((brand) => (
                     <div
                       key={brand._id}
-                      className={`${styles.option} ${selectedBrand === brand._id ? styles.selected : ''}`}
+                      className={`${styles.option} ${selectedBrand == brand._id ? styles.selected : ''}`}
                       onClick={() => {
                         setSelectedBrand(brand._id);
                         setShowBrandDropdown(false);
@@ -379,7 +392,7 @@ const EditProduct = () => {
                     </div>
                   ))}
                   
-                  {filteredBrands.length === 0 && brandSearchTerm && (
+                  {filteredBrands.length == 0 && brandSearchTerm && (
                     <div className={styles.noResults}>
                       Không tìm thấy thương hiệu &quot;{brandSearchTerm}&quot;
                     </div>

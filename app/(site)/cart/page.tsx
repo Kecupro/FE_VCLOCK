@@ -260,7 +260,7 @@ export default function CartPage() {
                             <button
                               onClick={() => {
                                 if (item.so_luong >= 10) {
-                                  toast.error("Số lượng tối đa cho mỗi sản phẩm là 10.");
+                                  toast.error("Số lượng vượt quá mức cho phép vui lòng liên hệ");
                                 } else {
                                   const currentStock = stockInfo[item._id]?.quantity || item.quantity;
                                   if (item.so_luong < currentStock) {

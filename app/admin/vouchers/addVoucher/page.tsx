@@ -8,12 +8,13 @@ import { ToastContainer, toast } from 'react-toastify';
 import styles from '../../assets/css/add.module.css';
 import 'react-toastify/dist/ReactToastify.css';
   const AddVoucher = () => {
-    const [discountType, setDiscountType] = useState<'percentage' | 'fixed' | ''>('');
-    const [discountValue, setDiscountValue] = useState<string>('');
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [minOrderValue, setMinOrderValue] = useState<string>('');
-    const [maxDiscount, setMaxDiscount] = useState<string>('');
+      const [discountType, setDiscountType] = useState<'percentage' | 'fixed' | ''>('');
+  const [discountValue, setDiscountValue] = useState<string>('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [minOrderValue, setMinOrderValue] = useState<string>('');
+  const [maxDiscount, setMaxDiscount] = useState<string>('');
+  const [targetAudience, setTargetAudience] = useState<string>('all');
 
 
   const voucherNameRef = useRef<HTMLInputElement>(null);
@@ -121,6 +122,7 @@ import 'react-toastify/dist/ReactToastify.css';
     end_date: endDate,
     minimum_order_value: minOrder,
     max_discount: maxDisc,
+    target_audience: targetAudience,
   };
 
   try {
@@ -231,6 +233,20 @@ import 'react-toastify/dist/ReactToastify.css';
         <div className={styles.formGroup}>
           <label className={styles.label}>Ngày kết thúc <span style={{color: "red"}}>*</span></label>
           <input type="date" className={styles.input} value={endDate} onChange={(e) => setEndDate(e.target.value)}  min={startDate || new Date().toISOString().split('T')[0]}/>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Đối tượng áp dụng <span style={{color: "red"}}>*</span></label>
+          <select
+            className={styles.select}
+            value={targetAudience}
+            onChange={(e) => setTargetAudience(e.target.value)}
+          >
+            <option value="all">Tất cả khách hàng</option>
+            <option value="new_customer">Khách hàng mới</option>
+            <option value="loyal_customer">Khách hàng thân thiết</option>
+            <option value="vip_customer">Khách hàng VIP</option>
+          </select>
         </div>
 
         <div className={styles.formActions}>

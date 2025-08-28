@@ -1,8 +1,7 @@
 "use client";
 
-
 import { useState, useRef, useEffect } from "react";
-import { Send, X } from "lucide-react";
+import { Send, X, Bot, ShoppingBag, Zap } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
@@ -16,7 +15,7 @@ const getSocket = (): Socket => {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
+      reconnectionDelay: 0,
     });
   }
   return socket;
@@ -31,9 +30,20 @@ interface Message {
 	text?: string;
 	image?: string;
 	file?: string;
-	messageType: 'text' | 'image' | 'file';
-	seenBy?: string[];
-	createdAt: string;
+	messageType: 'text' | 'image' | 'file' | 'products';
+  products?: {
+    brand: {
+      _id: string;
+      name: string;
+    };
+    main_image: { image: string; alt: string };
+    id: string;
+    name: string;
+    price: number;
+    sale_price: number;
+  }[];
+  seenBy?: string[];
+  createdAt: string;
 }
 
 export default function ChatBox() {
@@ -42,16 +52,15 @@ export default function ChatBox() {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const socketRef = useRef<Socket | null>(null);
-  const isConnectedRef = useRef(false);
 
 interface UserToken {
   userId: string;
-  name: string;
+  username: string;
   avatar?: string;
 }
 
 const defaultUserAvatar = "/images/avatar-default.png";
-const adminAvatar = "/images/avatar-default.png";
+const adminAvatar = "https://img.freepik.com/free-vector/chatbot-chat-message-vectorart_78370-4104.jpg";
 
 const [userInfo, setUserInfo] = useState<UserToken | null>(null);
 
@@ -73,7 +82,7 @@ const conversationIdRef = useRef<string>("guest-conversation");
       }
       const guestInfo = {
         userId: "guest",
-        name: guestName,
+        username: guestName,
         avatar: defaultUserAvatar,
       };
       conversationIdRef.current = "guest-conversation";
@@ -86,32 +95,23 @@ const conversationIdRef = useRef<string>("guest-conversation");
 
     const socketInstance = getSocket();
     socketRef.current = socketInstance;
-    if (!isConnectedRef.current) {
-      socketInstance.emit("joinConversation", conversationIdRef.current);
-      isConnectedRef.current = true;
-    }
+
+    // Join lại phòng mỗi khi conversationId thay đổi
+    socketInstance.emit("joinConversation", conversationIdRef.current);
 
     const handleNewMessage = (msg: Message) => {
+      console.log("Nhận được tin nhắn:", msg);
       if (msg.conversationId === conversationIdRef.current) {
-        setMessages((prev) => {
-          const alreadyExists = prev.some(m => 
-            m._id === msg._id || 
-            (m.senderId === msg.senderId && 
-             m.text === msg.text && 
-             Math.abs(new Date(m.createdAt).getTime() - new Date(msg.createdAt).getTime()) < 1000)
-          );
-          if (alreadyExists) return prev;
-          return [...prev, msg];
-        });
+        setMessages((prev) => [...prev, msg]);
       }
     };
 
-    socketInstance.on("newMessage", handleNewMessage);
+    socketInstance.on("receiveMessage", handleNewMessage);
 
     return () => {
-      socketInstance.off("newMessage", handleNewMessage);
+socketInstance.off("receiveMessage", handleNewMessage);
     };
-  }, [userInfo]);
+  }, [userInfo, conversationIdRef.current]);
 
   const fetchMessages = async () => {
     const token = localStorage.getItem("token");
@@ -142,14 +142,13 @@ const conversationIdRef = useRef<string>("guest-conversation");
     const newMessage: Message = {
       conversationId: conversationIdRef.current,
       senderId: userInfo.userId,
-      senderName: userInfo.name,
+      senderName: userInfo.username,
       senderAvatar: userInfo.avatar || defaultUserAvatar,
       text: input,
       messageType: "text",
       createdAt: new Date().toISOString(),
     };
-  
-    setMessages(prev => [...prev, newMessage]);
+    console.log("conversationId:", newMessage.conversationId);
     
     socketRef.current.emit("sendMessage", newMessage);
     setInput("");
@@ -160,118 +159,193 @@ const conversationIdRef = useRef<string>("guest-conversation");
   }, [messages]);
 
   return (
-    <div className="fixed bottom-19 right-6 z-50">
+    <div className="fixed bottom-24 right-6 z-50">
       {isOpen ? (
-        <div className="w-80 h-[400px] bg-white rounded-2xl shadow-2xl flex flex-col border border-gray-200 animate-in slide-in-from-bottom-2 duration-300">
-          <div className="bg-gradient-to-r from-black via-red-500 to-black text-white rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative overflow-hidden">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-              <svg 
-  xmlns="http://www.w3.org/2000/svg" 
-  className="text-white w-6 h-6 drop-shadow-sm" 
-  viewBox="0 0 24 24" 
-  fill="currentColor"
->
-  <path d="M12 2C6.477 2 2 6.21 2 11.4c0 2.924 1.347 5.555 3.53 7.297V22l3.236-1.78c1.04.287 2.146.44 3.234.44 5.523 0 10-4.21 10-9.4S17.523 2 12 2zm.09 12.57l-2.56-2.72-4.99 2.72 5.47-5.81 2.53 2.73 4.99-2.73-5.44 5.81z" />
-</svg>
+        <div className="w-96 h-[600px] bg-white rounded-3xl shadow-2xl flex flex-col border-0 animate-in slide-in-from-bottom-2 duration-300 overflow-hidden">
+          {/* Header với gradient đẹp */}
+          <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-red-700 text-white p-6 relative overflow-hidden">
+            {/* Background pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16 animate-pulse"></div>
+              <div className="absolute top-8 right-8 w-24 h-24 bg-white rounded-full opacity-50 animate-bounce"></div>
+              <div className="absolute bottom-4 left-8 w-16 h-16 bg-white rounded-full opacity-30 animate-ping"></div>
+            </div>
+            
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/30 animate-pulse">
+                  <Bot className="w-6 h-6 text-white" />
               </div>
               <div>
-                <span className="font-bold text-sm">Hỗ trợ trực tuyến</span>
-                <div className="flex items-center space-x-1 mt-1">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-xs opacity-90">Đang hoạt động</span>
+                  <h3 className="font-bold text-lg">Chat bot </h3>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <div className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></div>
+                    <span className="text-sm opacity-90 font-medium">Online</span>
+                  </div>
                 </div>
               </div>
-            </div>
+              
             <button 
               onClick={() => setIsOpen(false)}
-              className="w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-200 flex items-center justify-center"
-            >
-              <X className="w-3 h-3" />
+                className="w-10 h-10 rounded-2xl bg-white/20 hover:bg-white/30 transition-all duration-200 flex items-center justify-center backdrop-blur-sm border border-white/30 hover:scale-110 hover:rotate-90"
+>
+                <X className="w-5 h-5" />
             </button>
+            </div>
           </div>
 
-          <div className="flex-1 p-4 overflow-y-auto bg-gradient-to-b from-gray-50 to-white space-y-3">
+          {/* Messages area */}
+          <div className="flex-1 p-6 overflow-y-auto bg-gradient-to-b from-slate-50 to-white space-y-4">
             {messages.length === 0 && (
-              <div className="text-center mt-8">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-red-100 to-pink-100 rounded-full flex items-center justify-center">
-                <svg 
-  xmlns="http://www.w3.org/2000/svg" 
-  className="text-white w-6 h-6 drop-shadow-sm" 
-  viewBox="0 0 24 24" 
-  fill="currentColor"
->
-  <path d="M12 2C6.477 2 2 6.21 2 11.4c0 2.924 1.347 5.555 3.53 7.297V22l3.236-1.78c1.04.287 2.146.44 3.234.44 5.523 0 10-4.21 10-9.4S17.523 2 12 2zm.09 12.57l-2.56-2.72-4.99 2.72 5.47-5.81 2.53 2.73 4.99-2.73-5.44 5.81z" />
-</svg>
+              <div className="text-center mt-12">
+                <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-3xl flex items-center justify-center shadow-lg animate-bounce">
+                  <div className="relative">
+                    <Bot className="w-10 h-10 text-blue-600" />
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-ping"></div>
+                  </div>
                 </div>
-                <p className="text-gray-500 text-sm font-medium">Chào bạn!</p>
-                <p className="text-gray-400 text-xs mt-1">Chúng tôi có thể giúp gì cho bạn?</p>
+                <h4 className="text-gray-700 text-lg font-semibold mb-2 animate-fade-in">Chat bot VClock Store</h4>
+                <p className="text-gray-500 text-sm leading-relaxed max-w-xs mx-auto animate-fade-in-delay">
+                  Chào mừng bạn đến với VClock Store! Bạn có thể hỏi tôi về sản phẩm hoặc dịch vụ của chúng tôi!
+                </p>
               </div>
             )}
+            
             {messages.map((msg, index) => {
               const isCurrentUser = msg.senderId === (userInfo?.userId || "guest");
 
+              if (msg.messageType === "products" && msg.products) {
+                console.log("imgs:", msg.products.map(p => p.main_image?.image));
+                
+                return (
+                  <div key={msg._id || index} className="space-y-4 animate-slide-in">
+                    {msg.text && (
+                      <div className="text-sm font-medium text-gray-700 bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
+                        {msg.text}
+                      </div>
+                    )}
+                    
+                    <div className="grid grid-cols-1 gap-3 w-full">
+                      {msg.products.map((p) => (
+                        <div key={p.id} className="p-3 rounded-xl shadow-md bg-white border border-gray-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.01] group animate-fade-in-up">
+                          <div className="flex space-x-3">
+                            <div className="flex-shrink-0">
+                          <OptimizedImage
+                            src={
+                              p.main_image?.image
+                                ? p.main_image.image.startsWith("https://")
+                                      ? p.main_image.image
+                                      : `/images/product/${p.main_image.image}`
+                                : "/images/no-image.png"
+                            }
+                            alt={p.main_image?.alt || p.name || "Product image"}
+                                width={80}
+                                height={80}
+                                className="rounded-lg w-20 h-20 object-cover shadow-sm group-hover:shadow-md transition-shadow duration-300 group-hover:scale-105"
+                              />
+                            </div>
+                            
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center space-x-1 mb-1">
+                                <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">
+                                  {p.brand?.name || "Brand"}
+                                </span>
+                              </div>
+                              
+                              <h4 className="font-medium text-gray-800 text-xs leading-tight mb-1 line-clamp-2">
+                                {p.name}
+                              </h4>
+                              
+                              <div className="flex items-center space-x-1 mb-2">
+                                {p.sale_price && p.sale_price < p.price ? (
+                                  <>
+                                    <span className="text-red-500 font-bold text-sm">
+                                      {p.sale_price.toLocaleString()}₫
+                                    </span>
+                                    <span className="text-gray-400 text-xs line-through">
+                                      {p.price.toLocaleString()}₫
+                                    </span>
+                                  </>
+                                ) : (
+                                  <span className="text-red-500 font-bold text-sm">
+                                    {p.price.toLocaleString()}₫
+                                  </span>
+                                )}
+                              </div>
+                              
+                              <button className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg py-1.5 text-xs font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow-md flex items-center justify-center space-x-1 group-hover:shadow-lg">
+                                <ShoppingBag className="w-3 h-3 group-hover:rotate-12 transition-transform duration-200" />
+                                <span>Xem chi tiết</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+
               return (
-                <div key={msg._id || index} className={`flex items-end ${isCurrentUser ? "justify-end" : "justify-start"} gap-2`}>
+                <div key={msg._id || index} className={`flex items-end ${isCurrentUser ? "justify-end" : "justify-start"} gap-3 animate-slide-in`}>
                   
                   {!isCurrentUser && (
-                    <div 
-                      className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white shadow-sm"
-                      style={{ 
-                        minWidth: '32px',
-                        minHeight: '32px',
-                        maxWidth: '32px',
-                        maxHeight: '32px'
-                      }}
+                    <div className="flex-shrink-0">
+                      <div 
+                        className="w-10 h-10 rounded-2xl overflow-hidden ring-2 ring-white shadow-lg animate-pulse"
                     >
                       <OptimizedImage 
                         src={adminAvatar} 
                         alt="Admin" 
-                        width={32}
-                        height={32}
+                          width={40}
+                          height={40}
                         className="w-full h-full object-cover" 
                       />
+                      </div>
                     </div>
                   )}
 
                   <div
-                    className={`max-w-[75%] px-4 py-3 rounded-2xl text-sm shadow-sm ${
+                    className={`max-w-[80%] px-5 py-4 rounded-2xl text-sm shadow-lg transform transition-all duration-300 hover:scale-105 ${
                       isCurrentUser 
-                        ? "bg-gradient-to-r from-red-500 to-red-600 text-white ml-auto" 
-                        : "bg-white text-gray-800 border border-gray-100"
+                        ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white" 
+                        : "bg-white text-gray-800 border border-gray-100 hover:shadow-xl"
                     }`}
                   >
                     {msg.text && <div className="leading-relaxed">{msg.text}</div>}
+                    
                     {msg.image && (
-                      <div className="mt-2">
+                      <div className="mt-3">
                         <OptimizedImage
                           src={msg.image}
                           alt="Hình ảnh"
-                          width={200}
-                          height={150}
-                          className="rounded-lg max-w-full h-auto cursor-pointer shadow-sm"
-                          style={{ maxWidth: '200px', height: 'auto' }}
+                          width={250}
+                          height={180}
+                          className="rounded-xl max-w-full h-auto cursor-pointer shadow-md hover:shadow-lg transition-shadow duration-200 hover:scale-105"
+                          style={{ maxWidth: '250px', height: 'auto' }}
                         />
                       </div>
                     )}
+                    
                     {msg.file && (
-                      <div className="mt-2">
+                      <div className="mt-3">
                         <a 
                           href={msg.file} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className={`inline-flex items-center space-x-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+                          className={`inline-flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-105 ${
                             isCurrentUser 
                               ? 'bg-white/20 text-white hover:bg-white/30' 
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           }`}
                         >
                           <span>📎</span>
-                          <span>Tải file</span>
+                          <span>Download File</span>
                         </a>
                       </div>
                     )}
-                    <div className={`text-[10px] mt-2 text-right ${
+                    
+                    <div className={`text-xs mt-3 text-right ${
                       isCurrentUser ? 'text-white/70' : 'text-gray-400'
                     }`}>
                       {new Date(msg.createdAt).toLocaleTimeString("vi-VN", {
@@ -282,22 +356,18 @@ const conversationIdRef = useRef<string>("guest-conversation");
                   </div>
 
                   {isCurrentUser && (
-                    <div 
-                      className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white shadow-sm"
-                      style={{ 
-                        minWidth: '32px',
-                        minHeight: '32px',
-                        maxWidth: '32px',
-                        maxHeight: '32px'
-                      }}
+                    <div className="flex-shrink-0">
+                      <div 
+                        className="w-10 h-10 rounded-2xl overflow-hidden ring-2 ring-white shadow-lg animate-pulse"
                     >
                       <OptimizedImage 
                         src={msg.senderAvatar || defaultUserAvatar} 
                         alt="User" 
-                        width={32}
-                        height={32}
+                          width={40}
+                          height={40}
                         className="w-full h-full object-cover" 
                       />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -307,7 +377,8 @@ const conversationIdRef = useRef<string>("guest-conversation");
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="p-4 border-t border-gray-100 bg-white rounded-b-2xl">
+          {/* Input area */}
+          <div className="p-6 border-t border-gray-100 bg-white">
             <div className="flex items-center gap-3">
               <input
                 type="text"
@@ -315,45 +386,52 @@ const conversationIdRef = useRef<string>("guest-conversation");
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                className="flex-1 border border-gray-200 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100 transition-all duration-200 placeholder-gray-400"
+                className="flex-1 border-2 border-gray-200 rounded-2xl px-5 py-3 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 placeholder-gray-400 font-medium hover:border-gray-300"
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim()}
-                className="bg-gradient-to-r from-red-500 to-red-600 p-2.5 rounded-full text-white hover:from-red-600 hover:to-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
+                className="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-2xl text-white hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:hover:scale-100 hover:rotate-3"
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-5 h-5" />
               </button>
             </div>
           </div>
         </div>
       ) : (
         <div className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping opacity-30 scale-150"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping opacity-20 scale-125 delay-75"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping opacity-15 scale-110 delay-150"></div>
+          {/* Animated background rings */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full animate-ping opacity-30 scale-150"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full animate-ping opacity-20 scale-125 delay-75"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full animate-ping opacity-15 scale-110 delay-150"></div>
+          
+          {/* Floating elements */}
+          <div className="absolute -top-2 -left-2 w-4 h-4 bg-yellow-400 rounded-full animate-bounce"></div>
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-pink-400 rounded-full animate-ping"></div>
+          <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+          
+          {/* Main button */}
           <button
             onClick={() => setIsOpen(true)}
-            className="relative bg-gradient-to-r from-red-500 via-red-600 to-pink-500 p-4 rounded-full shadow-2xl hover:shadow-red-500/25 hover:scale-110 transition-all duration-300 transform group-hover:rotate-12"
+            className="relative bg-gradient-to-br from-blue-500 via-indigo-600 to-red-700 p-5 rounded-full shadow-2xl hover:shadow-blue-500/25 hover:scale-110 transition-all duration-300 transform group-hover:rotate-12 hover:rotate-0"
             style={{
-              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #ec4899 100%)',
-              boxShadow: '0 10px 25px -5px rgba(239, 68, 68, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1)'
+              background: 'linear-gradient(135deg, #3b82f6 0%, #4f46e5 50%, #7c3aed 100%)',
+              boxShadow: '0 20px 40px -10px rgba(59, 130, 246, 0.4), 0 10px 20px -5px rgba(0, 0, 0, 0.1)'
             }}
           >
             <div className="relative">
-              <svg 
-  xmlns="http://www.w3.org/2000/svg" 
-  className="text-white w-6 h-6 drop-shadow-sm" 
-  viewBox="0 0 24 24" 
-  fill="currentColor"
->
-  <path d="M12 2C6.477 2 2 6.21 2 11.4c0 2.924 1.347 5.555 3.53 7.297V22l3.236-1.78c1.04.287 2.146.44 3.234.44 5.523 0 10-4.21 10-9.4S17.523 2 12 2zm.09 12.57l-2.56-2.72-4.99 2.72 5.47-5.81 2.53 2.73 4.99-2.73-5.44 5.81z" />
-</svg>
+              <Bot className="w-7 h-7 text-white drop-shadow-sm group-hover:scale-110 transition-transform duration-200" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-400 rounded-full animate-pulse"></div>
             </div>
           </button>
-          <div className="absolute bottom-full right-0 mb-3 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
-            Chat với chúng tôi
-            <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+          
+          {/* Tooltip */}
+          <div className="absolute bottom-full right-0 mb-4 px-4 py-2 bg-gray-900 text-white text-sm rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap transform translate-y-2 group-hover:translate-y-0">
+            <div className="flex items-center space-x-2">
+              <Zap className="w-4 h-4 text-yellow-400 animate-pulse" />
+              <span>Chat với chúng tôi</span>
+            </div>
+            <div className="absolute top-full right-5 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
           </div>
         </div>
       )}

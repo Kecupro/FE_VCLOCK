@@ -1,7 +1,5 @@
 "use client";
 
-
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, User, Info, ShoppingCart } from "lucide-react";
@@ -45,7 +43,15 @@ const OrderDetailPage = () => {
         }
       } else if (modalAction == 'nextStatus') {
         const next = getNextStatus(selectedOrder.order_status);
-        if (next) await updateOrderStatus(selectedOrder._id, next);
+        if (next) {
+          await updateOrderStatus(selectedOrder._id, next);
+          
+          // Xử lý đặc biệt cho COD khi trả hàng
+          const isCODOrder = selectedOrder.payment_method_id?.name === 'Thanh toán khi nhận hàng (COD)';
+          if (next === 'hoanTra' && isCODOrder && selectedOrder.payment_status === 'thanhToan') {
+            await updatePaymentStatus(selectedOrder._id, 'choHoanTien');
+          }
+        }
       }
     
       setModalVisible(false);
@@ -73,17 +79,20 @@ const OrderDetailPage = () => {
   const lockedStatuses = ['daGiaoHang', 'hoanTra', 'hoanThanh', 'daHuy'];
   const isLocked = lockedStatuses.includes(order?.order_status ?? '');
   const isBankTransfer = order?.payment_method_id?.name == 'Chuyển khoản Ngân hàng';
-  const canRefund =
-    isBankTransfer &&
-    order.order_status == 'hoanTra' &&
-    order.payment_status == 'choHoanTien';
   const isCOD = order?.payment_method_id?.name == 'Thanh toán khi nhận hàng (COD)';
+  const canRefund =
+    (isBankTransfer &&
+    order.order_status == 'hoanTra' &&
+    order.payment_status == 'choHoanTien') ||
+    (order?.order_status == 'daHuy' && 
+    order.payment_status == 'choHoanTien') ||
+    (isCOD &&
+    order.order_status == 'hoanTra' &&
+    order.payment_status == 'choHoanTien');
   const canMarkPaid =
     isCOD &&
     order.order_status == 'daGiaoHang' &&
-    order.payment_status == 'chuaThanhToan' ||
-    order?.order_status == 'daHuy' && 
-    order.payment_status == 'choHoanTien';
+    order.payment_status == 'chuaThanhToan';
   const getStatusLabel = (status?: string) => {
       switch (status) {
         case 'choXuLy':
@@ -162,6 +171,7 @@ const OrderDetailPage = () => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/order/chitiet/${id}`);
       const data = await res.json();
+      console.log(`Đơn hàng chi tiết`, data);
       setDetails(data);
     } catch {
       toast.error('Lỗi khi tải chi tiết đơn hàng');
@@ -219,7 +229,7 @@ const OrderDetailPage = () => {
   }, [fetchOrder, fetchOrderDetails]);
 
   const formatCurrency = (num: number | undefined | null) => {
-    if (num === undefined || num === null) return '0₫';
+    if (num == undefined || num == null) return '0₫';
     return num.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
   };
 
@@ -370,11 +380,11 @@ const OrderDetailPage = () => {
                                 {product_id?.main_image ? (
                                   <Image
                                     src={getProductImageUrl(
-                                      typeof product_id.main_image === 'string' ? 
+                                      typeof product_id.main_image == 'string' ? 
                                         product_id.main_image : 
                                         product_id.main_image.image
                                     )}
-                                    alt={typeof product_id.main_image === 'string' ? 
+                                    alt={typeof product_id.main_image == 'string' ? 
                                       'Ảnh sản phẩm' : 
                                       (product_id.main_image.alt || 'Ảnh sản phẩm')
                                     }

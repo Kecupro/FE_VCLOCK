@@ -28,6 +28,7 @@ const VoucherBoxList = () => {
   const swiperRef = useRef<SwiperType | null>(null);
   const [now, setNow] = useState<Date>(new Date());
   const [userOrderCount, setUserOrderCount] = useState<number>(0);
+  const [userCreatedAt, setUserCreatedAt] = useState<string | null>(null);
   const { openAuthModal } = useAuth();
 
   useEffect(() => {
@@ -42,6 +43,12 @@ const VoucherBoxList = () => {
     if (!token || !userId) return;
 
     try {
+      // Lấy thông tin user để biết ngày tạo
+      const user = userRaw ? JSON.parse(userRaw) : null;
+      if (user) {
+        setUserCreatedAt(user.createdAt || user.created_at || null);
+      }
+
       const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
         params: { user_id: userId },
       });
@@ -87,10 +94,10 @@ const VoucherBoxList = () => {
           id: v._id, 
           used: !!v.used 
         }));
-        setSavedVoucherStates(arr);
-      } else {
-        setSavedVoucherStates([]);
-      }
+              setSavedVoucherStates(arr);
+    } else {
+      setSavedVoucherStates([]);
+    }
     } catch (error) {
       console.error("Lỗi làm mới trạng thái voucher:", error);
       setSavedVoucherStates([]);
@@ -99,22 +106,79 @@ const VoucherBoxList = () => {
 
   useEffect(() => {
     const fetchVouchers = async () => {
-      try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher`);
-        const allVouchers = (res.data as { list: IVoucher[] }).list || [];
+              try {
+          const token = localStorage.getItem("token");
         
-        // Lọc bỏ các voucher đã hết hạn
-        const activeVouchers = allVouchers.filter(voucher => calcStatus(voucher, now) !== VoucherStatus.EXPIRED);
+                if (token) {
+          try {
+            // Sử dụng API mới để lấy tất cả voucher phù hợp với target_audience của user
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/voucher-user/available`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            const userVouchers = (res.data as IVoucher[]) || [];
+            
+            // Lọc bỏ các voucher đã hết hạn
+            const activeVouchers = userVouchers.filter(voucher => calcStatus(voucher, now) !== VoucherStatus.EXPIRED);
+            
+            // Sắp xếp: voucher chưa lưu trước, đã lưu sau
+            const sortedVouchers = activeVouchers.sort((a, b) => {
+              const aSaved = savedVoucherStates.find(s => s.id === a._id);
+              const bSaved = savedVoucherStates.find(s => s.id === b._id);
+              
+              // Nếu a chưa lưu và b đã lưu -> a trước
+              if (!aSaved && bSaved) return -1;
+              // Nếu a đã lưu và b chưa lưu -> b trước  
+              if (aSaved && !bSaved) return 1;
+              // Cả hai cùng trạng thái -> giữ nguyên thứ tự
+              return 0;
+            });
+            
+            setVouchers(sortedVouchers);
+            return; // Thoát nếu thành công
+          } catch (userError) {
+            console.warn("⚠️ Không thể fetch user vouchers, fallback to public:", userError);
+            // Fallback to public vouchers nếu user API fail
+          }
+        }
         
-        setVouchers(activeVouchers);
-      } catch {
+                // Fallback: Lấy voucher public cho tất cả
+        try {
+          const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher`);
+          const allVouchers = (res.data as { list: IVoucher[] }).list || [];
+          
+          // Chỉ lấy voucher dành cho tất cả và chưa hết hạn
+          const publicVouchers = allVouchers.filter(voucher => 
+            (voucher.target_audience === 'all' || !voucher.target_audience) && 
+            calcStatus(voucher, now) !== VoucherStatus.EXPIRED
+          );
+            
+            // Sắp xếp: voucher chưa lưu trước, đã lưu sau
+            const sortedPublicVouchers = publicVouchers.sort((a, b) => {
+              const aSaved = savedVoucherStates.find(s => s.id === a._id);
+              const bSaved = savedVoucherStates.find(s => s.id === b._id);
+              
+              // Nếu a chưa lưu và b đã lưu -> a trước
+              if (!aSaved && bSaved) return -1;
+              // Nếu a đã lưu và b chưa lưu -> b trước  
+              if (aSaved && !bSaved) return 1;
+              // Cả hai cùng trạng thái -> giữ nguyên thứ tự
+              return 0;
+            });
+            
+            setVouchers(sortedPublicVouchers);
+        } catch (publicError) {
+          console.error("❌ Không thể fetch public vouchers:", publicError);
+          setVouchers([]);
+        }
+      } catch (error) {
+        console.error("❌ Lỗi fetch voucher:", error);
         setVouchers([]);
       } finally {
         setLoading(false);
       }
     };
     fetchVouchers();
-  }, [now]);
+  }, [userOrderCount, userCreatedAt, savedVoucherStates]); // Chỉ chạy khi cần thiết
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -124,6 +188,66 @@ const VoucherBoxList = () => {
     }
   }, []);
 
+  // Thêm function để refresh voucher list
+  const refreshVoucherList = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/voucher-user/available`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const userVouchers = (res.data as IVoucher[]) || [];
+        const activeVouchers = userVouchers.filter(voucher => 
+          checkEligibility(voucher, userOrderCount, now, userCreatedAt || undefined).eligible
+        );
+        
+        // Sắp xếp: voucher chưa lưu trước, đã lưu sau
+        const sortedVouchers = activeVouchers.sort((a, b) => {
+          const aSaved = savedVoucherStates.find(s => s.id === a._id);
+          const bSaved = savedVoucherStates.find(s => s.id === b._id);
+          
+          // Nếu a chưa lưu và b đã lưu -> a trước
+          if (!aSaved && bSaved) return -1;
+          // Nếu a đã lưu và b chưa lưu -> b trước  
+          if (aSaved && !bSaved) return 1;
+          // Cả hai cùng trạng thái -> giữ nguyên thứ tự
+          return 0;
+        });
+        
+        setVouchers(sortedVouchers);
+      } catch (error) {
+        console.error("Lỗi refresh voucher list:", error);
+      }
+    } else {
+      // Khi đăng xuất, chỉ hiển thị voucher public
+      try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher`);
+        const allVouchers = (res.data as { list: IVoucher[] }).list || [];
+        const publicVouchers = allVouchers.filter(voucher => 
+          (voucher.target_audience === 'all' || !voucher.target_audience) && 
+          calcStatus(voucher, now) !== VoucherStatus.EXPIRED
+        );
+        setVouchers(publicVouchers);
+      } catch (error) {
+        console.error("Lỗi refresh public voucher list:", error);
+      }
+    }
+  };
+
+  // Refresh voucher list khi token thay đổi (đăng nhập/đăng xuất)
+  useEffect(() => {
+    // Kiểm tra token mỗi 1 giây để detect thay đổi
+    const intervalId = setInterval(() => {
+      const currentToken = localStorage.getItem("token");
+      if (currentToken !== localStorage.getItem("lastToken")) {
+        localStorage.setItem("lastToken", currentToken || "");
+        refreshVoucherList();
+      }
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []); // Bỏ dependency [now] để tránh vòng lặp vô hạn
+
   const handleSaveVoucher = async (voucherId: string) => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -131,6 +255,8 @@ const VoucherBoxList = () => {
       return;
     }
 
+          // Bỏ debug logs
+    
     setSavingVoucher(voucherId);
     try {
       const response = await axios.post(
@@ -144,7 +270,12 @@ const VoucherBoxList = () => {
       );
       toast.success((response.data as { message: string }).message);
       
-      setSavedVoucherStates((prev) => [...prev, { id: voucherId, used: false }]);
+      const newSavedState = { id: voucherId, used: false };
+      
+      setSavedVoucherStates((prev) => {
+        const newState = [...prev, newSavedState];
+        return newState;
+      });
       
       setTimeout(() => {
         refreshVoucherStates();
@@ -215,25 +346,65 @@ const VoucherBoxList = () => {
         >
           {vouchers
             .slice()
-            .sort((a, b) => calcStatus(a, now) - calcStatus(b, now))
-            .filter((v) => checkEligibility(v, userOrderCount, now).eligible)
+            .sort((a, b) => {
+              // Sắp xếp theo thứ tự: trạng thái -> đã lưu/đã sử dụng -> thời gian
+              const statusA = calcStatus(a, now);
+              const statusB = calcStatus(b, now);
+              
+              // Nếu trạng thái khác nhau, ưu tiên trạng thái
+              if (statusA !== statusB) {
+                return statusA - statusB;
+              }
+              
+              // Nếu cùng trạng thái, ưu tiên voucher chưa lưu trước
+              const aSaved = savedVoucherStates.find(s => s.id === a._id);
+              const bSaved = savedVoucherStates.find(s => s.id === b._id);
+              const aIsSaved = !!aSaved;
+              const bIsSaved = !!bSaved;
+              
+              if (aIsSaved !== bIsSaved) {
+                return aIsSaved ? 1 : -1; // Chưa lưu trước, đã lưu sau
+              }
+              
+              // Nếu cùng trạng thái lưu, giữ nguyên thứ tự
+              return 0;
+            })
+            .filter((v) => {
+              const savedState = savedVoucherStates.find(s => s.id === v._id);
+              const isUsed = savedState?.used;
+              // Chỉ hiển thị voucher chưa sử dụng và đủ điều kiện
+              return !isUsed && checkEligibility(v, userOrderCount, now, userCreatedAt || undefined).eligible;
+            })
             .map((v) => {
             const savedState = savedVoucherStates.find(s => s.id === v._id);
             const isSaved = !!savedState;
             const isUsed = savedState?.used;
             const status = calcStatus(v, now);
-            const eligibility = checkEligibility(v, userOrderCount, now);
-            const eligibilityMessage = getEligibilityMessage(eligibility.reason, eligibility.reason === 'min_orders' ? 3 : undefined);
+            const eligibility = checkEligibility(v, userOrderCount, now, userCreatedAt || undefined);
+            const eligibilityMessage = getEligibilityMessage(eligibility.reason, eligibility.customerType);
             
             return (
               <SwiperSlide key={v._id}>
-                <div className="relative flex w-full h-[120px] bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div className={`relative flex w-full h-[120px] rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 ${
+                  isUsed 
+                    ? 'bg-gray-100 opacity-75' 
+                    : isSaved 
+                    ? 'bg-gray-50' 
+                    : 'bg-white'
+                }`}>
                   <div className="flex flex-col items-center justify-center bg-gradient-to-br from-red-600 to-red-700 text-white px-3 py-2 w-[120px] rounded-l-lg relative z-20">
                     <FaTicketAlt size={24} color="#fff" />
                     <span className="font-bold text-xs text-center leading-tight line-clamp-2 mt-1">{v.voucher_name}</span>
                     <span className="bg-white text-[10px] font-semibold px-2 py-1 rounded text-gray-800 mt-1">{v.voucher_code}</span>
                     <span className="text-[9px] mt-1 text-center">HSD: {formatDate(v.end_date)}</span>
                   </div>
+                  
+                  {/* Badge trạng thái - chỉ hiển thị khi đã sử dụng */}
+                  {isUsed && (
+                    <div className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold text-white z-30 bg-gray-600">
+                      Đã sử dụng
+                    </div>
+                  )}
                   
                   <div className="flex-1 min-w-0 flex flex-col justify-between pl-4 px-3 py-2 bg-white">
                     <div className="space-y-1 overflow-hidden">
@@ -265,14 +436,18 @@ const VoucherBoxList = () => {
                         (status !== VoucherStatus.ACTIVE || !eligibility.eligible
                           ? 'bg-gray-400 text-white'
                           : isUsed
-                          ? 'bg-gray-600 text-white'
+                          ? 'bg-gray-500 text-white cursor-not-allowed'
                           : isSaved
-                          ? 'bg-black text-white'
+                          ? 'bg-gray-500 text-white cursor-not-allowed'
                           : 'bg-red-600 hover:bg-red-700 text-white')
                       }
-                      onClick={() => handleSaveVoucher(v._id)}
+                      onClick={() => !isSaved && !isUsed ? handleSaveVoucher(v._id) : undefined}
                       disabled={status !== VoucherStatus.ACTIVE || !eligibility.eligible || savingVoucher === v._id || isSaved || isUsed}
-                      title={!eligibility.eligible ? eligibilityMessage : ''}
+                      title={
+                        isUsed ? 'Voucher đã được sử dụng' :
+                        isSaved ? 'Voucher đã được lưu' :
+                        !eligibility.eligible ? eligibilityMessage : ''
+                      }
                     >
                       {status === VoucherStatus.EXPIRED
                         ? "Hết hạn"
@@ -286,7 +461,7 @@ const VoucherBoxList = () => {
                         ? "Đã lưu"
                         : savingVoucher === v._id
                         ? "Đang lưu..."
-                        : "Lưu"}
+                        : "Lưu voucher"}
                     </button>
                   </div>
                 </div>

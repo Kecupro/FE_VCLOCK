@@ -17,6 +17,7 @@ const EditVoucher = () => {
   const [maxDiscount, setMaxDiscount] = useState<number>(0);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [targetAudience, setTargetAudience] = useState<string>('all');
 
   const searchParams = useSearchParams();
   const { isDarkMode } = useAppContext();
@@ -44,6 +45,7 @@ const EditVoucher = () => {
         setMaxDiscount(v.max_discount || '');
         setStartDate(v.start_date?.slice(0, 10));
         setEndDate(v.end_date?.slice(0, 10));
+        setTargetAudience(v.target_audience || 'all');
       } catch {
         toast.error('Lỗi khi tải dữ liệu voucher!');
       }
@@ -88,6 +90,7 @@ const EditVoucher = () => {
       max_discount: Number(maxDiscount) || 0,
       start_date: startDate,
       end_date: endDate,
+      target_audience: targetAudience,
       status,
     };
 
@@ -164,6 +167,20 @@ const EditVoucher = () => {
         <div className={styles.formGroup}>
           <label className={styles.label}>Ngày kết thúc <span style={{color: "red"}}>*</span></label>
           <input type="date" className={styles.input} value={endDate} onChange={(e) => setEndDate(e.target.value)} min={startDate || new Date().toISOString().split('T')[0]}/>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Đối tượng áp dụng <span style={{color: "red"}}>*</span></label>
+          <select
+            className={styles.select}
+            value={targetAudience}
+            onChange={(e) => setTargetAudience(e.target.value)}
+          >
+            <option value="all">Tất cả khách hàng</option>
+            <option value="new_customer">Khách hàng mới</option>
+            <option value="loyal_customer">Khách hàng thân thiết</option>
+            <option value="vip_customer">Khách hàng VIP</option>
+          </select>
         </div>
 
         <div className={styles.formActions}>

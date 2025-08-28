@@ -720,7 +720,7 @@ const UsersPage = () => {
                     onClick={() => setCurrentPage(1)}
                     disabled={currentPage == 1}
                     className={`${styles.paginationButton} ${
-                      currentPage == 1 ? styles.paginationButtonInactive : ""
+                      currentPage == 1 ? styles.paginationButton : ""
                     }`}
                   >
                     Trang đầu
@@ -728,7 +728,7 @@ const UsersPage = () => {
 
                   <button
                     className={`${styles.paginationButton} ${
-                      currentPage == 1 ? styles.paginationButtonInactive : ""
+                      currentPage == 1 ? styles.paginationButton : ""
                     }`}
                     onClick={() => setCurrentPage(currentPage - 1)}
                     disabled={currentPage == 1}
