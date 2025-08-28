@@ -86,7 +86,7 @@ const EditProduct = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryProduct`);
+        const res = await fetch(`http://localhost:3000/api/admin/categoryProduct`);
         const data = await res.json();
         setCategories(data.list || []);
       } catch {
@@ -95,7 +95,7 @@ const EditProduct = () => {
     };
     const fetchBrands = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/brand`);
+        const res = await fetch(`http://localhost:3000/api/brand`);
         const data = await res.json();
         const activeBrands = data.filter((brand: IBrand) => brand.brand_status === 0);
         setBrands(activeBrands || []);
@@ -115,7 +115,7 @@ const EditProduct = () => {
   const fetchProduct = async () => {
     try {
       const res = await fetch(`
-        ${process.env.NEXT_PUBLIC_API_URL}/api/admin/product/${productId}`);
+        http://localhost:3000/api/admin/product/${productId}`);
       const data = await res.json();
       const p = data;
 
@@ -234,7 +234,7 @@ const EditProduct = () => {
     subImages.forEach((file) => formData.append(`sub_images`, file));
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product/sua/${productId}`, {
+      const res = await fetch(`http://localhost:3000/api/admin/product/sua/${productId}`, {
         method: 'PUT',
         body: formData
       }); 

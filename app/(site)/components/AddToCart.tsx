@@ -93,9 +93,12 @@ export default function AddToCart({ sp, disabled, variant = "icon", size = "defa
     >
       <div className="flex items-center justify-center">
         {variant === "text" ? (
-          <span className={`text-sm font-medium ${isOutOfStock ? 'opacity-50' : ''}`}>
-            Thêm vào giỏ hàng
-          </span>
+          <div className="flex items-center gap-2">
+            <i className={`fa-solid fa-cart-plus text-sm ${isOutOfStock ? 'opacity-50' : ''}`}></i>
+            <span className={`text-sm font-medium ${isOutOfStock ? 'opacity-50' : ''}`}>
+              Thêm vào giỏ hàng
+            </span>
+          </div>
         ) : (
           <i className={`fa-solid fa-cart-plus text-base ${isOutOfStock ? 'opacity-50' : ''}`}></i>
         )}

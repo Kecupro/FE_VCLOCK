@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "../context/AuthContext";
-import AuthModal from "./AuthModal";
 import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
 import TypewriterPlaceholder from "./TypewriterPlaceholder";
@@ -81,7 +80,7 @@ const MobileBottomSheet = ({ isOpen, onClose, onNotificationsChange }: {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('${process.env.NEXT_PUBLIC_API_URL}/api/notifications', {
+      const response = await fetch('http://localhost:3000/api/notifications', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -100,7 +99,7 @@ const MobileBottomSheet = ({ isOpen, onClose, onNotificationsChange }: {
   const markAsRead = async (notificationId: string) => {
     try {
       const token = localStorage.getItem('token');
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/${notificationId}/read`, {
+      await fetch(`http://localhost:3000/api/notifications/${notificationId}/read`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -115,7 +114,7 @@ const MobileBottomSheet = ({ isOpen, onClose, onNotificationsChange }: {
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem('token');
-      await fetch('${process.env.NEXT_PUBLIC_API_URL}/api/notifications/mark-all-read', {
+      await fetch('http://localhost:3000/api/notifications/mark-all-read', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -261,8 +260,7 @@ function AvatarImage({ avatar, alt, size = 32, className = "" }: { avatar?: stri
 }
 
 const Header = () => {
-  const { user, setUser, refreshUser, logout } = useAuth();
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const { user, setUser, logout, openAuthModal, refreshUser } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([]);
@@ -362,7 +360,7 @@ const Header = () => {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/search/suggestions?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`http://localhost:3000/api/search/suggestions?q=${encodeURIComponent(query)}`);
       const data = await response.json();
       setSearchSuggestions(data.suggestions || []);
     } catch (error) {
@@ -545,7 +543,7 @@ const Header = () => {
               <span
                 className="text-gray-200 hover:text-gray-50 cursor-pointer"
                 onClick={() => {
-                  setShowAuthModal(true);
+                  openAuthModal();
                 }}
               >
                 Đăng ký / Đăng nhập
@@ -743,7 +741,7 @@ const Header = () => {
                 <button
                   onClick={() => {
                     setSidebarOpen(false);
-                    setShowAuthModal(true);
+                    openAuthModal();
                   }}
                   className="w-full text-left p-2 hover:bg-gray-100 rounded font-semibold text-gray-700"
                 >
@@ -946,10 +944,7 @@ const Header = () => {
 
       </nav>
 
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
-      />
+
       
       {mobileToast && (
         <MobileToast

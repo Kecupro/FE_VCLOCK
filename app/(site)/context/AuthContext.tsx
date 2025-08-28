@@ -7,6 +7,10 @@ import { clearAuthData } from "../../utils/authUtils";
 interface AuthContextType {
   user: IUser | null;
   setUser: (user: IUser | null) => void;
+  isAuthenticated: boolean;
+  showAuthModal: boolean;
+  openAuthModal: () => void;
+  closeAuthModal: () => void;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -16,7 +20,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const router = useRouter();
+  
+  const openAuthModal = () => setShowAuthModal(true);
+  const closeAuthModal = () => setShowAuthModal(false);
   
   const refreshUser = async () => {
     if (isLoggingOut) {
@@ -26,7 +34,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = localStorage.getItem("token");
     
     if (token) {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/profile`, {
+      const res = await fetch(`http://localhost:3000/user/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -72,14 +80,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout, refreshUser }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      setUser, 
+      isAuthenticated: !!user,
+      showAuthModal,
+      openAuthModal,
+      closeAuthModal,
+      logout, 
+      refreshUser 
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 };
+

@@ -35,7 +35,7 @@ const EditNews = () => {
   useEffect(() => {
     const fetchCateNews = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryNews`);
+        const res = await fetch(`http://localhost:3000/api/admin/categoryNews`);
         const data = await res.json();
         setCategoriesNews(data.list || []);
       } catch {
@@ -61,7 +61,7 @@ const EditNews = () => {
 
     const fetchData = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/${id}`);
+        const res = await fetch(`http://localhost:3000/api/admin/news/${id}`);
         const data = await res.json();
         const news = data.news;
 
@@ -159,7 +159,7 @@ const EditNews = () => {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/sua/${id}`, {
+      const res = await fetch(`http://localhost:3000/api/admin/news/sua/${id}`, {
         method: 'PUT',
         body,
       });

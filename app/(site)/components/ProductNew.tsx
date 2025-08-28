@@ -32,7 +32,7 @@ export default function ProductNew() {
         setLoading(true);
         setError(null);
         
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sp_moi`)
+        fetch(`http://localhost:3000/api/sp_moi`)
             .then((res) => {
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
@@ -66,7 +66,7 @@ export default function ProductNew() {
             const token = localStorage.getItem("token");
             if (token) {
                 try {
-                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
+                    const res = await fetch(`http://localhost:3000/user/wishlist`, {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
@@ -182,7 +182,7 @@ export default function ProductNew() {
 
                         return (
                             <SwiperSlide key={sp._id || idx}>
-                                <div className="relative flex flex-col bg-white rounded shadow hover:shadow-lg transition p-4 group h-full">
+                                <div className="relative flex flex-col bg-white rounded shadow hover:shadow-lg transition p-4 group h-[400px] w-full">
                                     <Link href={`/product/${slug}`} className="flex-shrink-0 flex items-center justify-center h-48 mb-3 overflow-hidden relative">
                                         <OptimizedImage
                                             src={getProductImageUrl(

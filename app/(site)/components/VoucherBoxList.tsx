@@ -10,6 +10,7 @@ import 'swiper/css';
 import { IVoucher } from "../cautrucdata";
 import { calcStatus, VoucherStatus, checkEligibility, getEligibilityMessage } from "../utils/voucherUtils";
 import type { Swiper as SwiperType } from 'swiper';
+import { useAuth } from "../context/AuthContext";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
@@ -27,6 +28,7 @@ const VoucherBoxList = () => {
   const swiperRef = useRef<SwiperType | null>(null);
   const [now, setNow] = useState<Date>(new Date());
   const [userOrderCount, setUserOrderCount] = useState<number>(0);
+  const { openAuthModal } = useAuth();
 
   useEffect(() => {
     const intervalId = setInterval(() => setNow(new Date()), 1000);
@@ -40,7 +42,7 @@ const VoucherBoxList = () => {
     if (!token || !userId) return;
 
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
+      const res = await axios.get(`http://localhost:3000/api/orders`, {
         params: { user_id: userId },
       });
       if (res.status === 200 && Array.isArray(res.data)) {
@@ -76,7 +78,7 @@ const VoucherBoxList = () => {
     }
     
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/voucher-user`, {
+      const res = await axios.get(`http://localhost:3000/voucher-user`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -98,7 +100,7 @@ const VoucherBoxList = () => {
   useEffect(() => {
     const fetchVouchers = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher`);
+        const res = await axios.get(`http://localhost:3000/api/admin/voucher`);
         const allVouchers = (res.data as { list: IVoucher[] }).list || [];
         
         // Lọc bỏ các voucher đã hết hạn
@@ -125,14 +127,14 @@ const VoucherBoxList = () => {
   const handleSaveVoucher = async (voucherId: string) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Vui lòng đăng nhập để lưu voucher!");
+      openAuthModal();
       return;
     }
 
     setSavingVoucher(voucherId);
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/voucher-user/save`,
+        `http://localhost:3000/api/voucher-user/save`,
         { voucher_id: voucherId },
         {
           headers: {

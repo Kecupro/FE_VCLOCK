@@ -12,7 +12,7 @@ import { useAppContext } from "../../context/AppContext"
 import Image from "next/image";
 import { getAvatarImageUrl } from "@/app/utils/imageUtils";
 
-const socket = io("${process.env.NEXT_PUBLIC_API_URL}");
+const socket = io("http://localhost:3000");
 
 interface Message {
   _id?: string;
@@ -68,7 +68,7 @@ export default function AdminChat() {
   const adminAvatar = "/images/avatar-default.png";
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/conversations`)
+    fetch(`http://localhost:3000/api/conversations`)
       .then(res => res.json())
       .then(data => {
         setConversations(data);
@@ -94,7 +94,7 @@ export default function AdminChat() {
   }, [activeConversation]);
 
   const loadMessages = (conversationId: string) => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/messages/${conversationId}`)
+    fetch(`http://localhost:3000/api/messages/${conversationId}`)
       .then(res => res.json())
       .then(data => {
         setMessages(data);
@@ -200,7 +200,7 @@ export default function AdminChat() {
     if (!window.confirm("Bạn có chắc chắn muốn xoá cuộc hội thoại này?")) return;
   
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/conversations/${conversationId}`, {
+      const res = await fetch(`http://localhost:3000/api/conversations/${conversationId}`, {
         method: "DELETE",
       });
   

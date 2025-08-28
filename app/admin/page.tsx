@@ -39,19 +39,19 @@ export default function AdminDashboardPage() {
   useEffect(() => {
   const fetchData = async () => { 
     try {
-      const totalResUsers = await axios.get<OrderApiResponse>(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/user`, {});
+      const totalResUsers = await axios.get<OrderApiResponse>(`http://localhost:3000/api/admin/user`, {});
       setTotalUsers(totalResUsers.data.total || 0);
 
-      const totalResOrders = await axios.get<OrderApiResponse>(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/order`, {});
+      const totalResOrders = await axios.get<OrderApiResponse>(`http://localhost:3000/api/admin/order`, {});
       setTotalOrders(totalResOrders.data.totalCount || 0);
 
-      const totalResNews = await axios.get<OrderApiResponse>(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news`, {});
+      const totalResNews = await axios.get<OrderApiResponse>(`http://localhost:3000/api/admin/news`, {});
       setTotalNews(totalResNews.data.total || 0);
 
-      const totalResProducts = await axios.get<OrderApiResponse>(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product`, {});
+      const totalResProducts = await axios.get<OrderApiResponse>(`http://localhost:3000/api/admin/product`, {});
       setTotalProducts(totalResProducts.data.total || 0);
 
-      const productsRes = await axios.get<ProductApiResponse>(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product`, {
+      const productsRes = await axios.get<ProductApiResponse>(`http://localhost:3000/api/admin/product`, {
         params: { page: 1, limit: 1000 }
       });
       const products: IProduct[] = productsRes.data.list || [];
@@ -80,16 +80,16 @@ export default function AdminDashboardPage() {
       }));
       setInventoryProducts(top3Recent);
 
-      const totalResCatePro = await axios.get<OrderApiResponse>(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryProduct`, {});
+      const totalResCatePro = await axios.get<OrderApiResponse>(`http://localhost:3000/api/admin/categoryProduct`, {});
       setTotalCatePro(totalResCatePro.data.total || 0);
 
-      const totalResCateNews = await axios.get<OrderApiResponse>(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryNews`, {});
+      const totalResCateNews = await axios.get<OrderApiResponse>(`http://localhost:3000/api/admin/categoryNews`, {});
       setTotalCateNews(totalResCateNews.data.total || 0);
 
-      const totalResBrands = await axios.get<OrderApiResponse>(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand`, {});
+      const totalResBrands = await axios.get<OrderApiResponse>(`http://localhost:3000/api/admin/brand`, {});
       setTotalBrands(totalResBrands.data.total || 0);
 
-      const totalResVouchers = await axios.get<OrderApiResponse>(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher`, {});
+      const totalResVouchers = await axios.get<OrderApiResponse>(`http://localhost:3000/api/admin/voucher`, {});
       setTotalVouchers(totalResVouchers.data.total || 0);
     } catch (err) {
       console.error('Lỗi khi fetch dữ liệu dashboard:', err);
@@ -102,7 +102,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
   const fetchOrders = async () => {
     try {
-      const allRes = await axios.get<OrderApiResponse>(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/order`, {
+      const allRes = await axios.get<OrderApiResponse>(`http://localhost:3000/api/admin/order`, {
         params: { page: 1, limit: 1000, sort: 'newest' }
       });
 
@@ -149,6 +149,9 @@ export default function AdminDashboardPage() {
     return date.getMonth() == selectedMonth && date.getFullYear() == selectedYear;
   });
   setTotalOrdersInSelectedMonth(filtered.length);
+  
+  // Reset currentPage về 1 khi thay đổi tháng hoặc năm
+  setCurrentPage(1);
   }, [selectedMonth, orders, selectedYear]);
 
   const chartData = monthlyRevenue;
@@ -164,24 +167,34 @@ export default function AdminDashboardPage() {
   return date.getMonth() == selectedMonth && date.getFullYear() == selectedYear;
   });
 
-
   const ordersPerPage = 3;
   const [currentPage, setCurrentPage] = useState(1);
   
-  const totalPages = Math.ceil(filteredOrdersByMonth.length / ordersPerPage);
-  const indexOfLastOrder = currentPage * ordersPerPage;
+  const totalPages = Math.max(1, Math.ceil(filteredOrdersByMonth.length / ordersPerPage));
+  
+  // Đảm bảo currentPage không vượt quá totalPages
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  
+  // Reset currentPage nếu nó vượt quá totalPages
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
+  
+  const indexOfLastOrder = safeCurrentPage * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
   const displayRecentOrders = filteredOrdersByMonth.slice(indexOfFirstOrder, indexOfLastOrder);
   
   const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+    if (safeCurrentPage > 1) {
+      setCurrentPage(safeCurrentPage - 1);
     }
   };
   
   const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+    if (safeCurrentPage < totalPages) {
+      setCurrentPage(safeCurrentPage + 1);
     }
   };
   const statusMap: Record<string, string> = {
@@ -444,14 +457,14 @@ export default function AdminDashboardPage() {
                 </div>
               ))}
               <div className="mt-3 d-flex justify-content-between align-items-center">
-                  <span>Trang {currentPage} trong {totalPages}</span>
+                  <span>Trang {safeCurrentPage} trong {totalPages}</span>
                   <div>
                       <Button
                           variant="outline-secondary"
                           size="sm"
                           className="me-2"
                           onClick={handlePrevPage}
-                          disabled={currentPage == 1}
+                          disabled={safeCurrentPage == 1}
                       >
                           Trước
                       </Button>
@@ -459,7 +472,7 @@ export default function AdminDashboardPage() {
                           variant="outline-secondary"
                           size="sm"
                           onClick={handleNextPage}
-                          disabled={currentPage == totalPages}
+                          disabled={safeCurrentPage == totalPages}
                       >
                           Sau
                       </Button>

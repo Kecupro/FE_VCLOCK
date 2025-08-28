@@ -67,6 +67,7 @@ html.dark-mode .searchInput::placeholder {
 }
 
 .conversationsList {
+  max-width: 300px;
   flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;

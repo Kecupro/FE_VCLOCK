@@ -58,7 +58,7 @@ const BrandPage = () => {
         });
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand?${params}`
+          `http://localhost:3000/api/admin/brand?${params}`
         );
         const data = await res.json();
         setBrands(data.list);
@@ -90,7 +90,7 @@ const BrandPage = () => {
       });
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand?${params}`
+        `http://localhost:3000/api/admin/brand?${params}`
       );
       const data = await res.json();
       setBrands(data.list);
@@ -133,7 +133,7 @@ const BrandPage = () => {
 
     try {
       const deleteResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand/xoa/${brandToDelete._id}`,
+        `http://localhost:3000/api/admin/brand/xoa/${brandToDelete._id}`,
         {
           method: "DELETE",
           headers: {
@@ -336,7 +336,7 @@ const BrandPage = () => {
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
               className={`${styles.paginationButton} ${
-                currentPage === 1 ? styles.paginationButtonInactive : ''
+                currentPage === 1 ? styles.paginationButton : ''
               }`}
             >
               Trang đầu

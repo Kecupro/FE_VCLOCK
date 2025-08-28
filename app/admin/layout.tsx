@@ -52,7 +52,7 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
 
     if (value.length >= 2) {
       try {
-        const res = await axios.get<SearchResult[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/search?q=${value}`);
+        const res = await axios.get<SearchResult[]>(`http://localhost:3000/api/admin/search?q=${value}`);
         setSearchResults(res.data);
       } catch (err) {
         console.error('Lỗi tìm kiếm:', err);
@@ -384,9 +384,11 @@ function LayoutWithSidebarAndHeader({ children }: { children: React.ReactNode })
                 <Nav.Link as={Link} href="/admin/users" className="mt-1 submenu-item">
                   Danh sách người dùng
                 </Nav.Link>
-                <Nav.Link as={Link} href="/admin/users/addUser" className="submenu-item">
-                  Thêm người dùng
-                </Nav.Link>
+                {user && Number(user.role) === 2 && (
+                  <Nav.Link as={Link} href="/admin/users/addUser" className="submenu-item">
+                    Thêm quản trị viên
+                  </Nav.Link>
+                )}
               </div>
             </div>
             <div className="sidebar-item-with-dropdown">

@@ -107,7 +107,7 @@ export default function ProductDetail() {
     
     try {
       hasIncrementedView.current = true;
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/product/${id}/increment-view`);
+      const response = await axios.post(`http://localhost:3000/api/product/${id}/increment-view`);
       
       const responseData = response.data as { success?: boolean; message?: string; views?: number };
       
@@ -127,7 +127,7 @@ export default function ProductDetail() {
   useEffect(() => {
     if (!id) return;
   
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/stats/${id}`)
+    fetch(`http://localhost:3000/api/reviews/stats/${id}`)
       .then(res => res.json())
       .then(data => setStats(data))
               .catch(err => console.error("Lỗi tải thống kê:", err));
@@ -139,7 +139,7 @@ export default function ProductDetail() {
       if (!token || !id) return;
 
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
+        const response = await fetch(`http://localhost:3000/user/wishlist`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -164,7 +164,7 @@ export default function ProductDetail() {
 
     async function fetchProduct() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product/${id}`);
+        const res = await fetch(`http://localhost:3000/api/product/${id}`);
         if (!res.ok) throw new Error("Lấy sản phẩm thất bại");
         const data = await res.json(); 
 

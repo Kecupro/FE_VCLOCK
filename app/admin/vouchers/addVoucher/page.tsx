@@ -7,13 +7,13 @@ import { useRouter } from 'next/navigation';
 import { ToastContainer, toast } from 'react-toastify';
 import styles from '../../assets/css/add.module.css';
 import 'react-toastify/dist/ReactToastify.css';
-const AddVoucher = () => {
-  const [discountType, setDiscountType] = useState<'percentage' | 'fixed' | ''>('');
-  const [discountValue, setDiscountValue] = useState<number | ''>('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [minOrderValue, setMinOrderValue] = useState<number | ''>('');
-  const [maxDiscount, setMaxDiscount] = useState<number | ''>('');
+  const AddVoucher = () => {
+    const [discountType, setDiscountType] = useState<'percentage' | 'fixed' | ''>('');
+    const [discountValue, setDiscountValue] = useState<string>('');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [minOrderValue, setMinOrderValue] = useState<string>('');
+    const [maxDiscount, setMaxDiscount] = useState<string>('');
 
 
   const voucherNameRef = useRef<HTMLInputElement>(null);
@@ -28,34 +28,80 @@ const AddVoucher = () => {
     else html.classList.remove(styles['dark-mode']);
   }, [isDarkMode]);
 
+  // Reset discountValue khi thay đổi discountType để tránh xung đột
+  useEffect(() => {
+    if (discountType === 'percentage' && discountValue !== '' && Number(discountValue) > 50) {
+      setDiscountValue('');
+      toast.warning('Giá trị giảm giá đã vượt quá 50% cho loại giảm theo phần trăm.');
+    }
+  }, [discountType, discountValue]);
+
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
 
   const voucher_name = voucherNameRef.current?.value.trim();
   const voucher_code = voucherCodeRef.current?.value.trim();
 
+  // Kiểm tra các trường bắt buộc trước
+  if (!voucher_name) {
+    toast.error('Vui lòng nhập tên mã khuyến mãi.');
+    return;
+  }
+
+  if (!voucher_code) {
+    toast.error('Vui lòng nhập mã khuyến mãi.');
+    return;
+  }
+
+  if (!discountType) {
+    toast.error('Vui lòng chọn loại giảm giá.');
+    return;
+  }
+
+  if (discountValue === '') {
+    toast.error('Vui lòng nhập giá trị giảm giá.');
+    return;
+  }
+
+  if (!startDate) {
+    toast.error('Vui lòng chọn ngày bắt đầu.');
+    return;
+  }
+
+  if (!endDate) {
+    toast.error('Vui lòng chọn ngày kết thúc.');
+    return;
+  }
+
+  if (maxDiscount === '') {
+    toast.error('Vui lòng nhập giá trị giảm tối đa.');
+    return;
+  }
+
+  // Kiểm tra giá trị số
   const discount = Number(discountValue);
-  const minOrder = Number(minOrderValue);
-  const maxDisc = maxDiscount === '' ? 0 : Number(maxDiscount);
+  const minOrder = minOrderValue === '' ? 0 : Number(minOrderValue);
+  const maxDisc = Number(maxDiscount);
 
-  if (isNaN(discount) || discount < 0) {
-    toast.error('Giá trị giảm giá không được âm.');
+  if (isNaN(discount) || discount <= 0) {
+    toast.error('Giá trị giảm giá phải là số dương.');
     return;
   }
 
-  if (isNaN(minOrder) || minOrder < 0) {
-    toast.error('Giá trị đơn hàng tối thiểu không được âm.');
+  if (minOrderValue !== '' && (isNaN(minOrder) || minOrder < 0)) {
+    toast.error('Giá trị đơn hàng tối thiểu phải là số dương.');
     return;
   }
 
-  if (!isNaN(maxDisc) && maxDisc < 0) {
-    toast.error('Giá trị giảm tối đa không được âm.');
+  if (isNaN(maxDisc) || maxDisc <= 0) {
+    toast.error('Giá trị giảm tối đa phải là số dương.');
     return;
   }
 
-  if (!voucher_name || !voucher_code || !discountType || discountValue === '' || !startDate || !endDate) {
-  toast.error('Vui lòng điền đầy đủ thông tin bắt buộc.');
-  return;
+  // Validation cho giảm theo % tối đa 50%
+  if (discountType === 'percentage' && discount > 50) {
+    toast.error('Giảm giá theo phần trăm tối đa chỉ được 50%.');
+    return;
   }
 
   const start = new Date(startDate);
@@ -70,15 +116,15 @@ const AddVoucher = () => {
     voucher_name,
     voucher_code,
     discount_type: discountType,
-    discount_value: Number(discountValue),
+    discount_value: discount,
     start_date: startDate,
     end_date: endDate,
-    minimum_order_value: Number(minOrderValue) || 0,
-    max_discount: Number(maxDiscount) || 0,
+    minimum_order_value: minOrder,
+    max_discount: maxDisc,
   };
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/voucher/them`, {
+    const res = await fetch(`http://localhost:3000/api/admin/voucher/them`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -135,16 +181,23 @@ const AddVoucher = () => {
           <input
             type="number"
             value={discountValue}
-            onChange={(e) => setDiscountValue(Number(e.target.value))}
+            onChange={(e) => setDiscountValue(e.target.value)}
             className={styles.input}
+            max={discountType === 'percentage' ? 50 : undefined}
+            min={0}
             placeholder={
               discountType == 'percentage'
-                ? 'Nhập phần trăm giảm (VD: 10%)'
+                ? 'Nhập phần trăm giảm (tối đa 50%)'
                 : discountType == 'fixed'
                 ? 'Nhập số tiền giảm (VD: 500.000đ)'
                 : 'Chọn loại giảm giá trước'
             }
           />
+          {discountType === 'percentage' && discountValue !== '' && Number(discountValue) > 50 && (
+            <small style={{ fontSize: '12px', color: '#ff4757', display: 'block', marginTop: '5px' }}>
+              ⚠️ Giá trị giảm không được vượt quá 50%
+            </small>
+          )}
         </div>
 
         <div className={styles.formGroup}>
@@ -152,20 +205,21 @@ const AddVoucher = () => {
           <input
             type="number"
             value={minOrderValue}
-            onChange={(e) => setMinOrderValue(Number(e.target.value))}
+            onChange={(e) => setMinOrderValue(e.target.value)}
             className={styles.input}
             placeholder="Nhập giá trị tối thiểu (VD: 200.000đ)"
           />
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Giá trị giảm tối đa (đ)</label>
+          <label className={styles.label}>Giá trị giảm tối đa (đ) <span style={{color: "red"}}>*</span></label>
           <input
             type="number"
             value={maxDiscount}
-            onChange={(e) => setMaxDiscount(Number(e.target.value))}
+            onChange={(e) => setMaxDiscount(e.target.value)}
             className={styles.input}
             placeholder="Nhập giảm tối đa (VD: 100.000đ)"
+            required
           />
         </div>
 
@@ -191,7 +245,9 @@ const AddVoucher = () => {
               <li>Các trường có dấu <strong style={{ color: "red" }}>*</strong> là bắt buộc phải nhập.</li>
               <li>Trường <em>Tên mã khuyến mãi</em> và <em>Mã khuyến mãi</em> là bắt buộc và phải duy nhất.</li>
               <li>Phải chọn <strong>Loại giảm giá</strong> trước khi nhập <em>Giá trị giảm</em>.</li>
-              <li>Các trường <em>Giá trị đơn hàng tối thiểu</em> và <em>Giá trị giảm tối đa</em> chỉ chấp nhận số dương (đ).</li>
+              <li><strong>Giá trị giảm tối đa</strong> là bắt buộc và phải lớn hơn 0.</li>
+              <li>Khi chọn giảm theo phần trăm (%), <strong>giá trị giảm tối đa chỉ được 50%</strong>.</li>
+              <li>Trường <em>Giá trị đơn hàng tối thiểu</em> chỉ chấp nhận số dương (đ).</li>
               <li><strong>Ngày kết thúc</strong> phải lớn hơn hoặc bằng <strong>ngày bắt đầu</strong>.</li>
             </ul>
           </div>

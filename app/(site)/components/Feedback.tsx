@@ -42,7 +42,7 @@ export default function Feedback() {
         setLoading(true);
         setError(null);
         
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/top-rated?limit=6`);
+        const response = await fetch(`http://localhost:3000/api/products/top-rated?limit=6`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

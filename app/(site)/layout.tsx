@@ -16,6 +16,7 @@ import ChatBox from "./components/chatbox";
 import ScrollToTop from "./components/ScrollToTop";
 import { CartProvider } from "./components/CartContext";
 import { WishlistProvider } from "./components/WishlistContext";
+import AuthModalWrapper from "./components/AuthModalWrapper";
 
 
 const montserrat = Montserrat({
@@ -72,6 +73,7 @@ export default function RootLayout({
           <ChatBox />
           <ScrollToTop />
           <Footer />
+          <AuthModalWrapper />
           <ToastContainer
             position="top-right"
             autoClose={3000}

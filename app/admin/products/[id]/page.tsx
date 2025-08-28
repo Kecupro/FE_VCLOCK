@@ -34,7 +34,7 @@ const ProductDetailPage: React.FC = () => {
       try {
         setLoading(true);
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product/${productId}`);
+        const res = await fetch(`http://localhost:3000/api/admin/product/${productId}`);
         const data = await res.json();
 
         const prod: IProduct = data.product || data;
@@ -72,7 +72,7 @@ const ProductDetailPage: React.FC = () => {
     if (!product) return;
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product/xoa/${product._id}`, {
+      const res = await fetch(`http://localhost:3000/api/admin/product/xoa/${product._id}`, {
         method: 'DELETE',
       });
 

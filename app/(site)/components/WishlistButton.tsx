@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useWishlist } from "./WishlistContext";
+import { useAuth } from "../context/AuthContext";
 
 interface WishlistButtonProps {
     productId: string;
@@ -12,6 +13,7 @@ export default function WishlistButton({ productId, initialIsWishlisted, variant
     const [isWishlisted, setIsWishlisted] = useState(initialIsWishlisted);
     const [isLoading, setIsLoading] = useState(false);
     const { addToWishlist, removeFromWishlist, getWishlistStatus } = useWishlist();
+    const { openAuthModal } = useAuth();
 
     useEffect(() => {
         setIsWishlisted(initialIsWishlisted);
@@ -33,7 +35,7 @@ export default function WishlistButton({ productId, initialIsWishlisted, variant
     const handleWishlist = async () => {
         const token = localStorage.getItem("token");
         if (!token) {
-            toast.error("Vui lòng đăng nhập để thêm vào yêu thích!");
+            openAuthModal();
             return;
         }
 

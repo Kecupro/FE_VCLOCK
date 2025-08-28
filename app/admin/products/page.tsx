@@ -45,7 +45,7 @@ const ProductsPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categoryProduct`);
+        const res = await fetch(`http://localhost:3000/api/admin/categoryProduct`);
         const data = await res.json();
         setCategories(data.list || []);
       } catch {
@@ -58,7 +58,7 @@ const ProductsPage = () => {
   useEffect(() => {
     const fetchBrands = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/brand`);
+        const res = await fetch(`http://localhost:3000/api/admin/brand`);
         const data = await res.json();
         setBrands(data.list || []);
       } catch {
@@ -80,7 +80,7 @@ const ProductsPage = () => {
           categoryFilter,
           sort: sortOption
         });
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product?${params}`);
+        const res = await fetch(`http://localhost:3000/api/admin/product?${params}`);
         const data = await res.json();
         setProducts(data.list || []);
         setTotal(data.total || 0);
@@ -108,7 +108,7 @@ const ProductsPage = () => {
   const confirmDelete = async () => {
     if (!deletingId) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/product/xoa/${deletingId}`, { method: "DELETE" });
+      const res = await fetch(`http://localhost:3000/api/admin/product/xoa/${deletingId}`, { method: "DELETE" });
       const data = await res.json();
       if (res.ok) {
         toast.success("Xóa thành công!");

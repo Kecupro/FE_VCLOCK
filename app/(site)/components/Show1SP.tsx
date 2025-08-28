@@ -25,7 +25,7 @@ export default function Show1SP(props: { sp: IProduct }) {
             const token = localStorage.getItem("token");
             if (token) {
                 try {
-                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/wishlist`, {
+                    const res = await fetch(`http://localhost:3000/user/wishlist`, {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
@@ -56,7 +56,7 @@ export default function Show1SP(props: { sp: IProduct }) {
         }, [user]); 
 
     return (
-        <div className="relative flex flex-col bg-white rounded shadow hover:shadow-lg transition p-4 group h-full">
+        <div className="relative flex flex-col bg-white rounded shadow hover:shadow-lg transition p-4 group h-[400px] w-full">
                                 <Link href={`/product/${sp._id}`} className="flex-shrink-0 flex items-center justify-center h-48 mb-3 overflow-hidden relative">
                                     <OptimizedImage
                                         src={getProductImageUrl(

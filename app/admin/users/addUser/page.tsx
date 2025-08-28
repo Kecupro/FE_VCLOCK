@@ -51,7 +51,7 @@ const AddUser = () => {
           return;
         }
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/check-role`, {
+        const response = await fetch(`http://localhost:3000/check-role`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -197,7 +197,7 @@ const AddUser = () => {
         fullName: formData.fullName.trim(),
       };
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/user/add`, {
+      const response = await fetch(`http://localhost:3000/api/admin/user/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -247,7 +247,7 @@ const AddUser = () => {
     router.push("/admin/users");
   };
 
-  const canCreateAdmin = currentUser && Number(currentUser.role) >= 1;
+  const canCreateAdmin = currentUser && Number(currentUser.role) == 2;
 
   if (fetchLoading) {
     return (
@@ -265,7 +265,7 @@ const AddUser = () => {
         <div className={styles.header}>
           <h1 className={styles.title}>Không có quyền truy cập</h1>
           <p style={{ color: "#666", margin: "10px 0" }}>
-            Chỉ quản trị viên cấp cao mới có thể tạo tài khoản quản trị viên.
+            Chỉ quản trị viên cấp cao (role 2) mới có thể thêm người dùng mới.
           </p>
           <button className={styles.returnButton} onClick={handleReturn}>
             Quay lại
@@ -279,7 +279,7 @@ const AddUser = () => {
     <main className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>
-          {currentUser && Number(currentUser.role) == 2 ? "Tạo quản trị viên mới" : "Thêm người dùng mới"}
+          Tạo quản trị viên mới
         </h1>
         <button className={styles.returnButton} onClick={handleReturn}>
           Quay lại
@@ -296,9 +296,7 @@ const AddUser = () => {
             
           >
             <option value="">--- Chọn vai trò ---</option>
-            {currentUser && Number(currentUser.role) == 2 && (
-              <option value="moderator">Quản trị viên</option>
-            )}
+            <option value="moderator">Quản trị viên</option>
             <option value="user">Người dùng</option>
           </select>
         </div>
@@ -377,14 +375,8 @@ const AddUser = () => {
           <div className={styles.infoBox}>
             <h4 className={styles.infoTitle}>📋 Thông tin quan trọng:</h4>
             <ul className={styles.infoList}>
-              {currentUser && Number(currentUser.role) == 2 ? (
-                <>
-                  <li>Chỉ có thể tạo tài khoản quản trị viên, không thể tạo quản trị viên cấp cao</li>
-                  <li>Tài khoản mặc định sẽ bị khóa, cần kích hoạt thủ công</li>
-                </>
-              ) : (
-                <li>Chỉ có thể tạo tài khoản người dùng thường</li>
-              )}
+              <li>Chỉ có thể tạo tài khoản quản trị viên, không thể tạo quản trị viên cấp cao</li>
+              <li>Tài khoản mặc định sẽ bị khóa, cần kích hoạt thủ công</li>
               <li>Username và email phải duy nhất trong hệ thống</li>
               <li>Tên đầy đủ là bắt buộc</li>
               <li>Mật khẩu phải có ít nhất 6 kí tự</li>

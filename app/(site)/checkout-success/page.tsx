@@ -23,7 +23,7 @@ function CheckoutSuccessContent() {
       if (orderCode) {
         try {
           const token = localStorage.getItem("token");
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment-success`, {
+          const response = await fetch(`http://localhost:3000/api/payment-success`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
