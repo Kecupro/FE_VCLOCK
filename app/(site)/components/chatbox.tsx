@@ -50,6 +50,7 @@ export default function ChatBox() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [mounted, setMounted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const socketRef = useRef<Socket | null>(null);
 
@@ -66,18 +67,42 @@ const [userInfo, setUserInfo] = useState<UserToken | null>(null);
 
 const conversationIdRef = useRef<string>("guest-conversation");
 
+  // Đảm bảo component chỉ render trên client
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     const token = localStorage.getItem("token");
 
     if (token) {
-      const decoded: UserToken = jwtDecode(token);
-      const cid = `user-${decoded.userId}`;
-      conversationIdRef.current = cid;
-      setUserInfo(decoded);
+      try {
+        const decoded: UserToken = jwtDecode(token);
+        const cid = `user-${decoded.userId}`;
+        conversationIdRef.current = cid;
+        setUserInfo(decoded);
+      } catch (error) {
+        console.error("Lỗi decode token:", error);
+        // Fallback to guest
+        let guestName = localStorage.getItem("guestName");
+        if (!guestName) {
+          guestName = "Khách_" + Date.now().toString().slice(-4);
+          localStorage.setItem("guestName", guestName);
+        }
+        const guestInfo = {
+          userId: "guest",
+          username: guestName,
+          avatar: defaultUserAvatar,
+        };
+        conversationIdRef.current = "guest-conversation";
+        setUserInfo(guestInfo);
+      }
     } else {
       let guestName = localStorage.getItem("guestName");
       if (!guestName) {
-        guestName = "Khách_" + Math.floor(Math.random() * 10000);
+        guestName = "Khách_" + Date.now().toString().slice(-4);
         localStorage.setItem("guestName", guestName);
       }
       const guestInfo = {
@@ -88,10 +113,10 @@ const conversationIdRef = useRef<string>("guest-conversation");
       conversationIdRef.current = "guest-conversation";
       setUserInfo(guestInfo);
     }
-  }, []);
+  }, [mounted]);
 
   useEffect(() => {
-    if (!userInfo) return;
+    if (!userInfo || !mounted) return;
 
     const socketInstance = getSocket();
     socketRef.current = socketInstance;
@@ -111,7 +136,7 @@ const conversationIdRef = useRef<string>("guest-conversation");
     return () => {
 socketInstance.off("receiveMessage", handleNewMessage);
     };
-  }, [userInfo, conversationIdRef.current]);
+  }, [userInfo, conversationIdRef.current, mounted]);
 
   const fetchMessages = async () => {
     const token = localStorage.getItem("token");
@@ -131,10 +156,10 @@ socketInstance.off("receiveMessage", handleNewMessage);
   };
 
   useEffect(() => {
-    if (isOpen && userInfo) {
+    if (isOpen && userInfo && mounted) {
       fetchMessages();
     }
-  }, [isOpen, userInfo]);
+  }, [isOpen, userInfo, mounted]);
 
   const handleSend = () => {
     if (!input.trim() || !userInfo || !socketRef.current) return;
@@ -158,12 +183,17 @@ socketInstance.off("receiveMessage", handleNewMessage);
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Không render gì cho đến khi component được mount trên client
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <div className="fixed bottom-24 right-6 z-50">
       {isOpen ? (
         <div className="w-96 h-[600px] bg-white rounded-3xl shadow-2xl flex flex-col border-0 animate-in slide-in-from-bottom-2 duration-300 overflow-hidden">
-          {/* Header với gradient đẹp */}
-          <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-red-700 text-white p-6 relative overflow-hidden">
+          {/* Header với gradient đỏ */}
+          <div className="bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white p-6 relative overflow-hidden">
             {/* Background pattern */}
             <div className="absolute inset-0 opacity-10">
               <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16 animate-pulse"></div>
@@ -195,12 +225,12 @@ socketInstance.off("receiveMessage", handleNewMessage);
           </div>
 
           {/* Messages area */}
-          <div className="flex-1 p-6 overflow-y-auto bg-gradient-to-b from-slate-50 to-white space-y-4">
+          <div className="flex-1 p-6 overflow-y-auto bg-gradient-to-b from-red-50 to-white space-y-4">
             {messages.length === 0 && (
               <div className="text-center mt-12">
-                <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-3xl flex items-center justify-center shadow-lg animate-bounce">
+                <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-red-100 to-red-200 rounded-3xl flex items-center justify-center shadow-lg animate-bounce">
                   <div className="relative">
-                    <Bot className="w-10 h-10 text-blue-600" />
+                    <Bot className="w-10 h-10 text-red-600" />
                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-ping"></div>
                   </div>
                 </div>
@@ -247,7 +277,7 @@ socketInstance.off("receiveMessage", handleNewMessage);
                             
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center space-x-1 mb-1">
-                                <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">
+                                <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full font-medium">
                                   {p.brand?.name || "Brand"}
                                 </span>
                               </div>
@@ -273,7 +303,7 @@ socketInstance.off("receiveMessage", handleNewMessage);
                                 )}
                               </div>
                               
-                              <button className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg py-1.5 text-xs font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow-md flex items-center justify-center space-x-1 group-hover:shadow-lg">
+                              <button className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg py-1.5 text-xs font-medium hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow-md flex items-center justify-center space-x-1 group-hover:shadow-lg">
                                 <ShoppingBag className="w-3 h-3 group-hover:rotate-12 transition-transform duration-200" />
                                 <span>Xem chi tiết</span>
                               </button>
@@ -308,7 +338,7 @@ socketInstance.off("receiveMessage", handleNewMessage);
                   <div
                     className={`max-w-[80%] px-5 py-4 rounded-2xl text-sm shadow-lg transform transition-all duration-300 hover:scale-105 ${
                       isCurrentUser 
-                        ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white" 
+                        ? "bg-gradient-to-br from-red-500 to-red-600 text-white" 
                         : "bg-white text-gray-800 border border-gray-100 hover:shadow-xl"
                     }`}
                   >
@@ -348,7 +378,7 @@ socketInstance.off("receiveMessage", handleNewMessage);
                     <div className={`text-xs mt-3 text-right ${
                       isCurrentUser ? 'text-white/70' : 'text-gray-400'
                     }`}>
-                      {new Date(msg.createdAt).toLocaleTimeString("vi-VN", {
+                      {new Date(msg.createdAt).toLocaleTimeString("en-US", {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
@@ -386,12 +416,12 @@ socketInstance.off("receiveMessage", handleNewMessage);
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                className="flex-1 border-2 border-gray-200 rounded-2xl px-5 py-3 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 placeholder-gray-400 font-medium hover:border-gray-300"
+                className="flex-1 border-2 border-gray-200 rounded-2xl px-5 py-3 text-sm focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all duration-200 placeholder-gray-400 font-medium hover:border-gray-300"
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim()}
-                className="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-2xl text-white hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:hover:scale-100 hover:rotate-3"
+                className="bg-gradient-to-br from-red-500 to-red-600 p-3 rounded-2xl text-white hover:from-red-600 hover:to-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:hover:scale-100 hover:rotate-3"
               >
                 <Send className="w-5 h-5" />
               </button>
@@ -401,9 +431,9 @@ socketInstance.off("receiveMessage", handleNewMessage);
       ) : (
         <div className="relative group">
           {/* Animated background rings */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full animate-ping opacity-30 scale-150"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full animate-ping opacity-20 scale-125 delay-75"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full animate-ping opacity-15 scale-110 delay-150"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600 rounded-full animate-ping opacity-30 scale-150"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600 rounded-full animate-ping opacity-20 scale-125 delay-75"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600 rounded-full animate-ping opacity-15 scale-110 delay-150"></div>
           
           {/* Floating elements */}
           <div className="absolute -top-2 -left-2 w-4 h-4 bg-yellow-400 rounded-full animate-bounce"></div>
@@ -413,10 +443,10 @@ socketInstance.off("receiveMessage", handleNewMessage);
           {/* Main button */}
           <button
             onClick={() => setIsOpen(true)}
-            className="relative bg-gradient-to-br from-blue-500 via-indigo-600 to-red-700 p-5 rounded-full shadow-2xl hover:shadow-blue-500/25 hover:scale-110 transition-all duration-300 transform group-hover:rotate-12 hover:rotate-0"
+            className="relative bg-gradient-to-br from-red-500 via-red-600 to-red-700 p-5 rounded-full shadow-2xl hover:shadow-red-500/25 hover:scale-110 transition-all duration-300 transform group-hover:rotate-12 hover:rotate-0"
             style={{
-              background: 'linear-gradient(135deg, #3b82f6 0%, #4f46e5 50%, #7c3aed 100%)',
-              boxShadow: '0 20px 40px -10px rgba(59, 130, 246, 0.4), 0 10px 20px -5px rgba(0, 0, 0, 0.1)'
+              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%)',
+              boxShadow: '0 20px 40px -10px rgba(239, 68, 68, 0.4), 0 10px 20px -5px rgba(0, 0, 0, 0.1)'
             }}
           >
             <div className="relative">

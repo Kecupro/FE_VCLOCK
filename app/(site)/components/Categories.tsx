@@ -55,7 +55,7 @@ export default function Categories() {
 					THƯƠNG HIỆU SẢN PHẨM
 				</h3>
 				<div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
-				<div className="max-w-6xl mx-auto flex justify-center items-center h-32">
+				<div className="max-w-[1137px] mx-auto flex justify-center items-center h-32">
 					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
 				</div>
 			</div>
@@ -69,7 +69,7 @@ export default function Categories() {
 					THƯƠNG HIỆU SẢN PHẨM
 				</h3>
 				<div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
-				<div className="max-w-6xl mx-auto text-center text-red-600">
+				<div className="max-w-[1137px] mx-auto text-center text-red-600">
 					Không thể tải danh sách thương hiệu
 				</div>
 			</div>
@@ -83,7 +83,7 @@ export default function Categories() {
 					THƯƠNG HIỆU SẢN PHẨM
 				</h3>
 				<div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
-				<div className="max-w-6xl mx-auto text-center text-gray-500">
+				<div className="max-w-[1137px] mx-auto text-center text-gray-500">
 					Không có thương hiệu nào
 				</div>
 			</div>
@@ -109,7 +109,7 @@ export default function Categories() {
 			</h3>
 			<div className="mx-auto mb-10 w-32 h-1 bg-gradient-to-r from-red-600 to-red-800 rounded-full shadow-lg"></div>
 			<div 
-                className="max-w-6xl mx-auto px-4"
+                className="max-w-[1137px] mx-auto px-4"
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
             >

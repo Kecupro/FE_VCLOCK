@@ -21,9 +21,9 @@ const features = [
 export default function ServiceFeatures() {
     return (
         <div className="w-full bg-white py-8 mt-10">
-            <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="max-w-[1084px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                 {features.map((f, idx) => (
-                    <div key={idx} className="w-full md:w-1/3 h-full flex flex-col items-center text-center px-6 py-4 shadow rounded bg-gray-50 hover:bg-gray-100 transition">
+                    <div key={idx} className="w-full md:w-1/3 h-45 flex flex-col items-center text-center px-6 py-4 shadow rounded bg-gray-50 hover:bg-gray-100 transition">
                         <OptimizedImage 
                             src={f.icon} 
                             alt={f.title} 

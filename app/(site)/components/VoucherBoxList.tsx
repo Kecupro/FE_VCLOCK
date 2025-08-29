@@ -306,7 +306,7 @@ const VoucherBoxList = () => {
   if (!vouchers.length) return null;
 
   return (
-    <div className="w-full bg-gray-50 py-8">
+    <div className="w-full bg-gray-50 py-12">
         <h3 className="text-center font-bold text-2xl mb-4 text-gray-800">
           VOUCHER KHUYẾN MÃI
         </h3>

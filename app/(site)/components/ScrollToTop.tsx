@@ -36,7 +36,7 @@ export default function ScrollToTop() {
         >
           <div className="relative">
             <ArrowUp className="w-6 h-6 text-white drop-shadow-sm group-hover:animate-bounce transition-all duration-200" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-400 rounded-full animate-pulse"></div>
+            {/* <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-400 rounded-full animate-pulse"></div> */}
           </div>
         </button>
       )}
