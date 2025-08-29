@@ -74,16 +74,36 @@ const EditPaymentMethod = () => {
   }, [id]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0] || null;
-      if (file) {
-        setSelectedFile({
-          name: file.name,
-          url: URL.createObjectURL(file),
-          file: file,
-        });
-        setActiveTab('preview');
-      }
-    };
+  const file = e.target.files?.[0] || null;
+
+  if (!file) {
+    setSelectedFile(null);
+    return;
+  }
+
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+  if (!allowedTypes.includes(file.type)) {
+    toast.error('Chỉ cho phép file ảnh (.jpg, .jpeg, .png, .webp)!');
+    e.target.value = '';
+    return;
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    toast.error('Ảnh vượt quá dung lượng cho phép (tối đa 10MB)!');
+    e.target.value = '';
+    return;
+  }
+
+  setSelectedFile({
+    name: file.name,
+    url: URL.createObjectURL(file),
+    file: file,
+  });
+
+  setActiveTab('preview');
+  };
+
 
     const handleTabClick = (tab: 'upload' | 'preview') => {
     setActiveTab(tab);
@@ -252,7 +272,7 @@ const EditPaymentMethod = () => {
                 type="radio"
                 name="status"
                 value="false"
-                checked={isActive === false}
+                checked={isActive == false}
                 onChange={() => setIsActive(false)}
                 className={styles.radioInput}
               />

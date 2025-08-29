@@ -1,6 +1,5 @@
 "use client";
 
-
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Nav, Button, Form } from 'react-bootstrap';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
@@ -68,7 +67,7 @@ export default function AdminDashboardPage() {
       }));
       setTopSellingProducts(top3Selling);
 
-      const sortedByDate = [...products].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      const sortedByDate = [...products].filter(p => p.quantity > 1).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       const top3Recent = sortedByDate.slice(0, 3).map(p => ({
         _id: p._id,
         name: p.name,
@@ -149,10 +148,11 @@ export default function AdminDashboardPage() {
     return date.getMonth() == selectedMonth && date.getFullYear() == selectedYear;
   });
   setTotalOrdersInSelectedMonth(filtered.length);
-  
-  // Reset currentPage về 1 khi thay đổi tháng hoặc năm
-  setCurrentPage(1);
   }, [selectedMonth, orders, selectedYear]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedMonth, selectedYear]);
 
   const chartData = monthlyRevenue;
   const totalRevenue = chartData.reduce((sum, entry) => sum + entry.value, 0);
@@ -163,40 +163,47 @@ export default function AdminDashboardPage() {
   };
 
   const filteredOrdersByMonth = orders.filter((order) => {
-  const date = new Date(order.created_at);
-  return date.getMonth() == selectedMonth && date.getFullYear() == selectedYear;
+    const date = new Date(order.created_at);
+    return date.getMonth() == selectedMonth && date.getFullYear() == selectedYear;
   });
 
   const ordersPerPage = 3;
   const [currentPage, setCurrentPage] = useState(1);
   
-  const totalPages = Math.max(1, Math.ceil(filteredOrdersByMonth.length / ordersPerPage));
-  
-  // Đảm bảo currentPage không vượt quá totalPages
-  const safeCurrentPage = Math.min(currentPage, totalPages);
-  
-  // Reset currentPage nếu nó vượt quá totalPages
-  useEffect(() => {
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(1);
-    }
-  }, [currentPage, totalPages]);
-  
-  const indexOfLastOrder = safeCurrentPage * ordersPerPage;
+  const totalPages = Math.ceil(filteredOrdersByMonth.length / ordersPerPage);
+  const indexOfLastOrder = currentPage * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
   const displayRecentOrders = filteredOrdersByMonth.slice(indexOfFirstOrder, indexOfLastOrder);
   
+  // Debug log để kiểm tra
+  console.log('Debug phân trang:', {
+    selectedMonth: selectedMonth + 1,
+    selectedYear,
+    totalOrders: orders.length,
+    filteredOrdersCount: filteredOrdersByMonth.length,
+    currentPage,
+    totalPages,
+    ordersPerPage
+  });
+  
   const handlePrevPage = () => {
-    if (safeCurrentPage > 1) {
-      setCurrentPage(safeCurrentPage - 1);
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
     }
   };
   
   const handleNextPage = () => {
-    if (safeCurrentPage < totalPages) {
-      setCurrentPage(safeCurrentPage + 1);
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
     }
   };
+
+  // Đảm bảo currentPage không vượt quá totalPages
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
   const statusMap: Record<string, string> = {
     choXuLy: 'Chờ xử lý',
     dangXuLy: 'Đang xử lý',
@@ -419,7 +426,12 @@ export default function AdminDashboardPage() {
                 Trong tháng <strong>{selectedMonth + 1}</strong>, có <strong style={{color: "var(--accent-color)"}}>{totalOrdersInSelectedMonth}</strong> đơn hàng.
               </Card.Text>
 
-              {displayRecentOrders.map((order, index) => (
+              {filteredOrdersByMonth.length === 0 ? (
+                <div className="text-center text-muted py-4">
+                  <p>Không có đơn hàng nào trong tháng {selectedMonth + 1}/{selectedYear}</p>
+                </div>
+              ) : (
+                displayRecentOrders.map((order, index) => (
                 <div key={index} className="mb-2 order-item">
                   <p className="order-customer-name"><strong>{order.customerName}</strong></p>
                   <p className="mb-0">Mã đơn hàng: <span className="text-muted">{order.orderId}</span></p>
@@ -455,28 +467,37 @@ export default function AdminDashboardPage() {
                   </p>
                   <p className="mb-0">Ngày tạo: <span className="text-muted">{new Date(order.created_at!).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })}</span></p>
                 </div>
-              ))}
+              ))
+              )}
               <div className="mt-3 d-flex justify-content-between align-items-center">
-                  <span>Trang {safeCurrentPage} trong {totalPages}</span>
-                  <div>
-                      <Button
-                          variant="outline-secondary"
-                          size="sm"
-                          className="me-2"
-                          onClick={handlePrevPage}
-                          disabled={safeCurrentPage == 1}
-                      >
-                          Trước
-                      </Button>
-                      <Button
-                          variant="outline-secondary"
-                          size="sm"
-                          onClick={handleNextPage}
-                          disabled={safeCurrentPage == totalPages}
-                      >
-                          Sau
-                      </Button>
-                  </div>
+                  <span>
+                    {filteredOrdersByMonth.length > 0 ? (
+                      `Trang ${currentPage} trong ${totalPages} (${filteredOrdersByMonth.length} đơn hàng)`
+                    ) : (
+                      'Không có đơn hàng nào trong tháng này'
+                    )}
+                  </span>
+                  {filteredOrdersByMonth.length > 0 && (
+                    <div>
+                        <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            className="me-2"
+                            onClick={handlePrevPage}
+                            disabled={currentPage <= 1}
+                        >
+                            Trước
+                        </Button>
+                        <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            onClick={handleNextPage}
+                            disabled={currentPage >= totalPages}
+                        >
+                            Sau
+                        </Button>
+                    </div>
+                  )}
               </div>
           </Card.Body>
         </Card>

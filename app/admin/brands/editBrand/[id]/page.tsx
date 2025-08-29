@@ -124,40 +124,39 @@ const EditBrand = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-      if (!allowedTypes.includes(file.type)) {
-        toast.error('Vui lòng chọn file ảnh hợp lệ (JPG, PNG, GIF, WebP)');
-        return;
-      }
+  if (file) {
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  const maxSize = 10 * 1024 * 1024;
 
-      const maxSize = 5 * 1024 * 1024;
-      if (file.size > maxSize) {
-        toast.error('Kích thước file không được vượt quá 5MB');
-        return;
-      }
+  if (!allowedTypes.includes(file.type)) {
+    toast.error('Chỉ cho phép file ảnh (.jpg, .jpeg, .png, .webp)!');
+    setErrors(prev => ({ ...prev, image: 'Chỉ cho phép file ảnh (.jpg, .jpeg, .png, .webp)!' }));
+    return;
+  }
 
-      setSelectedFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-      setActiveTab('preview');
+  if (file.size > maxSize) {
+    toast.error('Ảnh vượt quá dung lượng cho phép (tối đa 10MB)!');
+    setErrors(prev => ({ ...prev, image: 'Ảnh vượt quá dung lượng cho phép (tối đa 10MB)!' }));
+    return;
+  }
 
-      if (!alt) {
-        const altText = file.name.split('.')[0].replace(/[-_]/g, ' ');
-        setAlt(altText);
-      }
+  const url = URL.createObjectURL(file);
+  setSelectedFile(file);
+  setPreviewUrl(url);
+  setActiveTab('preview');
 
-      if (errors.image) {
-        setErrors(prev => ({
-          ...prev,
-          image: ''
-        }));
-      }
+  if (!alt) {
+    const altText = file.name.split('.')[0].replace(/[-_]/g, ' ');
+    setAlt(altText);
+  }
 
-      toast.success(`Đã chọn file: ${file.name}`);
+  setErrors(prev => ({ ...prev, image: '' }));
 
-      return () => URL.revokeObjectURL(url);
-    }
+  toast.success(`Đã chọn file: ${file.name}`);
+
+  return () => URL.revokeObjectURL(url);
+  }
+
   };
 
   const handleTabClick = (tab: string) => {
@@ -203,19 +202,19 @@ const EditBrand = () => {
   }
 
   if (selectedFile) {
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(selectedFile.type)) {
-      newErrors.image = 'Vui lòng chọn file ảnh hợp lệ (JPG, PNG, GIF, WebP)';
-    } else {
-      const maxSize = 5 * 1024 * 1024;
-      if (selectedFile.size > maxSize) {
-        newErrors.image = 'Kích thước file không được vượt quá 5MB';
-      }
-      const minSize = 1024;
-      if (selectedFile.size < minSize) {
-        newErrors.image = 'Kích thước file quá nhỏ (tối thiểu 1KB)';
-      }
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  if (!allowedTypes.includes(selectedFile.type)) {
+    newErrors.image = 'Chỉ cho phép file ảnh (.jpg, .jpeg, .png, .webp)!';
+  } else {
+    const maxSize = 10 * 1024 * 1024;
+    if (selectedFile.size > maxSize) {
+      newErrors.image = 'Ảnh vượt quá dung lượng cho phép (tối đa 10MB)!';
     }
+    const minSize = 1024;
+    if (selectedFile.size < minSize) {
+      newErrors.image = 'Kích thước file quá nhỏ (tối thiểu 1KB)';
+    }
+  }
   }
 
   if (!status || (status != '0' && status != '1')) {

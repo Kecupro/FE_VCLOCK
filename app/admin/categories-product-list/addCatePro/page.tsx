@@ -25,11 +25,25 @@ const AddCatePro = () => {
   }, [isDarkMode]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setSelectedFile(file);
-    if (file) {
-      setActiveTab('preview');
+  const file = e.target.files?.[0] || null;
+
+  if (file) {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const maxSize = 10 * 1024 * 1024;
+
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Chỉ cho phép file ảnh (.jpg, .jpeg, .png, .webp)!');
+      return;
     }
+
+    if (file.size > maxSize) {
+      toast.error('Ảnh vượt quá dung lượng cho phép (tối đa 10MB)!');
+      return;
+    }
+
+    setSelectedFile(file);
+    setActiveTab('preview');
+  }
   };
 
   const handleTabClick = (tab: 'upload' | 'preview') => {

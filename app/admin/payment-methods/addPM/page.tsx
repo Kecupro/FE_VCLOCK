@@ -1,7 +1,5 @@
 "use client";
 
-
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useAppContext } from '../../../context/AppContext';
 import { useRouter } from 'next/navigation';
@@ -31,14 +29,36 @@ const AddPaymentMethodPage = () => {
   }, [isDarkMode]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setSelectedFile(file);
-    if (file) setActiveTab('preview');
+  const file = e.target.files?.[0] || null;
+
+  if (!file) {
+    setSelectedFile(null);
+    return;
+  }
+
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+  if (!allowedTypes.includes(file.type)) {
+    toast.error('Chỉ cho phép file ảnh (.jpg, .jpeg, .png, .webp)!');
+    e.target.value = '';
+    setSelectedFile(null);
+    return;
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    toast.error('Ảnh vượt quá dung lượng cho phép (tối đa 10MB)!');
+    e.target.value = '';
+    setSelectedFile(null);
+    return;
+  }
+
+  setSelectedFile(file);
+  setActiveTab('preview');
   };
 
   const handleTabClick = (tab: 'upload' | 'preview') => {
     setActiveTab(tab);
-    if (tab === 'upload') document.getElementById('fileInput')?.click();
+    if (tab == 'upload') document.getElementById('fileInput')?.click();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -143,14 +163,14 @@ const AddPaymentMethodPage = () => {
             <div className={styles.imageTabs}>
               <button
                 type="button"
-                className={`${styles.imageTab} ${activeTab === 'upload' ? styles.imageTabActive : ''}`}
+                className={`${styles.imageTab} ${activeTab == 'upload' ? styles.imageTabActive : ''}`}
                 onClick={() => handleTabClick('upload')}
               >
                 Chọn tệp
               </button>
               <button
                 type="button"
-                className={`${styles.imageTab} ${activeTab === 'preview' ? styles.imageTabActive : ''}`}
+                className={`${styles.imageTab} ${activeTab == 'preview' ? styles.imageTabActive : ''}`}
                 onClick={() => handleTabClick('preview')}
               >
                 {selectedFile ? selectedFile.name : 'Chưa có tệp nào được chọn'}
@@ -162,7 +182,7 @@ const AddPaymentMethodPage = () => {
                 onChange={handleFileChange}
                 style={{ display: 'none' }}
               />
-              {selectedFile && activeTab === 'preview' && (
+              {selectedFile && activeTab == 'preview' && (
                 <div className={styles.imagePreview}>
                   <Image
                     src={URL.createObjectURL(selectedFile)}
@@ -185,7 +205,7 @@ const AddPaymentMethodPage = () => {
                 type="radio"
                 name="status"
                 value="true"
-                checked={status === true}
+                checked={status == true}
                 onChange={() => setStatus(true)}
                 className={styles.radioInput}
               />
@@ -196,7 +216,7 @@ const AddPaymentMethodPage = () => {
                 type="radio"
                 name="status"
                 value="false"
-                checked={status === false}
+                checked={status == false}
                 onChange={() => setStatus(false)}
                 className={styles.radioInput}
               />

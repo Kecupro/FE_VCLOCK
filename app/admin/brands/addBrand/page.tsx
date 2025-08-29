@@ -62,32 +62,51 @@ const AddBrand = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setSelectedFile(file);
-    
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-      setActiveTab('preview');
-      
-      if (!formData.alt) {
-        const altText = file.name.split('.')[0].replace(/[-_]/g, ' ');
-        setFormData(prev => ({
-          ...prev,
-          alt: altText
-        }));
-      }
+  const file = e.target.files?.[0] || null;
 
-      toast.success(`Đã chọn file: ${file.name}`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    }
+  if (!file) {
+    setSelectedFile(null);
+    setPreviewUrl('');
+    return;
+  }
+
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  if (!allowedTypes.includes(file.type)) {
+    toast.error('❌ Chỉ cho phép file ảnh (.jpg, .jpeg, .png, .webp)!');
+    e.target.value = '';
+    return;
+  }
+
+  const maxSize = 10 * 1024 * 1024;
+  if (file.size > maxSize) {
+    toast.error('❌ Ảnh vượt quá dung lượng cho phép (tối đa 10MB)!');
+    e.target.value = '';
+    return;
+  }
+
+  setSelectedFile(file);
+  const url = URL.createObjectURL(file);
+  setPreviewUrl(url);
+  setActiveTab('preview');
+
+  if (!formData.alt) {
+    const altText = file.name.split('.')[0].replace(/[-_]/g, ' ');
+    setFormData(prev => ({
+      ...prev,
+      alt: altText
+    }));
+  }
+
+  toast.success(`✅ Đã chọn file: ${file.name}`, {
+    position: "top-right",
+    autoClose: 3000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+  });
   };
+
 
   const handleTabClick = (tab: 'upload' | 'preview') => {
     setActiveTab(tab);
